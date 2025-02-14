@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS questions (
 -- Options Table
 CREATE TABLE IF NOT EXISTS options (
     option_id SERIAL PRIMARY KEY,
-    option_text TEXT NOT NULL
+    option_text TEXT NOT NULL UNIQUE
 );
 
 -- Quiz Attempts Table

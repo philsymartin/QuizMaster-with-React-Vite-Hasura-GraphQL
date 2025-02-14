@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BookOpen, Clock, Star, Users } from 'lucide-react';
 import { useQuery } from '@apollo/client';
-import { GET_QUIZZES } from '../../../api/queries/quizzes';
+import { GET_QUIZZES_BASIC } from '../../../api/queries/quizzes';
 
 interface QuizType {
   id: string;
@@ -15,8 +15,8 @@ interface QuizType {
 }
 
 const QuizzesPage = () => {
-  const { loading, error, data } = useQuery(GET_QUIZZES, {
-    fetchPolicy: 'cache-and-network', // Ensures fresh data while showing cached data
+  const { loading, error, data } = useQuery(GET_QUIZZES_BASIC, {
+    fetchPolicy: 'cache-and-network',
   });
 
   const container = {

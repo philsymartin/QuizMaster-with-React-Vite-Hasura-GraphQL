@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const GET_QUIZZES = gql`
+export const GET_QUIZZES_BASIC = gql`
     query GetQuizzes {
       quizzes {
         quiz_id
@@ -51,3 +51,46 @@ export const GET_QUIZ_DETAILS = gql`
     }
   }
   `;
+
+
+export const GET_QUIZZES_WITH_TOPICS = gql`
+query GetQuizzes {
+    quizzes {
+        quiz_id
+        title
+        description
+        created_at
+        updated_at
+        difficulty
+        time_limit_minutes
+        total_questions
+        participants_count
+        average_rating
+        quiz_topics {
+            topic {
+                topic_id
+                topic_name
+            }
+        }
+    }
+}
+`;
+
+export const GET_QUIZ_QUESTIONS = gql`
+    query GetQuizQuestions($quiz_id: Int!) {
+        questions(where: { quiz_id: { _eq: $quiz_id } }) {
+            question_id
+            quiz_id
+            question_text
+            question_type
+            created_at
+            question_options {
+                option {
+                    option_id
+                    option_text
+                }
+                is_correct
+            }
+        }
+    }
+`;

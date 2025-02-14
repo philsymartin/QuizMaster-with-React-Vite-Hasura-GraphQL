@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import authReducer from './auth/authSlice';
+import quizReducer from './quiz/quizSlice';
 import rootSaga from './rootSaga';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -9,7 +10,7 @@ import storage from 'redux-persist/lib/storage';
 const persistConfig = {
     key: 'auth',
     storage, // Use the localStorage as the storage mechanism
-    whitelist: ['user', 'isAuthenticated', 'tokenExpiration'], // Specify which parts of the state to persist
+    whitelist: ['user', 'isAuthenticated', 'tokenExpiration'],
 };
 
 // Persisted reducer for auth
@@ -25,7 +26,8 @@ const sagaMiddleware = createSagaMiddleware();
 
 const store = configureStore({
     reducer: {
-        auth: persistedAuthReducer
+        auth: persistedAuthReducer,
+        quiz: quizReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -46,3 +48,4 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export { store, persistor };
+
