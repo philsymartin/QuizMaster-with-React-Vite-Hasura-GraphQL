@@ -94,3 +94,35 @@ export const GET_QUIZ_QUESTIONS = gql`
         }
     }
 `;
+
+// Questions
+export const GET_SINGLE_QUESTION = gql`
+    query GetSingleQuestion($question_id: Int!) {
+        questions(where: { question_id: { _eq: $question_id } }) {
+            question_id
+            quiz_id
+            question_text
+            question_type
+            created_at
+            question_options {
+                option {
+                    option_id
+                    option_text
+                }
+                is_correct
+            }
+        }
+    }
+`;
+
+// options 
+export const GET_OPTIONS = gql`
+    query GetOptions($optionTexts: [String!]!) {
+        options(where: {
+            option_text: {_in: $optionTexts}
+        }) {
+            option_id
+            option_text
+        }
+    }
+`;

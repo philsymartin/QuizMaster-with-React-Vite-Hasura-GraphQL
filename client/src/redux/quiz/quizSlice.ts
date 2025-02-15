@@ -1,5 +1,5 @@
 import { createAction, createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Question, Quiz } from '../../types/quiz';
+import { EditQuestionPayload, NewQuestion, Question, Quiz } from '../../types/quiz';
 
 interface QuizState {
     quizzes: Quiz[];
@@ -7,6 +7,14 @@ interface QuizState {
     error: string | null;
     selectedQuiz: Quiz | null;
     questions: Question[];
+    addQuestionModalOpen: boolean;
+    addQuestionLoading: boolean;
+    addQuestionError: string | null;
+    deleteQuestionLoading: boolean;
+    deleteQuestionError: string | null;
+    editingQuestion: Question | null;
+    isEditing: boolean;
+
 }
 
 const initialState: QuizState = {
@@ -14,7 +22,14 @@ const initialState: QuizState = {
     loading: false,
     error: null,
     selectedQuiz: null,
-    questions: []
+    questions: [],
+    addQuestionModalOpen: false,
+    addQuestionLoading: false,
+    addQuestionError: null,
+    deleteQuestionLoading: false,
+    deleteQuestionError: null,
+    editingQuestion: null,
+    isEditing: false,
 };
 
 const quizSlice = createSlice({
@@ -46,6 +61,64 @@ const quizSlice = createSlice({
         clearQuizState: (state) => {
             return initialState;
         },
+        openAddQuestionModal: (state) => {
+            state.addQuestionModalOpen = true;
+            state.addQuestionError = null;
+        },
+        closeAddQuestionModal: (state) => {
+            state.addQuestionModalOpen = false;
+            state.addQuestionError = null;
+            state.editingQuestion = null;
+            state.isEditing = false;
+        },
+        addQuestionRequest: (state, action: PayloadAction<NewQuestion>) => {
+            state.addQuestionLoading = true;
+            state.addQuestionError = null;
+        },
+        addQuestionSuccess: (state, action: PayloadAction<Question>) => {
+            state.questions = [...state.questions, action.payload];
+            state.addQuestionLoading = false;
+            state.addQuestionModalOpen = false;
+        },
+        addQuestionFailure: (state, action: PayloadAction<string>) => {
+            state.addQuestionLoading = false;
+            state.addQuestionError = action.payload;
+        },
+        deleteQuestionRequest: (state, action: PayloadAction<number>) => {
+            state.deleteQuestionLoading = true;
+            state.deleteQuestionError = null;
+        },
+        deleteQuestionSuccess: (state, action: PayloadAction<number>) => {
+            state.questions = state.questions.filter(
+                question => question.question_id !== action.payload
+            );
+            state.deleteQuestionLoading = false;
+        },
+        deleteQuestionFailure: (state, action: PayloadAction<string>) => {
+            state.deleteQuestionLoading = false;
+            state.deleteQuestionError = action.payload;
+        },
+        editQuestionRequest: (state, action: PayloadAction<EditQuestionPayload>) => {
+            state.addQuestionLoading = true;
+            state.addQuestionError = null;
+        },
+        setEditingQuestion: (state, action: PayloadAction<Question | null>) => {
+            state.editingQuestion = action.payload;
+            state.isEditing = action.payload !== null;
+        },
+        editQuestionSuccess: (state, action: PayloadAction<Question>) => {
+            state.questions = state.questions.map(question =>
+                question.question_id === action.payload.question_id
+                    ? action.payload
+                    : question
+            );
+            state.addQuestionLoading = false;
+            state.addQuestionModalOpen = false;
+        },
+        editQuestionFailure: (state, action: PayloadAction<string>) => {
+            state.addQuestionLoading = false;
+            state.addQuestionError = action.payload;
+        },
     }
 });
 
@@ -65,6 +138,13 @@ export const selectQuizWithDetails = (state: { quiz: QuizState }) => {
         questions
     } : null;
 };
+export const selectAddQuestionModalOpen = (state: { quiz: QuizState }) => state.quiz.addQuestionModalOpen;
+export const selectAddQuestionLoading = (state: { quiz: QuizState }) => state.quiz.addQuestionLoading;
+export const selectAddQuestionError = (state: { quiz: QuizState }) => state.quiz.addQuestionError;
+export const selectDeleteQuestionLoading = (state: { quiz: QuizState }) => state.quiz.deleteQuestionLoading;
+export const selectDeleteQuestionError = (state: { quiz: QuizState }) => state.quiz.deleteQuestionError;
+export const selectEditingQuestion = (state: { quiz: QuizState }) => state.quiz.editingQuestion;
+export const selectIsEditing = (state: { quiz: QuizState }) => state.quiz.isEditing;
 
 export const {
     fetchQuizzesRequest,
@@ -72,7 +152,19 @@ export const {
     fetchQuizzesFailure,
     setSelectedQuiz,
     fetchQuestionsSuccess,
-    clearQuizState
+    clearQuizState,
+    openAddQuestionModal,
+    closeAddQuestionModal,
+    addQuestionRequest,
+    addQuestionSuccess,
+    addQuestionFailure,
+    deleteQuestionRequest,
+    deleteQuestionSuccess,
+    deleteQuestionFailure,
+    editQuestionRequest,
+    editQuestionSuccess,
+    editQuestionFailure,
+    setEditingQuestion,
 } = quizSlice.actions;
 
 export const updateQuizSettings = createAction<{

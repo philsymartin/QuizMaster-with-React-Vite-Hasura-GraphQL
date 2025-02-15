@@ -16,7 +16,7 @@ export interface Question {
     question_id: number;
     quiz_id: number;
     question_text: string;
-    question_type: 'multiple_choice' | 'true_false' | 'text';
+    question_type: 'multiple_choice' | 'true_false';
     created_at: string;
     question_options?: QuestionOption[];
 }
@@ -87,4 +87,21 @@ export interface UserPerformance {
     total_attempts: number;
     correct_answers: number;
     average_score: number;
+}
+
+// for insertion of new question 
+export interface NewQuestionOption {
+    option_text: string;
+    is_correct: boolean;
+}
+
+export interface NewQuestion {
+    quiz_id: number;
+    question_text: string;
+    question_type: 'multiple_choice' | 'true_false';
+    options: NewQuestionOption[];
+}
+
+export interface EditQuestionPayload extends NewQuestion {
+    question_id: number;
 }
