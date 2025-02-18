@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import createSagaMiddleware from 'redux-saga';
 import authReducer from './auth/authSlice';
 import quizReducer from './quiz/quizSlice';
+import quizAttemptReducer from './quiz_attempt/quizAttemptSlice';
 import rootSaga from './rootSaga';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -28,6 +29,7 @@ const store = configureStore({
     reducer: {
         auth: persistedAuthReducer,
         quiz: quizReducer,
+        quizAttempt: quizAttemptReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({

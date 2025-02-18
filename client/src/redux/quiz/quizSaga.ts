@@ -6,7 +6,6 @@ import {
     fetchQuestionsSuccess,
     fetchQuizzesRequest,
     setSelectedQuiz,
-    updateQuizSettings,
     addQuestionRequest,
     addQuestionSuccess,
     addQuestionFailure,
@@ -17,9 +16,12 @@ import {
     editQuestionRequest,
     editQuestionSuccess,
     editQuestionFailure,
+    updateQuizSettings,
+    updateQuizSettingsSuccess,
+    updateQuizSettingsFailure,
 } from './quizSlice';
 import { GET_OPTIONS, GET_QUIZZES_WITH_TOPICS, GET_QUIZ_QUESTIONS, GET_SINGLE_QUESTION } from '../../api/queries/quizzes';
-import { ADD_QUESTION_AND_OPTIONS, LINK_QUESTION_OPTIONS, DELETE_QUESTION, GET_QUESTION_OPTIONS, DELETE_QUESTION_OPTIONS, CHECK_OPTION_USAGE, DELETE_OPTION, UPDATE_QUESTION, UPDATE_QUESTION_OPTIONS, INSERT_NEW_OPTIONS, UPDATE_QUIZ_SETTINGS } from '../../api/mutations/questionsMutate';
+import { ADD_QUESTION_AND_OPTIONS, LINK_QUESTION_OPTIONS, DELETE_QUESTION, GET_QUESTION_OPTIONS, DELETE_QUESTION_OPTIONS, CHECK_OPTION_USAGE, DELETE_OPTION, UPDATE_QUESTION, INSERT_NEW_OPTIONS, UPDATE_QUIZ_SETTINGS } from '../../api/mutations/questionsMutate';
 import { Question, QuestionOption, Quiz, Option } from '../../types/quiz';
 import { ApolloQueryResult, FetchResult } from '@apollo/client';
 
@@ -89,19 +91,57 @@ function* fetchQuizzesSaga() {
     }
 }
 
+// function* fetchQuizQuestionsSaga(action: ReturnType<typeof setSelectedQuiz>) {
+//     try {
+//         const variables: QuizQueryVariables = {
+//             quiz_id: action.payload.quiz_id
+//         };
+
+//         const response: ApolloQueryResult<QuestionsQueryResponse> = yield call(
+//             [client, client.query],
+//             {
+//                 query: GET_QUIZ_QUESTIONS,
+//                 variables
+//             }
+//         );
+
+//         const formattedQuestions = response.data.questions.map((question) => ({
+//             ...question,
+//             question_options: question.question_options.map((qOption) => ({
+//                 ...qOption,
+//                 option: qOption.option
+//             }))
+//         }));
+
+//         yield put(fetchQuestionsSuccess(formattedQuestions));
+//     } catch (error) {
+//         console.error('Error fetching questions:', error instanceof Error ? error.message : error);
+//     }
+// }
 function* fetchQuizQuestionsSaga(action: ReturnType<typeof setSelectedQuiz>) {
     try {
+        const token = localStorage.getItem('authToken');
+        console.log('Using token:', token); // Debug token
+
         const variables: QuizQueryVariables = {
             quiz_id: action.payload.quiz_id
         };
+
+        // Log the full request configuration
+        console.log('Request config:', {
+            query: GET_QUIZ_QUESTIONS,
+            variables
+        });
 
         const response: ApolloQueryResult<QuestionsQueryResponse> = yield call(
             [client, client.query],
             {
                 query: GET_QUIZ_QUESTIONS,
-                variables
+                variables,
             }
         );
+
+        console.log('Response:', response); // Debug response
 
         const formattedQuestions = response.data.questions.map((question) => ({
             ...question,
@@ -113,7 +153,8 @@ function* fetchQuizQuestionsSaga(action: ReturnType<typeof setSelectedQuiz>) {
 
         yield put(fetchQuestionsSuccess(formattedQuestions));
     } catch (error) {
-        console.error('Error fetching questions:', error instanceof Error ? error.message : error);
+        console.error('Error fetching questions:', error);
+        console.error('Full error object:', JSON.stringify(error, null, 2));
     }
 }
 
@@ -129,12 +170,15 @@ function* updateQuizSettingsSaga(action: ReturnType<typeof updateQuizSettings>) 
                 }
             }
         });
-        if (response.data) {
-            // Refresh quiz data
-            yield put(fetchQuizzesRequest());
+        if (response.data && response.data.update_quizzes_by_pk) {
+            // Return the updated quiz
+            yield put(updateQuizSettingsSuccess(response.data.update_quizzes_by_pk));
+        } else {
+            throw new Error('Failed to update quiz settings');
         }
     } catch (error) {
-        console.error('Error updating quiz settings:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        yield put(updateQuizSettingsFailure(errorMessage));
     }
 }
 
@@ -202,7 +246,6 @@ function* addQuestionSaga(action: ReturnType<typeof addQuestionRequest>) {
 function* deleteQuestionSaga(action: ReturnType<typeof deleteQuestionRequest>) {
     try {
         const questionId = action.payload;
-
         // 1. Get all options associated with the question
         const optionsResult: ApolloQueryResult<{ question_options: { option_id: number }[] }> =
             yield call([client, client.query], {
@@ -407,7 +450,7 @@ function* editQuestionSaga(action: ReturnType<typeof editQuestionRequest>) {
 export function* watchQuizSaga() {
     yield takeLatest(fetchQuizzesRequest.type, fetchQuizzesSaga);
     yield takeLatest(setSelectedQuiz.type, fetchQuizQuestionsSaga);
-    yield takeLatest(setSelectedQuiz.type, updateQuizSettingsSaga);
+    yield takeLatest(updateQuizSettings.type, updateQuizSettingsSaga);
     yield takeLatest(addQuestionRequest.type, addQuestionSaga);
     yield takeLatest(deleteQuestionRequest.type, deleteQuestionSaga);
     yield takeLatest(editQuestionRequest.type, editQuestionSaga);

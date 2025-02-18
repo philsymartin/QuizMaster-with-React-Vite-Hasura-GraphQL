@@ -6,7 +6,7 @@ import { ApolloProvider } from '@apollo/client';
 import { store, persistor } from '../redux/store';
 import { client } from '../services/hasuraApi';
 import { ThemeProvider } from '../components/utils/ThemeProvider';
-import LoadingSpinner from '../components/components/LoadingSpinner';
+import LoadingSpinner from '../components/utils/LoadingSpinner';
 
 interface ProvidersProps {
     children: ReactNode;

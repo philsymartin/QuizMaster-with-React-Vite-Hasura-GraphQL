@@ -16,7 +16,8 @@ function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect
         if (response.user && response.expiresIn) {
             yield put(loginSuccess({
                 user: response.user,
-                expiresIn: response.expiresIn
+                expiresIn: response.expiresIn,
+                accessToken: response.accessToken,
             }));
         } else {
             yield put(loginFailure('Invalid response from server'));
@@ -31,7 +32,8 @@ function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
         const response: RefreshTokenResponse = yield call(refreshToken);
         if (response.expiresIn) {
             yield put(refreshTokenSuccess({
-                expiresIn: response.expiresIn
+                expiresIn: response.expiresIn,
+                accessToken: response.accessToken,
             }));
         } else {
             yield put(refreshTokenFailure('Failed to refresh token'));

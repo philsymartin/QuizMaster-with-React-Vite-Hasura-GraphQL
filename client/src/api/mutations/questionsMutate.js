@@ -43,61 +43,6 @@ export const LINK_QUESTION_OPTIONS = gql`
         }
     }
 `;
-// export const GET_UNUSED_OPTIONS = gql`
-//     query GetUnusedOptions($question_id: Int!) {
-//         options(where: {
-//             _not: {
-//                 question_options: {
-//                     question_id: { _neq: $question_id }
-//                 }
-//             }
-//         }) {
-//             option_id
-//         }
-//     }
-// `;
-// export const DELETE_QUESTION = gql`
-//     mutation DeleteQuestion($question_id: Int!) {
-//         # First delete the question_options
-//         delete_question_options(where: {
-//             question_id: { _eq: $question_id }
-//         }) {
-//             affected_rows
-//         }
-
-//         # Delete orphaned options using a more reliable subquery
-//         delete_options(where: {
-//             option_id: {
-//                 _in: (
-//                     SELECT o.option_id 
-//                     FROM options o
-//                     LEFT JOIN question_options qo ON o.option_id = qo.option_id
-//                     GROUP BY o.option_id
-//                     HAVING COUNT(qo.question_id) <= 1
-//                     AND EXISTS (
-//                         SELECT 1 
-//                         FROM question_options 
-//                         WHERE question_id = $question_id 
-//                         AND option_id = o.option_id
-//                     )
-//                 )
-//             }
-//         }) {
-//             affected_rows
-//             returning {
-//                 option_id
-//                 option_text
-//             }
-//         }
-
-//         # Finally delete the question
-//         delete_questions_by_pk(question_id: $question_id) {
-//             question_id
-//             question_text
-//         }
-//     }
-// `;
-
 export const GET_QUESTION_OPTIONS = gql`
     query GetQuestionOptions($question_id: Int!) {
         question_options(where: { question_id: { _eq: $question_id } }) {
@@ -142,6 +87,7 @@ export const DELETE_QUESTION = gql`
         delete_questions_by_pk(question_id: $question_id) {
             question_id
             question_text
+            quiz_id
         }
     }
 `;
@@ -236,6 +182,43 @@ export const UPDATE_QUIZ_SETTINGS = gql`
             difficulty
             time_limit_minutes
             updated_at
+        }
+    }
+`;
+export const START_QUIZ_ATTEMPT = gql`
+    mutation StartQuizAttempt($quiz_id: Int!, $user_email: String!, $start_time: timestamptz!) {
+        insert_quiz_attempts_one(object: {
+            quiz_id: $quiz_id,
+            user_email: $user_email,
+            start_time: $start_time
+        }) {
+            attempt_id
+            start_time
+        }
+    }
+`;
+export const SUBMIT_QUIZ_ATTEMPT = gql`
+    mutation SubmitQuizAttempt(
+        $attempt_id: Int!,
+        $answers: [answers_insert_input!]!,
+        $end_time: timestamptz!,
+        $score: numeric!,
+        $user_email: String!
+    ) {
+        update_quiz_attempts_by_pk(
+            pk_columns: { attempt_id: $attempt_id },
+            _set: { 
+                end_time: $end_time,
+                score: $score,
+                user_email: $user_email
+            }
+        ) {
+            attempt_id
+            score
+            end_time
+        }
+        insert_answers(objects: $answers) {
+            affected_rows
         }
     }
 `;

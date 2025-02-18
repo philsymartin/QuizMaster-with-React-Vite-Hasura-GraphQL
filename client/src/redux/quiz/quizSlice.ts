@@ -14,7 +14,8 @@ interface QuizState {
     deleteQuestionError: string | null;
     editingQuestion: Question | null;
     isEditing: boolean;
-
+    updateSettingsLoading: boolean;
+    updateSettingsError: string | null;
 }
 
 const initialState: QuizState = {
@@ -30,6 +31,8 @@ const initialState: QuizState = {
     deleteQuestionError: null,
     editingQuestion: null,
     isEditing: false,
+    updateSettingsLoading: false,
+    updateSettingsError: null,
 };
 
 const quizSlice = createSlice({
@@ -119,6 +122,27 @@ const quizSlice = createSlice({
             state.addQuestionLoading = false;
             state.addQuestionError = action.payload;
         },
+        updateQuizSettingsRequest: (state, action: PayloadAction<{
+            quizId: number;
+            field: string;
+            value: string | number;
+        }>) => {
+            state.updateSettingsLoading = true;
+            state.updateSettingsError = null;
+        },
+        updateQuizSettingsSuccess: (state, action: PayloadAction<Quiz>) => {
+            state.updateSettingsLoading = false;
+            if (state.selectedQuiz && state.selectedQuiz.quiz_id === action.payload.quiz_id) {
+                state.selectedQuiz = action.payload;
+            }
+            state.quizzes = state.quizzes.map(quiz =>
+                quiz.quiz_id === action.payload.quiz_id ? action.payload : quiz
+            );
+        },
+        updateQuizSettingsFailure: (state, action: PayloadAction<string>) => {
+            state.updateSettingsLoading = false;
+            state.updateSettingsError = action.payload;
+        },
     }
 });
 
@@ -145,6 +169,8 @@ export const selectDeleteQuestionLoading = (state: { quiz: QuizState }) => state
 export const selectDeleteQuestionError = (state: { quiz: QuizState }) => state.quiz.deleteQuestionError;
 export const selectEditingQuestion = (state: { quiz: QuizState }) => state.quiz.editingQuestion;
 export const selectIsEditing = (state: { quiz: QuizState }) => state.quiz.isEditing;
+export const selectUpdateSettingsLoading = (state: { quiz: QuizState }) => state.quiz.updateSettingsLoading;
+export const selectUpdateSettingsError = (state: { quiz: QuizState }) => state.quiz.updateSettingsError;
 
 export const {
     fetchQuizzesRequest,
@@ -165,12 +191,15 @@ export const {
     editQuestionSuccess,
     editQuestionFailure,
     setEditingQuestion,
+    updateQuizSettingsRequest,
+    updateQuizSettingsSuccess,
+    updateQuizSettingsFailure,
 } = quizSlice.actions;
 
 export const updateQuizSettings = createAction<{
     quizId: number;
     field: string;
     value: string | number;
-}>('quiz/updateQuizSettings');
+}>('quiz/updateQuizSettingsRequest');
 
 export default quizSlice.reducer;

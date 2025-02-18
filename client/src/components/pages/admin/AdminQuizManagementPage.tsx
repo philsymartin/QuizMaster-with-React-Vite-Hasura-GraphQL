@@ -19,7 +19,7 @@ type BasicQuiz = Pick<Quiz,
 
 const AdminQuizManagementPage = () => {
     const { loading, error, data } = useQuery(GET_QUIZZES_BASIC, {
-        fetchPolicy: 'cache-and-network',
+        fetchPolicy: 'network-only',
     });
 
     const [searchTerm, setSearchTerm] = useState('');

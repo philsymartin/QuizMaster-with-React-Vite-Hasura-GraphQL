@@ -5,8 +5,8 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    role VARCHAR(255) DEFAULT 'user'
-    status VARCHAR(50) DEFAULT 'inactive';
+    role VARCHAR(255) DEFAULT 'user',
+    status VARCHAR(50) DEFAULT 'inactive',
     last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP;    
 
 );
@@ -154,19 +154,32 @@ FOR EACH ROW
 EXECUTE FUNCTION update_average_rating();
 
 -- Trigger to update total questions count in quizzes table
-CREATE OR REPLACE FUNCTION update_total_questions()
-RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION public.update_total_questions()
+ RETURNS trigger
+ LANGUAGE plpgsql
+AS $function$
 BEGIN
-    UPDATE quizzes
-    SET total_questions = (
-        SELECT COUNT(*)
-        FROM questions
-        WHERE quiz_id = NEW.quiz_id
-    )
-    WHERE quiz_id = NEW.quiz_id;
-    RETURN NEW;
+    IF TG_OP = 'INSERT' THEN
+        UPDATE quizzes
+        SET total_questions = (
+            SELECT COUNT(*)
+            FROM questions
+            WHERE quiz_id = NEW.quiz_id
+        )
+        WHERE quiz_id = NEW.quiz_id;
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE quizzes
+        SET total_questions = (
+            SELECT COUNT(*)
+            FROM questions
+            WHERE quiz_id = OLD.quiz_id
+        )
+        WHERE quiz_id = OLD.quiz_id;
+        RETURN OLD;
+    END IF;
 END;
-$$ LANGUAGE plpgsql;
+$function$
 
 CREATE TRIGGER trigger_update_total_questions
 AFTER INSERT OR DELETE ON questions

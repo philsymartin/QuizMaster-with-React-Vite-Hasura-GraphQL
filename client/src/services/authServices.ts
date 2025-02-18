@@ -2,17 +2,20 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 
 export interface LoginResponse {
     user: {
+        user_id: number;
         username: string;
         email: string;
         role: string;
     };
     expiresIn: number;
     message: string;
+    accessToken: string;
 }
 
 export interface RefreshTokenResponse {
     expiresIn: number;
     message: string;
+    accessToken: string;
 }
 
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {

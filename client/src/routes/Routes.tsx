@@ -15,6 +15,7 @@ import AdminLayout from '../components/layouts/AdminLayout';
 import AdminUserManagementPage from '../components/pages/admin/AdminUserManagementPage';
 import AdminQuizManagementPage from '../components/pages/admin/AdminQuizManagementPage';
 import ErrorPage from '../components/pages/public/ErrorPage';
+import AdminAnalyticsPage from '../components/pages/admin/AdminAnalyticsPage';
 
 const RoutesComponent: React.FC = () => {
     const router = createBrowserRouter([
@@ -53,6 +54,7 @@ const RoutesComponent: React.FC = () => {
             errorElement: <ErrorPage />,
             children: [
                 { path: "", element: <AdminDashboardPage /> },
+                { path: "analytics", element: <AdminAnalyticsPage /> },
                 { path: "users", element: <AdminUserManagementPage /> },
                 { path: "quizzes", element: <AdminQuizManagementPage /> },
             ],
