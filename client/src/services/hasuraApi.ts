@@ -80,7 +80,6 @@ const authLink = setContext((_, { headers }) => {
   if (!token) {
     return { headers };
   }
-
   const authHeaders: Record<string, string> = {
     ...headers,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),

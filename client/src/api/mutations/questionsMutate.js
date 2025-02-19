@@ -43,26 +43,6 @@ export const LINK_QUESTION_OPTIONS = gql`
         }
     }
 `;
-export const GET_QUESTION_OPTIONS = gql`
-    query GetQuestionOptions($question_id: Int!) {
-        question_options(where: { question_id: { _eq: $question_id } }) {
-            option_id
-        }
-    }
-`;
-
-export const CHECK_OPTION_USAGE = gql`
-    query CheckOptionUsage($option_id: Int!) {
-        question_options_aggregate(
-            where: { option_id: { _eq: $option_id } }
-        ) {
-            aggregate {
-                count
-            }
-        }
-    }
-`;
-
 export const DELETE_QUESTION_OPTIONS = gql`
     mutation DeleteQuestionOptions($question_id: Int!) {
         delete_question_options(where: { 
@@ -72,7 +52,6 @@ export const DELETE_QUESTION_OPTIONS = gql`
         }
     }
 `;
-
 export const DELETE_OPTION = gql`
     mutation DeleteOption($option_id: Int!) {
         delete_options_by_pk(option_id: $option_id) {
@@ -81,7 +60,6 @@ export const DELETE_OPTION = gql`
         }
     }
 `;
-
 export const DELETE_QUESTION = gql`
     mutation DeleteQuestion($question_id: Int!) {
         delete_questions_by_pk(question_id: $question_id) {
@@ -186,10 +164,10 @@ export const UPDATE_QUIZ_SETTINGS = gql`
     }
 `;
 export const START_QUIZ_ATTEMPT = gql`
-    mutation StartQuizAttempt($quiz_id: Int!, $user_email: String!, $start_time: timestamptz!) {
+    mutation StartQuizAttempt($quiz_id: Int!, $user_id: Int!, $start_time: timestamp!) {
         insert_quiz_attempts_one(object: {
             quiz_id: $quiz_id,
-            user_email: $user_email,
+            user_id: $user_id,
             start_time: $start_time
         }) {
             attempt_id
@@ -201,16 +179,16 @@ export const SUBMIT_QUIZ_ATTEMPT = gql`
     mutation SubmitQuizAttempt(
         $attempt_id: Int!,
         $answers: [answers_insert_input!]!,
-        $end_time: timestamptz!,
+        $end_time: timestamp!,
         $score: numeric!,
-        $user_email: String!
+        $user_id: Int!
     ) {
         update_quiz_attempts_by_pk(
             pk_columns: { attempt_id: $attempt_id },
             _set: { 
                 end_time: $end_time,
                 score: $score,
-                user_email: $user_email
+                user_id: $user_id
             }
         ) {
             attempt_id

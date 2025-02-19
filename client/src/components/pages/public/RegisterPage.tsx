@@ -8,6 +8,7 @@ import { RegisterFormData, RegisterErrors } from "../../../types/forms";
 
 const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
 
     // Initialize formData state with type RegisterFormData
     const [formData, setFormData] = useState<RegisterFormData>({
@@ -19,72 +20,102 @@ const RegisterPage: React.FC = () => {
 
     // Initialize errors state with type RegisterErrors
     const [errors, setErrors] = useState<RegisterErrors>({});
+    const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+    // Validate individual field
+    const validateField = (name: keyof RegisterFormData, value: string, allFormData: RegisterFormData = formData): string => {
+        switch (name) {
+            case 'username':
+                return value.length < 3 ? 'Username must be at least 3 characters long' : '';
+            case 'email':
+                const emailRegex = /^[a-zA-Z0-9._+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                return !emailRegex.test(value) ? 'Please enter a valid email address' : '';
+            case 'password':
+                return value.length < 6 ? 'Password must be at least 6 characters long' : '';
+            case 'confirmPassword':
+                return value !== formData.password ? "Passwords don't match" : '';
+            default:
+                return '';
+        }
+    };
+    // Check if form is valid using current error state
+    const isFormValid = (): boolean => {
+        const allFieldsFilled = Object.values(formData).every(value => value.length > 0);
+        const noErrors = Object.values(errors).every(error => error === '');
+        const allFieldsTouched = Object.keys(formData).every(
+            field => touched[field]
+        );
+        return allFieldsFilled && noErrors && allFieldsTouched;
+    };
 
     // Handle input field change
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-
-        setFormData({
+        const fieldName = id as keyof RegisterFormData;
+        const newFormData = {
             ...formData,
-            [id]: value
-        });
+            [fieldName]: value
+        };
+        setFormData(newFormData);
 
-        // Clear error when user starts typing
-        if (errors[id as keyof RegisterErrors]) {
-            setErrors({
-                ...errors,
-                [id]: ''
-            });
+        if (touched[fieldName]) {
+            const error = validateField(fieldName, value, newFormData);
+            setErrors(prev => ({
+                ...prev,
+                [fieldName]: error
+            }));
+        }
+        if (fieldName === 'password' && touched.confirmPassword) {
+            const confirmError = validateField('confirmPassword', newFormData.confirmPassword, newFormData);
+            setErrors(prev => ({
+                ...prev,
+                confirmPassword: confirmError
+            }));
         }
     };
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        const { id } = e.target;
+        const fieldName = id as keyof RegisterFormData;
 
-    // Validate the form before submission
-    const validateForm = (): RegisterErrors => {
-        const newErrors: RegisterErrors = {};
+        setTouched(prev => ({
+            ...prev,
+            [fieldName]: true
+        }));
 
-        // Username validation
-        if (formData.username.length < 3) {
-            newErrors.username = 'Username must be at least 3 characters long';
-        }
-
-        // Email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address';
-        }
-
-        // Password validation
-        if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters long';
-        }
-
-        if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = "Passwords don't match";
-        }
-
-        return newErrors;
+        const error = validateField(fieldName, formData[fieldName]);
+        setErrors(prev => ({
+            ...prev,
+            [fieldName]: error
+        }));
     };
-
-    // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Mark all fields as touched
+        const allTouched = Object.keys(formData).reduce(
+            (acc, field) => ({ ...acc, [field]: true }),
+            {}
+        );
+        setTouched(allTouched);
+        // Validate all fields one last time
+        const newErrors: RegisterErrors = {};
+        Object.keys(formData).forEach(field => {
+            const fieldName = field as keyof RegisterFormData;
+            const error = validateField(fieldName, formData[fieldName]);
+            if (error) newErrors[fieldName] = error;
+        });
 
-        // Validate form
-        const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
             return;
         }
 
+        setLoading(true);
         try {
-            // Register user
             await registerUser(
                 formData.username,
                 formData.email,
                 formData.password
             );
-
-            // Redirect to login page upon successful registration
             navigate('/login');
         } catch (error: any) {
             // Handle registration errors
@@ -97,6 +128,8 @@ const RegisterPage: React.FC = () => {
                     submit: 'Registration failed. Please try again.'
                 });
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -117,41 +150,45 @@ const RegisterPage: React.FC = () => {
                     )}
 
                     <InputField
-                        label="Username"
+                        label={<>Username <span className="text-red-500">*</span></>}
                         type="text"
                         id="username"
                         value={formData.username}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         error={errors.username}
                         placeholder="Choose a username"
                         required
                     />
                     <InputField
-                        label="Email Address"
+                        label={<>Email Address <span className="text-red-500">*</span></>}
                         type="email"
                         id="email"
                         value={formData.email}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         error={errors.email}
                         placeholder="your@email.com"
                         required
                     />
                     <InputField
-                        label="Password"
+                        label={<>Password <span className="text-red-500">*</span></>}
                         type="password"
                         id="password"
                         value={formData.password}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         error={errors.password}
                         placeholder="Choose a strong password"
                         required
                     />
                     <InputField
-                        label="Confirm Password"
+                        label={<>Confirm Password <span className="text-red-500">*</span></>}
                         type="password"
                         id="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                         error={errors.confirmPassword}
                         placeholder="Confirm your password"
                         required
@@ -159,14 +196,15 @@ const RegisterPage: React.FC = () => {
 
                     <button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-500 
-                                 hover:from-purple-700 hover:to-blue-600 
-                                 text-white py-2.5 px-4 rounded-xl font-semibold
-                                 transform hover:scale-102 transition-all
-                                 focus:outline-none focus:ring-2 focus:ring-purple-500 
-                                 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-                    >
-                        Create Account
+                        disabled={!isFormValid() || loading}
+                        className={`w-full bg-gradient-to-r from-purple-600 to-blue-500 
+                                    hover:from-purple-700 hover:to-blue-600 
+                                    text-white py-2.5 px-4 rounded-xl font-semibold
+                                    transform hover:scale-102 transition-all
+                                    focus:outline-none focus:ring-2 focus:ring-purple-500 
+                                    focus:ring-offset-2 dark:focus:ring-offset-gray-800
+                                    ${(!isFormValid() || loading) ? 'opacity-70 cursor-not-allowed' : ''}`} >
+                        {loading ? 'Creating Account...' : 'Create Account'}
                     </button>
 
                     <p className="text-center text-sm text-gray-600 dark:text-gray-400">

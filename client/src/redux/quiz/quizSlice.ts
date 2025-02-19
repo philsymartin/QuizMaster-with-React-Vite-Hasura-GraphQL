@@ -201,5 +201,6 @@ export const updateQuizSettings = createAction<{
     field: string;
     value: string | number;
 }>('quiz/updateQuizSettingsRequest');
+export const refetchQuizzes = createAction('quiz/refetchQuizzes');
 
 export default quizSlice.reducer;

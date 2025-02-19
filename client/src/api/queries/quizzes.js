@@ -14,7 +14,6 @@ export const GET_QUIZZES_BASIC = gql`
       }
     }
   `;
-
 export const GET_QUIZ_DETAILS = gql`
     query GetQuizDetails($quiz_id: Int!) {
     quizzes(where: {quiz_id: {_eq: $quiz_id}}) {
@@ -51,6 +50,55 @@ export const GET_QUIZ_DETAILS = gql`
     }
   }
   `;
+  export const GET_QUESTION_OPTIONS = gql`
+  query GetQuestionOptions($question_id: Int!) {
+      question_options(where: { question_id: { _eq: $question_id } }) {
+          option_id
+      }
+  }
+`;
+export const CHECK_OPTION_USAGE = gql`
+  query CheckOptionUsage($option_id: Int!) {
+      question_options_aggregate(
+          where: { option_id: { _eq: $option_id } }
+      ) {
+          aggregate {
+              count
+          }
+      }
+  }
+`;
+// export const GET_QUIZ_DETAILS = gql`
+//   query GetQuizDetails($quiz_id: Int!) {
+//     quizzes(where: { quiz_id: { _eq: $quiz_id } }) {
+//       quiz_id
+//       title
+//       description
+//       difficulty
+//       time_limit_minutes
+//       total_questions
+//       participants_count
+//       average_rating
+//       quiz_topics {
+//         topic {
+//           topic_id
+//           topic_name
+//         }
+//       }
+//     }
+//   }
+// `;
+
+// export const GET_TOP_PERFORMERS = gql`
+//   mutation GetTopPerformers($quiz_id: Int!) {
+//     getTopPerformers(input: { quiz_id: $quiz_id }) {
+//       top_performers {
+//         username
+//         average_score
+//       }
+//     }
+//   }
+// `;
 
 
 export const GET_QUIZZES_WITH_TOPICS = gql`
@@ -75,7 +123,6 @@ query GetQuizzes {
     }
 }
 `;
-
 export const GET_QUIZ_QUESTIONS = gql`
     query GetQuizQuestions($quiz_id: Int!) {
         questions(where: { quiz_id: { _eq: $quiz_id } }) {
@@ -94,7 +141,6 @@ export const GET_QUIZ_QUESTIONS = gql`
         }
     }
 `;
-
 // Questions
 export const GET_SINGLE_QUESTION = gql`
     query GetSingleQuestion($question_id: Int!) {
@@ -114,7 +160,6 @@ export const GET_SINGLE_QUESTION = gql`
         }
     }
 `;
-
 // options 
 export const GET_OPTIONS = gql`
     query GetOptions($optionTexts: [String!]!) {

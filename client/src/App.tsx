@@ -10,15 +10,14 @@ const App: React.FC = () => {
 
     const checkTokenInterval = setInterval(() => {
       store.dispatch({ type: 'CHECK_TOKEN_EXPIRATION' });
-    }, 300000); // 5 minutes
+    }, 300000); // 10 minutes
 
     return () => clearInterval(checkTokenInterval);
   }, []);
-
+  //  div and fragment ???
+  
   return (
-    <>
-      <RoutesComponent />
-    </>
+    <RoutesComponent />
   );
 };
 

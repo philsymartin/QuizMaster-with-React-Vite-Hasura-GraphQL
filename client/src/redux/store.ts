@@ -38,7 +38,7 @@ const store = configureStore({
             },
             thunk: false
         })
-            .concat(sagaMiddleware)
+            .concat(sagaMiddleware)   // concat()  make it together ??
             .concat(loggerMiddleware),
 });
 

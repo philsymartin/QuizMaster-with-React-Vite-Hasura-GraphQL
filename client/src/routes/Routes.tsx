@@ -3,7 +3,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import MainLayout from '../components/layouts/MainLayout';
 import HomePage from '../components/pages/public/HomePage';
 import LoginPage from '../components/pages/public/LoginPage';
-import RegisterPage from '../components/pages/user/RegisterPage';
+import RegisterPage from '../components/pages/public/RegisterPage';
 import QuizzesPage from '../components/pages/public/QuizzesPage';
 import QuizDetailPage from '../components/pages/public/QuizDetailPage';
 import QuizAttemptPage from '../components/pages/user/QuizAttemptPage';
@@ -29,11 +29,11 @@ const RoutesComponent: React.FC = () => {
                 { path: "login", element: <LoginPage /> },
                 { path: "register", element: <RegisterPage /> },
                 { path: "quizzes", element: <QuizzesPage /> },
-                { path: "quizzes/:quizId", element: <QuizDetailPage /> },
-                { path: "quizzes/:quizId/attempt", element: <QuizAttemptPage /> },
+                { path: "quizzes/:quizId", element: <QuizDetailPage /> }, // change the params passing way ???
+                { path: "quizzes/:quizId/attempt", element: <QuizAttemptPage /> },  // inside teh path quizzes    ???
                 { path: "leaderboard", element: <LeaderboardPage /> },
 
-                // Protected Routes
+                // Protected Routes     make protected rout first ??? 
                 {
                     path: "user-dashboard",
                     element: (

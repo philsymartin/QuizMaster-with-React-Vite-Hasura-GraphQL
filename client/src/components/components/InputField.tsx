@@ -1,12 +1,13 @@
-import React, { useState, InputHTMLAttributes } from 'react';
+import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 // Define types for the props of the InputField component
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
-  label: string;
+  label: ReactNode;
   type?: string;
   id: string;
   error?: string;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }
 
 const InputField: React.FC<InputFieldProps> = ({ label, type = "text", id, error, ...props }) => {

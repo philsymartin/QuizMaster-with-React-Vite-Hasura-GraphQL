@@ -166,6 +166,7 @@ import {
   selectTimeRemaining,
   selectIsComplete,
   selectQuizScore,
+  resetQuizAttempt, 
 } from '../../../redux/quiz_attempt/quizAttemptSlice';
 
 const QuizAttemptPage: React.FC = () => {
@@ -194,6 +195,9 @@ const QuizAttemptPage: React.FC = () => {
         totalQuestions: 6,
       }));
     }
+    return () => {
+      dispatch(resetQuizAttempt());
+    };
   }, [quizId, currentQuiz, dispatch]);
 
   if (!questions || questions.length === 0) {
@@ -340,6 +344,7 @@ const QuizAttemptPage: React.FC = () => {
       )}
     </div>
   );
+  
 };
 
 export default QuizAttemptPage;
