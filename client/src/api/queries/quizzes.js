@@ -50,7 +50,7 @@ export const GET_QUIZ_DETAILS = gql`
     }
   }
   `;
-  export const GET_QUESTION_OPTIONS = gql`
+export const GET_QUESTION_OPTIONS = gql`
   query GetQuestionOptions($question_id: Int!) {
       question_options(where: { question_id: { _eq: $question_id } }) {
           option_id
@@ -171,3 +171,18 @@ export const GET_OPTIONS = gql`
         }
     }
 `;
+export const CHECK_EXISTING_ATTEMPT = gql`
+                query CheckExistingAttempt($quiz_id: Int!, $user_id: Int!, $time_threshold: timestamp!) {
+                    quiz_attempts(
+                        where: {
+                            quiz_id: { _eq: $quiz_id },
+                            user_id: { _eq: $user_id },
+                            start_time: { _gt: $time_threshold },
+                            end_time: { _is_null: true }
+                        },
+                        limit: 1
+                    ) {
+                        attempt_id
+                    }
+                }
+            `

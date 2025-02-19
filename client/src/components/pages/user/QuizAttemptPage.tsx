@@ -150,7 +150,7 @@
 
 // export default QuizAttemptPage;
 
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -166,13 +166,14 @@ import {
   selectTimeRemaining,
   selectIsComplete,
   selectQuizScore,
-  resetQuizAttempt, 
+  resetQuizAttempt,
 } from '../../../redux/quiz_attempt/quizAttemptSlice';
 
 const QuizAttemptPage: React.FC = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const initializationRef = useRef(false);
 
   const {
     currentQuiz,
@@ -188,17 +189,22 @@ const QuizAttemptPage: React.FC = () => {
   const score = useSelector(selectQuizScore);
 
   useEffect(() => {
-    if (quizId && !currentQuiz) {
+    // Only initialize if not already initialized and quizId exists
+    if (quizId && !initializationRef.current) {
+      initializationRef.current = true;
       dispatch(startQuizAttempt({
         quizId: parseInt(quizId),
         timeLimit: 10,
         totalQuestions: 6,
       }));
     }
+
+    // Cleanup function
     return () => {
+      initializationRef.current = false;
       dispatch(resetQuizAttempt());
     };
-  }, [quizId, currentQuiz, dispatch]);
+  }, [quizId, dispatch]);
 
   if (!questions || questions.length === 0) {
     return (
@@ -344,7 +350,7 @@ const QuizAttemptPage: React.FC = () => {
       )}
     </div>
   );
-  
+
 };
 
 export default QuizAttemptPage;
