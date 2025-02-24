@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { Search, Edit, Trash2, Plus, BookOpen, AlertCircle } from 'lucide-react';
+import { Search, Edit, Trash2, Plus, BookOpen, Settings } from 'lucide-react';
 import { useQuery } from '@apollo/client';
 import { GET_QUIZZES_BASIC, GET_QUIZ_DETAILS } from '../../../api/queries/quizzes';
 import AdminQuizDetailsPanel from '../../components/adminQuizPanel/AdminQuizDetailsPanel';
 import { Quiz } from '../../../types/quiz';
 
-// Create a type for the basic quiz data that matches GET_QUIZZES_BASIC query
 type BasicQuiz = Pick<Quiz,
     'quiz_id' |
     'title' |
@@ -26,8 +25,8 @@ const AdminQuizManagementPage = () => {
     const [selectedDifficulty, setSelectedDifficulty] = useState<'all' | 'Easy' | 'Medium' | 'Hard'>('all');
     const [selectedQuizId, setSelectedQuizId] = useState<number | null>(null);
     const [detailsPanelOpen, setDetailsPanelOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'questions' | 'settings'>('questions');
 
-    // Separate query for fetching detailed quiz data
     const { data: selectedQuizData } = useQuery(GET_QUIZ_DETAILS, {
         variables: { quiz_id: selectedQuizId },
         skip: !selectedQuizId,
@@ -39,11 +38,11 @@ const AdminQuizManagementPage = () => {
         setSelectedQuizId(null);
     };
 
-    const handleQuizSelect = (quiz: BasicQuiz) => {
+    const handleQuizSelect = (quiz: BasicQuiz, tab: 'questions' | 'settings' = 'questions') => {
         setSelectedQuizId(quiz.quiz_id);
+        setActiveTab(tab);
         setDetailsPanelOpen(true);
     };
-
     // Use the fetched data with proper typing
     const filteredQuizzes = data?.quizzes.filter((quiz: BasicQuiz) => {
         const matchesSearch = quiz.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,7 +59,14 @@ const AdminQuizManagementPage = () => {
             default: return '';
         }
     };
-
+    const tableHeaders = [
+        { label: "Quiz Info", align: "text-left" },
+        { label: "Difficulty", align: "text-left" },
+        { label: "Questions", align: "text-left" },
+        { label: "Time Limit", align: "text-left" },
+        { label: "Stats", align: "text-left" },
+        { label: "Actions", align: "text-right" },
+    ];
     return (
         <div className="space-y-6 p-6">
             {/* Header */}
@@ -105,12 +111,14 @@ const AdminQuizManagementPage = () => {
                     <table className="w-full">
                         <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quiz Info</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Difficulty</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Questions</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Time Limit</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Stats</th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                {tableHeaders.map((header, index) => (
+                                    <th
+                                        key={index}
+                                        className={`px-6 py-3 ${header.align} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider`}
+                                    >
+                                        {header.label}
+                                    </th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -122,7 +130,12 @@ const AdminQuizManagementPage = () => {
                                                 <BookOpen className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                             </div>
                                             <div className="ml-4">
-                                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{quiz.title}</div>
+                                                <div
+                                                    className="text-sm font-medium text-gray-900 dark:text-gray-100 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400"
+                                                    onClick={() => handleQuizSelect(quiz)}
+                                                >
+                                                    {quiz.title}
+                                                </div>
                                                 <div className="text-sm text-gray-500 dark:text-gray-400">{quiz.description}</div>
                                             </div>
                                         </div>
@@ -145,13 +158,18 @@ const AdminQuizManagementPage = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex items-center justify-end space-x-2">
                                             <button
-                                                onClick={() => handleQuizSelect(quiz)}
+                                                onClick={() => handleQuizSelect(quiz, 'questions')}
                                                 className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                title="Edit Questions"
                                             >
                                                 <Edit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                             </button>
-                                            <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
-                                                <AlertCircle className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                            <button
+                                                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                onClick={() => handleQuizSelect(quiz, 'settings')}
+                                                title="Edit Settings"
+                                            >
+                                                <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                             </button>
                                             <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
                                                 <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -171,6 +189,7 @@ const AdminQuizManagementPage = () => {
                     isOpen={detailsPanelOpen}
                     quiz={selectedQuizData.quizzes[0]}
                     onClose={handleClosePanel}
+                    initialTab={activeTab}
                 />
             )}
         </div>

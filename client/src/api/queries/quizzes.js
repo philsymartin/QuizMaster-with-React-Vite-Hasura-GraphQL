@@ -172,7 +172,7 @@ export const GET_OPTIONS = gql`
     }
 `;
 export const CHECK_EXISTING_ATTEMPT = gql`
-                query CheckExistingAttempt($quiz_id: Int!, $user_id: Int!, $time_threshold: timestamp!) {
+                query CheckExistingAttempt($quiz_id: Int!, $user_id: Int!, $time_threshold: timestamptz!) {
                     quiz_attempts(
                         where: {
                             quiz_id: { _eq: $quiz_id },

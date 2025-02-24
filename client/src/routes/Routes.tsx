@@ -7,7 +7,6 @@ import RegisterPage from '../components/pages/public/RegisterPage';
 import QuizzesPage from '../components/pages/public/QuizzesPage';
 import QuizDetailPage from '../components/pages/public/QuizDetailPage';
 import QuizAttemptPage from '../components/pages/user/QuizAttemptPage';
-import LeaderboardPage from '../components/pages/user/LeaderboardPage';
 import UserDashboardPage from '../components/pages/user/UserDashboardPage';
 import ProtectedRoute from '../components/components/ProtectedRoute';
 import AdminDashboardPage from '../components/pages/admin/AdminDashboardPage';
@@ -16,6 +15,10 @@ import AdminUserManagementPage from '../components/pages/admin/AdminUserManageme
 import AdminQuizManagementPage from '../components/pages/admin/AdminQuizManagementPage';
 import ErrorPage from '../components/pages/public/ErrorPage';
 import AdminAnalyticsPage from '../components/pages/admin/AdminAnalyticsPage';
+import LeaderboardPage from '../components/pages/public/LeaderboardPage';
+import MyQuizzesPage from '../components/pages/user/MyQuizzesPage';
+import SentimentAnalyzer from '../components/components/SentimentAnalyzer';
+import FeedbackAnalysis from '../components/components/FeedbackAnalysis';
 
 const RoutesComponent: React.FC = () => {
     const router = createBrowserRouter([
@@ -24,6 +27,17 @@ const RoutesComponent: React.FC = () => {
             element: <MainLayout />,
             errorElement: <ErrorPage />,
             children: [
+                // Protected Routes    
+                {
+                    path: "user-dashboard", element: (<ProtectedRoute requiredRole="user">
+                        <UserDashboardPage />
+                    </ProtectedRoute>),
+                },
+                {
+                    path: "my-quizzes", element: (<ProtectedRoute requiredRole="user">
+                        <MyQuizzesPage />
+                    </ProtectedRoute>),
+                },
                 // Public Routes
                 { path: "/", element: <HomePage /> },
                 { path: "login", element: <LoginPage /> },
@@ -32,16 +46,9 @@ const RoutesComponent: React.FC = () => {
                 { path: "quizzes/:quizId", element: <QuizDetailPage /> }, // change the params passing way ???
                 { path: "quizzes/:quizId/attempt", element: <QuizAttemptPage /> },  // inside teh path quizzes    ???
                 { path: "leaderboard", element: <LeaderboardPage /> },
-
-                // Protected Routes     make protected rout first ??? 
-                {
-                    path: "user-dashboard",
-                    element: (
-                        <ProtectedRoute requiredRole="user">
-                            <UserDashboardPage />
-                        </ProtectedRoute>
-                    ),
-                },
+                // sample for trial
+                { path: "analysis", element: <SentimentAnalyzer /> },
+                { path: "analysis/feedback", element: <FeedbackAnalysis /> },
             ],
         },
         {

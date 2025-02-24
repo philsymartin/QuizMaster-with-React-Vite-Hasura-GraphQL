@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutRequest } from '../redux/auth/authSlice';
-import { RootState } from '../redux/store';
+import { logoutRequest } from '../../redux/auth/authSlice';
+import { RootState } from '../../redux/store';
 
 const useNavBar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

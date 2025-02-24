@@ -164,11 +164,10 @@ export const UPDATE_QUIZ_SETTINGS = gql`
     }
 `;
 export const START_QUIZ_ATTEMPT = gql`
-    mutation StartQuizAttempt($quiz_id: Int!, $user_id: Int!, $start_time: timestamp!) {
+    mutation StartQuizAttempt($quiz_id: Int!, $user_id: Int!) {
         insert_quiz_attempts_one(object: {
             quiz_id: $quiz_id,
             user_id: $user_id,
-            start_time: $start_time
         }) {
             attempt_id
             start_time
@@ -179,7 +178,7 @@ export const SUBMIT_QUIZ_ATTEMPT = gql`
     mutation SubmitQuizAttempt(
         $attempt_id: Int!,
         $answers: [answers_insert_input!]!,
-        $end_time: timestamp!,
+        $end_time: timestamptz!,
         $score: numeric!,
         $user_id: Int!
     ) {
@@ -200,3 +199,80 @@ export const SUBMIT_QUIZ_ATTEMPT = gql`
         }
     }
 `;
+// Mutation to add feedback
+// export const ADD_QUIZ_FEEDBACK = gql`
+//   mutation AddQuizFeedback(
+//     $quizId: Int!
+//     $userId: Int!
+//     $feedbackText: String!
+//     $rating: Int!
+//     $sentimentLabel: String
+//     $sentimentScore: numeric
+//   ) {
+//     insert_quiz_feedback_one(
+//       object: {
+//         quiz_id: $quizId
+//         user_id: $userId
+//         feedback_text: $feedbackText
+//         rating: $rating
+//         sentiment_label: $sentimentLabel
+//         sentiment_score: $sentimentScore
+//         analyzed_at: "now()"
+//       }
+//     ) {
+//       feedback_id
+//       quiz_id
+//       rating
+//       feedback_text
+//       sentiment_label
+//       sentiment_score
+//       analyzed_at
+//     }
+//   }
+// `;
+
+export const ADD_QUIZ_FEEDBACK = gql`
+  mutation AddQuizFeedback(
+    $quizId: Int!
+    $userId: Int!
+    $feedbackText: String!
+    $rating: Int!
+  ) {
+    insert_quiz_feedback_one(
+      object: {
+        quiz_id: $quizId
+        user_id: $userId
+        feedback_text: $feedbackText
+        rating: $rating
+      }
+    ) {
+      feedback_id
+      quiz_id
+      rating
+      feedback_text
+    }
+  }
+`;
+
+// Mutation to update sentiment analysis
+export const UPDATE_FEEDBACK_SENTIMENT = gql`
+  mutation UpdateFeedbackSentiment(
+    $feedbackId: Int!
+    $sentimentLabel: String
+    $sentimentScore: numeric
+  ) {
+    update_quiz_feedback_by_pk(
+      pk_columns: { feedback_id: $feedbackId }
+      _set: {
+        sentiment_label: $sentimentLabel
+        sentiment_score: $sentimentScore
+      }
+    ) {
+      feedback_id
+      sentiment_label
+      sentiment_score
+      analyzed_at
+    }
+  }
+`;
+

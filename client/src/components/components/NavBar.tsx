@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
-import useNavBar from '../../hooks/useNavBar';
+import useNavBar from '../../containers/hooks/useNavBar';
 import ThemeToggle from '../utils/ThemeToggle';
 
 interface NavBarProps {
@@ -88,8 +88,8 @@ const NavBar: React.FC<NavBarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
 
     return (
         <nav className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">     
-             {/*chechout the tailwind css   */}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                {/*chechout the tailwind css   */}
                 <div className="flex justify-between h-16">
                     <div className="flex items-center space-x-4">
                         {/* Sidebar Toggle Button - Only shown on admin pages */}

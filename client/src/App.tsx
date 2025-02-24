@@ -5,17 +5,17 @@ import RoutesComponent from './routes/Routes';
 import './components/styles/App.css';
 
 const App: React.FC = () => {
-  // useEffect(() => {
-  //   store.dispatch(checkAuthStatus());
+  useEffect(() => {
+    store.dispatch(checkAuthStatus());
 
-  //   const checkTokenInterval = setInterval(() => {
-  //     store.dispatch({ type: 'CHECK_TOKEN_EXPIRATION' });
-  //   }, 300000); // 10 minutes
+    const checkTokenInterval = setInterval(() => {
+      store.dispatch({ type: 'CHECK_TOKEN_EXPIRATION' });
+    }, 300000); // 5 minutes
 
-  //   return () => clearInterval(checkTokenInterval);
-  // }, []);
+    return () => clearInterval(checkTokenInterval);
+  }, []);
   //  div and fragment ???
-  
+
   return (
     <RoutesComponent />
   );

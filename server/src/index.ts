@@ -7,44 +7,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { JwtPayload } from 'jsonwebtoken';
 import ms from 'ms';
-
+import { HasuraClaims, HasuraResponse, LeaderboardQueryResult, LoginRequest, RegisterRequest, TimeString, User, UserResponse } from './types/indexTypes';
+import analysisRoutes from './routes/analysisApi';
 dotenv.config();
-
-interface User {
-    user_id: number;
-    email: string;
-    password: string;
-    role: string;
-    username?: string;
-}
-
-interface HasuraResponse<T> {
-    data?: T;
-    errors?: Array<{ message: string }>;
-}
-
-interface LoginRequest {
-    email: string;
-    password: string;
-}
-
-interface RegisterRequest {
-    username: string;
-    email: string;
-    password: string;
-}
-
-interface UserResponse {
-    users: User[];
-}
-interface HasuraClaims {
-    "x-hasura-allowed-roles": any[];
-    "x-hasura-default-role": any;
-    "x-hasura-user-id": any;
-    "x-hasura-admin-secret"?: string;
-}
-
-type TimeString = `${number}${'d' | 'h' | 'm' | 's' | 'ms'}`;
 
 // Environment variables with type checking
 const PORT = process.env.PORT || 5000;
@@ -52,6 +17,7 @@ const HASURA_ENDPOINT = process.env.HASURA_ENDPOINT;
 const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 const FRONTEND_URL = process.env.FRONTEND_URL;
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const HASURA_ORIGIN = process.env.HASURA_ORIGIN || "http://localhost:8080";
 const ACCESS_TOKEN_MAX_AGE = ms((process.env.JWT_ACCESS_TOKEN_EXPIRATION || '30m') as TimeString);
 const REFRESH_TOKEN_MAX_AGE = ms((process.env.JWT_REFRESH_TOKEN_EXPIRATION || '7d') as TimeString);
 if (!HASURA_ENDPOINT || !HASURA_ADMIN_SECRET || !FRONTEND_URL || !JWT_ACCESS_SECRET) {
@@ -59,107 +25,18 @@ if (!HASURA_ENDPOINT || !HASURA_ADMIN_SECRET || !FRONTEND_URL || !JWT_ACCESS_SEC
 }
 
 const app = express();
-
 // Middleware setup
 app.use(express.json());
-app.use(cors({ origin: FRONTEND_URL, credentials: true }));
+app.use(cors({ origin: [FRONTEND_URL, HASURA_ORIGIN], credentials: true }));
 app.use(cookieParser());
+
+app.use('/analysis', analysisRoutes);
 
 // Error handler for async routes
 const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
     (req: Request, res: Response, next: NextFunction) => {
         Promise.resolve(fn(req, res, next)).catch(next);
     };
-
-// app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: Response) => {
-//     const { email, password } = req.body;
-
-//     const userResponse = await axios.post<HasuraResponse<UserResponse>>(
-//         HASURA_ENDPOINT!,
-//         {
-//             query: `
-//                     query GetUserByEmail($email: String!) {
-//                         users(where: {email: {_eq: $email}}) {
-//                             user_id
-//                             email
-//                             password
-//                             role
-//                         }
-//                     }
-//                 `,
-//             variables: { email },
-//         },
-//         {
-//             headers: {
-//                 'x-hasura-admin-secret': HASURA_ADMIN_SECRET!,
-//                 Authorization: `Bearer ${req.cookies.access_token}`
-//             }
-//         }
-//     );
-
-//     if (userResponse.data.errors) {
-//         console.error("Hasura Error:", userResponse.data.errors);
-//         return res.status(500).json({ message: "Database error", errors: userResponse.data.errors });
-//     }
-
-//     if (!userResponse.data?.data?.users.length) {
-//         return res.status(400).json({ message: 'User not found' });
-//     }
-
-//     const user = userResponse.data.data.users[0];
-//     const isMatch = await bcrypt.compare(password, user.password);
-//     if (!isMatch) {
-//         return res.status(400).json({ message: 'Invalid credentials' });
-//     }
-
-//     // Generate access & refresh tokens
-//     const accessToken = jwt.sign(
-//         { userId: user.user_id, role: user.role },
-//         JWT_ACCESS_SECRET as jwt.Secret,
-//         { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
-//     );
-
-//     const refreshToken = jwt.sign(
-//         { userId: user.user_id, role: user.role },
-//         process.env.JWT_REFRESH_TOKEN_SECRET as jwt.Secret,
-//         { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION } as jwt.SignOptions
-//     );
-
-//     res.cookie('access_token', accessToken, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: 'strict',
-//         maxAge: ACCESS_TOKEN_MAX_AGE
-//     });
-
-//     res.cookie('refresh_token', refreshToken, {
-//         httpOnly: true,
-//         secure: process.env.NODE_ENV === 'production',
-//         sameSite: 'strict',
-//         maxAge: REFRESH_TOKEN_MAX_AGE
-//     });
-
-//     if (user.role === 'admin') {
-//         res.cookie('hasura_admin_secret', HASURA_ADMIN_SECRET, {
-//             httpOnly: false, // Changed to false so JavaScript can read it
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: 'strict',
-//             // maxAge: ACCESS_TOKEN_MAX_AGE
-//         });
-//     }
-
-//     return res.json({
-//         message: 'Login successful',
-//         user: {
-//             user_id: user.user_id,
-//             username: user.username || email.split('@')[0],
-//             email: user.email,
-//             role: user.role,
-//         },
-//         accessToken,
-//         expiresIn: ACCESS_TOKEN_MAX_AGE / 1000
-//     });
-// }));
 
 app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: Response) => {
     const { email, password } = req.body;
@@ -191,7 +68,6 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
         console.error("Hasura Error:", userResponse.data.errors);
         return res.status(500).json({ message: "Database error", errors: userResponse.data.errors });
     }
-
     if (!userResponse.data?.data?.users.length) {
         return res.status(400).json({ message: 'User not found' });
     }
@@ -202,23 +78,6 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
         return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // // Generate access token with Hasura claims
-    // const accessToken = jwt.sign(
-    //     {
-    //         userId: user.user_id,
-    //         role: user.role,
-    //         // Add the Hasura namespace with claims
-    //         "https://hasura.io/jwt/claims": {
-    //             "x-hasura-allowed-roles": [user.role],
-    //             "x-hasura-default-role": user.role,
-    //             "x-hasura-user-id": user.user_id.toString()
-    //         }
-    //     },
-    //     JWT_ACCESS_SECRET as jwt.Secret,
-    //     { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
-    // );
-
-    // Prepare Hasura claims
     const hasuraClaims: HasuraClaims = {
         "x-hasura-allowed-roles": [user.role],
         "x-hasura-default-role": user.role,
@@ -282,43 +141,6 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
     });
 }));
 
-// app.post('/refresh-token', asyncHandler(async (req: Request, res: Response) => {
-//     const refreshToken = req.cookies.refresh_token;
-
-//     if (!refreshToken) {
-//         return res.status(401).json({ message: 'Unauthorized: No refresh token provided' });
-//     }
-
-//     jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN_SECRET as jwt.Secret, (err: jwt.VerifyErrors | null, decoded: JwtPayload | string | undefined) => {
-//         if (err || typeof decoded !== 'object' || !decoded.userId) {
-//             return res.status(403).json({ message: 'Forbidden: Invalid refresh token' });
-//         }
-//         const now = Date.now() / 1000;
-//         if (decoded.exp && decoded.exp < now) {
-//             return res.status(401).json({ message: 'Refresh token expired' });
-//         }
-
-//         const newAccessToken = jwt.sign(
-//             { userId: decoded.userId, role: decoded.role },
-//             JWT_ACCESS_SECRET as jwt.Secret,
-//             { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
-//         );
-
-//         res.cookie('access_token', newAccessToken, {
-//             httpOnly: true,
-//             secure: process.env.NODE_ENV === 'production',
-//             sameSite: 'strict',
-//             maxAge: ACCESS_TOKEN_MAX_AGE
-//         });
-//         return res.status(200).json({
-//             message: 'Token refreshed successfully',
-//             accessToken: newAccessToken,
-//             expiresIn: ACCESS_TOKEN_MAX_AGE / 1000
-//         });
-
-//     });
-// }));
-
 app.post('/refresh-token', asyncHandler(async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refresh_token;
 
@@ -355,21 +177,6 @@ app.post('/refresh-token', asyncHandler(async (req: Request, res: Response) => {
             JWT_ACCESS_SECRET as jwt.Secret,
             { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
         );
-
-        // const newAccessToken = jwt.sign(
-        //     {
-        //         userId: decoded.userId,
-        //         role: decoded.role,
-        //         // Add the Hasura namespace with claims
-        //         "https://hasura.io/jwt/claims": {
-        //             "x-hasura-allowed-roles": [decoded.role],
-        //             "x-hasura-default-role": decoded.role,
-        //             "x-hasura-user-id": decoded.userId.toString()
-        //         }
-        //     },
-        //     JWT_ACCESS_SECRET as jwt.Secret,
-        //     { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
-        // );
 
         res.cookie('access_token', newAccessToken, {
             httpOnly: true,
@@ -462,8 +269,116 @@ app.post('/logout', (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Logout successful' });
 });
+app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
+    try {
+        const response = await axios.post<HasuraResponse<LeaderboardQueryResult>>(
+            HASURA_ENDPOINT!,
+            {
+                query: `
+                    query GetLeaderboardData {
+                        users(
+                            where: {
+                                _and: [
+                                    { role: { _eq: "user" } },
+                                    { quiz_attempts: { end_time: { _is_null: false } } }  
+                                ]
+                            }
+                        ) {
+                            user_id
+                            username
+                            user_performances {
+                                quiz_id
+                                total_attempts
+                                correct_answers
+                                average_score
+                                quiz {
+                                    title
+                                    total_questions
+                                }
+                            }
+                            quiz_attempts(
+                                where: { end_time: { _is_null: false } }  
+                                order_by: { score: desc } 
+                            ) {
+                                quiz_id
+                                score
+                                quiz {
+                                    title
+                                }
+                            }
+                        }
+                    }
+                `
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
+                }
+            }
+        );
+        if (response.data.errors) {
+            console.error("Hasura Error:", response.data.errors);
+            return res.status(500).json({ message: "Database error", errors: response.data.errors });
+        }
+        return res.json(response.data.data);
+    } catch (error) {
+        console.error('Error fetching leaderboard data:', error);
+        return res.status(500).json({ message: 'Error fetching leaderboard data' });
+    }
+}));
+
+// app.post('/actions/top-performers', asyncHandler(async (req: Request, res: Response) => {
+//     const { input: { quiz_id } } = req.body;
+
+//     try {
+//         // Query Hasura directly with admin secret
+//         const response = await axios.post(
+//             HASURA_ENDPOINT!,
+//             {
+//                 query: `
+//             query GetTopPerformers($quiz_id: Int!) {
+//               user_performances(
+//                 where: { quiz_id: { _eq: $quiz_id } }
+//                 order_by: { average_score: desc }
+//                 limit: 3
+//               ) {
+//                 average_score
+//                 user {
+//                   username
+//                 }
+//               }
+//             }
+//           `,
+//                 variables: { quiz_id }
+//             },
+//             {
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'x-hasura-admin-secret': HASURA_ADMIN_SECRET
+//                 }
+//             }
+//         );
+//         console.log('Hasura response:', JSON.stringify(response.data, null, 2));
+
+//         const performers = response.data.data.user_performances.map(
+//             (p: any) => ({
+//                 username: p.user.username,
+//                 average_score: p.average_score
+//             })
+//         );
+
+//         return res.json({
+//             top_performers: performers
+//         });
+//     } catch (error) {
+//         console.error('Error fetching top performers:', error);
+//         return res.status(500).json({ message: 'Error fetching top performers' });
+//     }
+// }));
 
 // Error handling middleware
+
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Internal server error', error: err.message });

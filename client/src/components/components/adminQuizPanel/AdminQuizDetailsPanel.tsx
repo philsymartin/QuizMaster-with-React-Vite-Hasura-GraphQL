@@ -15,11 +15,12 @@ interface AdminQuizDetailsPanelProps {
     isOpen: boolean;
     onClose: () => void;
     quiz: Quiz;
+    initialTab?: 'questions' | 'settings';
 }
 
-const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz }: AdminQuizDetailsPanelProps) => {
+const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz,initialTab ='questions' }: AdminQuizDetailsPanelProps) => {
     const dispatch = useDispatch();
-    const [activeTab, setActiveTab] = useState<'questions' | 'settings'>('questions');
+    const [activeTab, setActiveTab] = useState<'questions' | 'settings'>(initialTab);
     const questions = useSelector(selectQuestions);
     const loading = useSelector(selectLoading);
     const error = useSelector(selectError);
@@ -29,6 +30,11 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz }: AdminQuizDetailsPanelP
             dispatch(setSelectedQuiz(quiz));
         }
     }, [dispatch, isOpen, quiz]);
+    useEffect(() => {
+        if(initialTab){
+            setActiveTab(initialTab);
+        }
+    },[initialTab]);
 
     if (loading) {
         return <div className="p-4">Loading quiz details...</div>;

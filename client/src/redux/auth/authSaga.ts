@@ -1,4 +1,4 @@
-import { Effect, call, put, takeLatest } from 'redux-saga/effects';
+import { Effect, call, put, select, takeLatest } from 'redux-saga/effects';
 import {
     loginUser, logoutUser, refreshToken,
     LoginResponse, RefreshTokenResponse
@@ -7,8 +7,28 @@ import {
     loginRequest, loginSuccess, loginFailure, logoutRequest, logoutSuccess,
     refreshTokenSuccess, refreshTokenFailure
 } from './authSlice';
-import { persistor } from '../store';
+import { RootState, persistor } from '../store';
+import client from '../../services/hasuraApi';
+import { UPDATE_USER_STATUS } from '../../api/mutations/usersMutate'
 
+function* updateUserStatus(status: string): Generator<Effect, void, any> {
+    const state: RootState = yield select();
+    const userId = state.auth.user?.user_id;
+
+    if (userId) {
+        try {
+            yield call(client.mutate, ({
+                mutation: UPDATE_USER_STATUS,
+                variables: {
+                    user_id: userId,
+                    status: status
+                }
+            }));
+        } catch (error) {
+            console.error(`Failed to update user status to ${status}:`, error);
+        }
+    }
+}
 function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect, void, LoginResponse> {
     try {
         const response: LoginResponse = yield call(loginUser, action.payload.email, action.payload.password);
@@ -19,6 +39,7 @@ function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect
                 expiresIn: response.expiresIn,
                 accessToken: response.accessToken,
             }));
+            yield call(updateUserStatus, 'active');
         } else {
             yield put(loginFailure('Invalid response from server'));
         }
@@ -36,11 +57,13 @@ function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
                 accessToken: response.accessToken,
             }));
         } else {
+            yield call(updateUserStatus, 'inactive');
             yield put(refreshTokenFailure('Failed to refresh token'));
             yield put(logoutSuccess());
-            persistor.purge(); // Clear Redux persisted state
+            persistor.purge();
         }
     } catch (error) {
+        yield call(updateUserStatus, 'inactive');
         yield put(refreshTokenFailure('Error refreshing token'));
         yield put(logoutSuccess());
         persistor.purge();
@@ -49,9 +72,11 @@ function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
 
 function* handleLogout(): Generator<Effect, void, void> {
     try {
+        yield call(updateUserStatus, 'inactive');
         yield call(logoutUser);
         yield put(logoutSuccess());
     } catch (error) {
+        yield call(updateUserStatus, 'inactive');
         yield put(logoutSuccess());
         console.error('Logout failed:', error);
     }

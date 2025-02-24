@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Users, Search, Edit, Trash2, UserPlus, Mail } from 'lucide-react';
-import { useQuery } from '@apollo/client';
-import { GET_USERS } from '../../../api/queries/users'; // Assuming you have a query for users
+import { Search, Edit, Trash2, UserPlus, Mail } from 'lucide-react';
+import { useQuery, useSubscription } from '@apollo/client';
+import { GET_USERS } from '../../../api/queries/users';
+import { USERS_SUBSCRIPTION } from '../../../api/subscriptions/userSubscription';
 
 interface User {
     id: number;
@@ -14,7 +15,11 @@ interface User {
 }
 
 const AdminUserManagementPage = () => {
-    const { loading, error, data } = useQuery(GET_USERS, {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedRole, setSelectedRole] = useState<'all' | 'user' | 'admin'>('all');
+    const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
+
+    const { loading: queryLoading, error: queryError, data: queryData } = useQuery(GET_USERS, {
         fetchPolicy: 'cache-and-network',
         onError: (error) => {
             console.error('GraphQL Error Details:', {
@@ -25,18 +30,28 @@ const AdminUserManagementPage = () => {
             });
         }
     });
+    // Subscribe to real-time updates
+    const { data: subscriptionData, loading: subscriptionLoading, error: subscriptionError } = useSubscription(USERS_SUBSCRIPTION, {
+        onError: (error) => {
+            console.error('Subscription Error:', {
+                message: error.message,
+                graphQLErrors: error.graphQLErrors,
+                networkError: error.networkError,
+            });
+        }
+    });
+    // Combine initial data with subscription updates
+    const users = subscriptionData?.users || queryData?.users || [];
+    const loading = queryLoading && !users.length;
+    const error = queryError || subscriptionError;
 
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedRole, setSelectedRole] = useState<'all' | 'user' | 'admin'>('all');
-    const [selectedStatus, setSelectedStatus] = useState<'all' | 'active' | 'inactive'>('all');
-
-    const filteredUsers = data?.users.filter((user: User) => {
+    const filteredUsers = users.filter((user: User) => {
         const matchesSearch = user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesRole = selectedRole === 'all' || user.role === selectedRole;
         const matchesStatus = selectedStatus === 'all' || user.status === selectedStatus;
         return matchesSearch && matchesRole && matchesStatus;
-    }) ?? [];
+    });
 
     if (loading) {
         return (
@@ -65,7 +80,8 @@ const AdminUserManagementPage = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">User Management</h1>
-                    <p className="text-gray-500 dark:text-gray-400">Manage and monitor user accounts</p>
+                    <p className="text-gray-500 dark:text-gray-400">Manage and monitor user accounts
+                        {subscriptionData ? " (real-time updates enabled)" : ""}</p>
                 </div>
                 <button className="inline-flex items-center px-4 py-2 bg-purple-600 text-white 
                            rounded-lg hover:bg-purple-700 transition-colors">
@@ -108,6 +124,13 @@ const AdminUserManagementPage = () => {
                     <option value="inactive">Inactive</option>
                 </select>
             </div>
+            {/* Subscription indicator */}
+            {subscriptionError && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 
+                      dark:border-yellow-800 rounded-lg p-3 text-yellow-700 dark:text-yellow-400">
+                    <p>Real-time updates unavailable. Using latest fetched data.</p>
+                </div>
+            )}
 
             {/* Users Table */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
