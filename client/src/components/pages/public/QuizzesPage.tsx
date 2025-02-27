@@ -1,9 +1,13 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { BookOpen, Clock, Star, Users, Search, SlidersHorizontal } from 'lucide-react';
 import { useQuery } from '@apollo/client';
-import { GET_QUIZZES_WITH_TOPICS } from '../../../api/queries/quizzes';
+import { GET_QUIZZES_WITH_TOPICS } from '@queries/quizzes';
+import { useSelector } from 'react-redux';
+import { RootState } from '@redux/store';
+import { RoomProvider, getRoomId, useUserTracker } from '@services/liveblocks';
+import { LiveObject } from '@liveblocks/client';
+import { FiBookOpen, FiClock, FiSearch, FiSliders, FiStar, FiUsers } from 'react-icons/fi';
 
 interface QuizData {
   quiz_id: string;
@@ -20,7 +24,6 @@ interface QuizData {
     };
   }[];
 }
-// Define the transformed quiz structure
 interface QuizType {
   id: string;
   title: string;
@@ -41,10 +44,42 @@ interface FilterState {
   selectedTopics: string[];
 }
 
-const QuizzesPage = () => {
+const QuizzesPageContent = () => {
   const { loading, error, data } = useQuery(GET_QUIZZES_WITH_TOPICS, {
     fetchPolicy: 'cache-and-network',
   });
+
+  // const user = useSelector((state: RootState) => state.auth.user);
+
+  // const { updateUserActivity } = useUserTracker(
+  //   user?.user_id?.toString() || 'guest',
+  //   user?.username || 'guest user'
+  // );
+
+  // useEffect(() => {
+  //   let mounted = true;
+
+  //   const initializePresence = () => {
+  //     if (mounted) {
+  //       try {
+  //         updateUserActivity('/quizzes', {
+  //           type: 'viewing',
+  //           startedAt: new Date().toISOString(),
+  //         });
+  //       } catch (error) {
+  //         console.error('Failed to update user activity:', error);
+  //       }
+  //     }
+  //   };
+
+  //   // Delay the initialization slightly to ensure stable mounting
+  //   const timeoutId = setTimeout(initializePresence, 0);
+
+  //   return () => {
+  //     mounted = false;
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, []);
 
   const [filters, setFilters] = useState<FilterState>({
     search: '',
@@ -164,7 +199,7 @@ const QuizzesPage = () => {
       <div className="mb-8 space-y-4">
         <div className="flex items-center gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search quizzes..."
@@ -177,7 +212,7 @@ const QuizzesPage = () => {
             onClick={() => setIsFilterOpen(!isFilterOpen)}
             className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
-            <SlidersHorizontal className="w-5 h-5 mr-2" />
+            <FiSliders className="w-5 h-5 mr-2" />
             Filters
           </button>
         </div>
@@ -368,19 +403,19 @@ const QuizzesPage = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Clock className="w-4 h-4 mr-2" />
+                  <FiClock className="w-4 h-4 mr-2" />
                   <span className="text-sm">{quiz.timeLimit} mins</span>
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Users className="w-4 h-4 mr-2" />
+                  <FiUsers className="w-4 h-4 mr-2" />
                   <span className="text-sm">{quiz.participants.toLocaleString()}</span>
                 </div>
                 <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <Star className="w-4 h-4 mr-2 text-yellow-400" />
+                  <FiStar className="w-4 h-4 mr-2 text-yellow-400" />
                   <span className="text-sm">{quiz.rating.toFixed(1)}/5.0</span>
                 </div>
                 <div className="flex items-center text-purple-600 dark:text-purple-400 font-medium">
-                  <BookOpen className="w-4 h-4 mr-2" />
+                  <FiBookOpen className="w-4 h-4 mr-2" />
                   <span className="text-sm">Start Quiz</span>
                 </div>
               </div>
@@ -389,6 +424,36 @@ const QuizzesPage = () => {
         ))}
       </motion.div>
     </div>
+  );
+};
+
+const QuizzesPage = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const initialPresence = useMemo(() => ({
+    currentPage: '/quizzes',
+    isActive: true,
+    lastActiveAt: new Date().toISOString(),
+    userId: user?.user_id?.toString() || 'guest',
+    username: user?.username || 'guest User',
+    currentAction: {
+      type: 'viewing' as const,
+      startedAt: new Date().toISOString(),
+    },
+  }), [user?.user_id, user?.username]);
+
+  const initialStorage = useMemo(() => ({
+    userSessions: new LiveObject({})
+  }), []);
+
+  return (
+    <RoomProvider
+      id={getRoomId('admin')} // Using admin room to show up in admin dashboard
+      initialPresence={initialPresence}
+      initialStorage={initialStorage}
+    >
+      <QuizzesPageContent />
+    </RoomProvider>
   );
 };
 

@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu } from 'lucide-react';
-import useNavBar from '../../containers/hooks/useNavBar';
-import ThemeToggle from '../utils/ThemeToggle';
+import useNavBar from '@containers/hooks/useNavBar';
+import ThemeToggle from '@utils/ThemeToggle';
+import { FiMenu } from 'react-icons/fi';
 
 interface NavBarProps {
     onToggleSidebar?: () => void;
@@ -101,7 +101,7 @@ const NavBar: React.FC<NavBarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
                                          focus:ring-purple-500"
                                 aria-label="Toggle Sidebar"
                             >
-                                <Menu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                                <FiMenu className="w-5 h-5 text-gray-600 dark:text-gray-300" />
                             </button>
                         )}
                         <Link to="/" className="flex items-center space-x-2 group">

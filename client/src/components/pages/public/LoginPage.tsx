@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
-import { loginRequest } from '../../../redux/auth/authSlice';
-import AuthCard from '../../components/AuthCard';
-import InputField from '../../components/InputField';
+import { RootState } from '@redux/store';
+import { loginRequest } from '@redux/auth/authSlice';
+import AuthCard from '@components/AuthCard';
+import InputField from '@components/InputField';
 import { motion } from 'framer-motion';
 
 interface LoginFormData {
@@ -12,7 +12,7 @@ interface LoginFormData {
   password: string;
 }
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();

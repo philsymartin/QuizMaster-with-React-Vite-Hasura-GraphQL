@@ -1,9 +1,8 @@
-// services/liveblocks.ts
 import { createClient } from '@liveblocks/client';
 import { createRoomContext } from '@liveblocks/react';
-import type { BaseUserMeta, User, LiveObject } from '@liveblocks/client';
+import type { User, LiveObject } from '@liveblocks/client';
+import { useCallback } from 'react';
 
-// Types for user presence
 export type Presence = {
   currentPage: string;
   isActive: boolean;
@@ -11,13 +10,11 @@ export type Presence = {
   userId: string;
   username: string;
   currentAction?: {
-    type: 'viewing' | 'attempting_quiz' | 'completed_quiz' | 'idle';
+    type: 'viewing' | 'attempting_quiz' | 'completed_quiz';
     resourceId?: string;
     startedAt: string;
   };
 };
-
-// Types for user storage
 type Storage = {
   userSessions: LiveObject<{
     [key: string]: {
@@ -27,11 +24,8 @@ type Storage = {
     };
   }>;
 };
+type LiveblockUser = User<Presence, {}>;
 
-// Type for Other Users
-type LiveblockUser = User<Presence, BaseUserMeta>;
-
-// Initialize Liveblocks client
 export const client = createClient({
   publicApiKey: import.meta.env.VITE_LIVEBLOCKS_PUBLIC_KEY as string,
   throttle: 100,
@@ -63,9 +57,9 @@ export const getRoomId = (type: 'admin' | 'quiz', id?: string) => {
 
 // Custom hooks for user tracking
 export const useUserTracker = (userId: string, username: string) => {
-  const [presence, updatePresence] = useMyPresence();
+  const updatePresence = useUpdateMyPresence();
 
-  const updateUserActivity = (
+  const updateUserActivity = useCallback((
     currentPage: string,
     action?: Presence['currentAction']
   ) => {
@@ -80,33 +74,20 @@ export const useUserTracker = (userId: string, username: string) => {
         startedAt: new Date().toISOString(),
       },
     });
-  };
+  }, [updatePresence, userId, username]);
 
-  const markUserIdle = () => {
+  const trackQuizAttempt = useCallback((quizId: string, action: 'attempting_quiz' | 'completed_quiz') => {
     updatePresence({
-      ...presence,
-      isActive: false,
-      currentAction: {
-        type: 'idle',
-        startedAt: new Date().toISOString(),
-      },
-    });
-  };
-
-  const trackQuizAttempt = (quizId: string, action: 'attempting_quiz' | 'completed_quiz') => {
-    updatePresence({
-      ...presence,
       currentAction: {
         type: action,
         resourceId: quizId,
         startedAt: new Date().toISOString(),
       },
     });
-  };
+  }, [updatePresence]);
 
   return {
     updateUserActivity,
-    markUserIdle,
     trackQuizAttempt,
   };
 };
@@ -115,27 +96,28 @@ export const useUserTracker = (userId: string, username: string) => {
 export const useAdminMonitor = () => {
   const others = useOthers();
 
-  const getActiveUsers = () => {
+  const getActiveUsers = useCallback(() => {
     return Array.from(others).filter((user: LiveblockUser) => user.presence?.isActive);
-  };
+  }, [others]);
 
-  const getUsersByPage = () => {
-    const pageMap = new Map<string, Array<Presence>>();
-
+  const getUsersByPage = useCallback(() => {
+    const pageMap = new Map<string, Presence[]>();
     Array.from(others).forEach((other: LiveblockUser) => {
       if (other.presence) {
         const page = other.presence.currentPage;
         if (!pageMap.has(page)) {
           pageMap.set(page, []);
         }
-        pageMap.get(page)?.push(other.presence);
+        const users = pageMap.get(page);
+        if (users) {
+          users.push(other.presence);
+        }
       }
     });
-
     return pageMap;
-  };
+  }, [others]);
 
-  const getQuizActivity = () => {
+  const getQuizActivity = useCallback(() => {
     return Array.from(others)
       .filter((user: LiveblockUser) =>
         user.presence?.currentAction?.type.includes('quiz')
@@ -145,7 +127,7 @@ export const useAdminMonitor = () => {
         username: user.presence?.username,
         action: user.presence?.currentAction,
       }));
-  };
+  }, [others]);
 
   return {
     getActiveUsers,

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logoutRequest } from '../../redux/auth/authSlice';
-import { RootState } from '../../redux/store';
+import { logoutRequest } from '@redux/auth/authSlice';
+import { RootState } from '@redux/store';
 
 const useNavBar = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -9,14 +9,12 @@ const useNavBar = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state: RootState) => state.auth);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsDropdownOpen(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);

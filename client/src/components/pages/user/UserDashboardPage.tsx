@@ -1,12 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { motion } from 'framer-motion';
-import { User as UserIcon, LogOut, Award, Clock, Target, Star } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RootState } from '../../../redux/store';
-import { logoutRequest } from '../../../redux/auth/authSlice';
-import { GET_USER_DASHBOARD_DATA } from '../../../api/queries/users';
+import { RootState } from '@redux/store';
+import { logoutRequest } from '@redux/auth/authSlice';
+import { GET_USER_DASHBOARD_DATA } from '@queries/users';
 import type { User, QuizAttempt, QuizFeedback, UserPerformance } from '../../../types/quiz';
+import LoadingComponent from '@utils/LoadingSpinner';
+import { FiAward, FiClock, FiLogOut, FiStar, FiTarget, FiUser } from 'react-icons/fi';
 
 interface UserDashboardData extends User {
     quiz_attempts: (QuizAttempt & { quiz: { title: string; difficulty: string } })[];
@@ -36,14 +37,7 @@ const UserDashboardPage = () => {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-        );
-    }
-
+    if (loading) return <LoadingComponent />
     if (error) {
         return (
             <div className="text-center py-12">
@@ -96,7 +90,7 @@ const UserDashboardPage = () => {
                             className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:text-red-700 
                        dark:text-red-400 dark:hover:text-red-300 transition-colors"
                         >
-                            <LogOut className="w-4 h-4" />
+                            <FiLogOut className="w-4 h-4" />
                             Logout
                         </button>
                     </div>
@@ -105,7 +99,7 @@ const UserDashboardPage = () => {
                     <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 mb-6">
                         <div className="flex items-center gap-4">
                             <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full">
-                                <UserIcon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                                <FiUser className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -124,17 +118,17 @@ const UserDashboardPage = () => {
                     {/* Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                         <StatCard
-                            icon={<Target className="w-5 h-5" />}
+                            icon={<FiTarget className="w-5 h-5" />}
                             title="Average Score"
                             value={`${avgScore.toFixed(1)}%`}
                         />
                         <StatCard
-                            icon={<Clock className="w-5 h-5" />}
+                            icon={<FiClock className="w-5 h-5" />}
                             title="Total Attempts"
                             value={totalAttempts.toString()}
                         />
                         <StatCard
-                            icon={<Award className="w-5 h-5" />}
+                            icon={<FiAward className="w-5 h-5" />}
                             title="Member Since"
                             value={new Date(userData.created_at).toLocaleDateString()}
                         />
@@ -182,7 +176,7 @@ const UserDashboardPage = () => {
                                             </p>
                                         </div>
                                         <div className="flex items-center">
-                                            <Star className="w-4 h-4 text-yellow-400 mr-1" />
+                                            <FiStar className="w-4 h-4 text-yellow-400 mr-1" />
                                             <span>{feedback.rating}/5</span>
                                         </div>
                                     </div>

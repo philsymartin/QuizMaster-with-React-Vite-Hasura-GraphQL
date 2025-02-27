@@ -1,5 +1,5 @@
-import { LEADERBOARD_QUERY } from "../api/queries/users";
-import client from "./hasuraApi";
+import { LEADERBOARD_QUERY } from "@queries/users";
+import client from "@services/hasuraApi";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 

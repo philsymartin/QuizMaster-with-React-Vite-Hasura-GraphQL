@@ -30,13 +30,15 @@ export class SentimentAnalysisError extends Error {
         this.name = 'SentimentAnalysisError';
     }
 }
-export interface KeywordAnalysis {
+export interface FeedbackItem {
+    feedback_id: number;
+    text: string;
+}
+export interface KeywordAnalysisResponse {
     totalFeedback: number;
-    keywords: Array<{
-        keyword: string;
-        count: number;
-        examples: string[];
-        averageSentiment: number | null;
+    feedbackKeywords: Array<{
+        feedback_id: number;
+        keywords: string[];
     }>;
 }
 export class KeywordAnalysisError extends Error {
@@ -112,28 +114,13 @@ export const analyzeSentiment = async (
     throw new SentimentAnalysisError('Maximum retries exceeded', undefined, false);
 };
 
-export const analyzeFeedback = async (
-    quiz_id?: number,
-    date_from?: string,
-    date_to?: string
-): Promise<FeedbackAnalytics> => {
-    const response = await fetch(`${API_URL}/analysis/feedback`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ quiz_id, date_from, date_to }),
-    });
-    return response.json();
-};
-
 export const analyzeKeywords = async (
     feedbackItems: Array<{
+        feedback_id: number;
         text: string;
-        sentiment?: { label: string; score: number; }
     }>,
     { maxRetries = DEFAULT_RETRY_COUNT, delayMs = RETRY_DELAY_MS }: RetryConfig = {}
-): Promise<KeywordAnalysis> => {
+): Promise<KeywordAnalysisResponse> => {
     let attempt = 0;
 
     while (attempt <= maxRetries) {
@@ -142,7 +129,6 @@ export const analyzeKeywords = async (
                 console.log(`Retry attempt ${attempt} of ${maxRetries} for keyword analysis`);
                 await delay(delayMs);
             }
-
             const response = await fetch(`${API_URL}/analysis/keywords`, {
                 method: 'POST',
                 headers: {
@@ -151,9 +137,7 @@ export const analyzeKeywords = async (
                 credentials: 'include',
                 body: JSON.stringify({ feedbackItems }),
             });
-
             const data = await response.json();
-
             // Handle model loading case (503 status)
             if (response.status === 503 || data.error?.includes('model is currently loading')) {
                 attempt++;
@@ -166,14 +150,12 @@ export const analyzeKeywords = async (
                 console.log('Keyword model is loading, retrying in', delayMs, 'ms...');
                 continue;
             }
-
             if (!response.ok) {
                 throw new KeywordAnalysisError(
                     data.message || 'Failed to analyze keywords',
                     response.status
                 );
             }
-
             return data;
         } catch (error) {
             if (error instanceof KeywordAnalysisError) {
@@ -187,6 +169,5 @@ export const analyzeKeywords = async (
             attempt++;
         }
     }
-
     throw new KeywordAnalysisError('Maximum retries exceeded for keyword analysis');
 };

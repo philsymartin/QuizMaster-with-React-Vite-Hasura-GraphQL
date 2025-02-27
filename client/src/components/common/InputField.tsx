@@ -1,5 +1,5 @@
 import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 // Define types for the props of the InputField component
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -42,9 +42,9 @@ const InputField: React.FC<InputFieldProps> = ({ label, type = "text", id, error
                      dark:text-gray-500 dark:hover:text-gray-300 transition-colors"
           >
             {showPassword ? (
-              <EyeOff className="w-5 h-5" />
+              <FiEyeOff className="w-5 h-5" />
             ) : (
-              <Eye className="w-5 h-5" />
+              <FiEye className="w-5 h-5" />
             )}
           </button>
         )}

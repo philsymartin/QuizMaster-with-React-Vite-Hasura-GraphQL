@@ -148,21 +148,6 @@ export const INSERT_NEW_OPTIONS = gql`
         }
     }
 `;
-export const UPDATE_QUIZ_SETTINGS = gql`
-    mutation UpdateQuizSettings($quiz_id: Int!, $updates: quizzes_set_input!) {
-        update_quizzes_by_pk(
-            pk_columns: { quiz_id: $quiz_id }
-            _set: $updates
-        ) {
-            quiz_id
-            title
-            description
-            difficulty
-            time_limit_minutes
-            updated_at
-        }
-    }
-`;
 export const START_QUIZ_ATTEMPT = gql`
     mutation StartQuizAttempt($quiz_id: Int!, $user_id: Int!) {
         insert_quiz_attempts_one(object: {
@@ -199,38 +184,6 @@ export const SUBMIT_QUIZ_ATTEMPT = gql`
         }
     }
 `;
-// Mutation to add feedback
-// export const ADD_QUIZ_FEEDBACK = gql`
-//   mutation AddQuizFeedback(
-//     $quizId: Int!
-//     $userId: Int!
-//     $feedbackText: String!
-//     $rating: Int!
-//     $sentimentLabel: String
-//     $sentimentScore: numeric
-//   ) {
-//     insert_quiz_feedback_one(
-//       object: {
-//         quiz_id: $quizId
-//         user_id: $userId
-//         feedback_text: $feedbackText
-//         rating: $rating
-//         sentiment_label: $sentimentLabel
-//         sentiment_score: $sentimentScore
-//         analyzed_at: "now()"
-//       }
-//     ) {
-//       feedback_id
-//       quiz_id
-//       rating
-//       feedback_text
-//       sentiment_label
-//       sentiment_score
-//       analyzed_at
-//     }
-//   }
-// `;
-
 export const ADD_QUIZ_FEEDBACK = gql`
   mutation AddQuizFeedback(
     $quizId: Int!

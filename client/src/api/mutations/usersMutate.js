@@ -14,7 +14,6 @@ export const CREATE_USER = gql`
     }
   }
 `;
-
 export const UPDATE_USER = gql`
   mutation UpdateUser($user_id: Int!, $username: String, $email: String, $role: String, $status: String) {
     update_users(where: {user_id: {_eq: $user_id}}, _set: {username: $username, email: $email, role: $role, status: $status}) {
@@ -30,11 +29,12 @@ export const UPDATE_USER = gql`
     }
   }
 `;
-
 export const DELETE_USER = gql`
   mutation DeleteUser($user_id: Int!) {
-    delete_users(where: {user_id: {_eq: $user_id}}) {
-      affected_rows
+    update_users(where: {user_id: {_eq: $user_id}}, _set: {status: "deleted"}) {
+      returning {
+        user_id
+      }
     }
   }
 `;

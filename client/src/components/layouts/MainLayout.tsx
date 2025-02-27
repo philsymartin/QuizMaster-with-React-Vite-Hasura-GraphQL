@@ -1,7 +1,6 @@
-import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/NavBar';
-const MainLayout: React.FC = () => {
+import Navbar from '@components/NavBar';
+const MainLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors duration-200">

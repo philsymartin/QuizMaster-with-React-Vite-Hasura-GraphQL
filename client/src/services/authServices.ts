@@ -32,13 +32,6 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
 
     return response.json();
 };
-
-// export const isTokenExpired = () => {
-//     const expiration = localStorage.getItem('tokenExpiration');
-//     if (!expiration) return true;
-//     return Date.now() > Number(expiration);
-// };
-
 export const registerUser = async (username: string, email: string, password: string) => {
     const response = await fetch(`${API_URL}/register`, {
         method: 'POST',

@@ -1,16 +1,81 @@
-import React from 'react';
-import {
-    Users,
-    BookOpen,
-    Award,
-    BarChart2,
-    Menu,
-    TrendingUp,
-    TrendingDown,
-    Clock,
-    CheckCircle2
-} from 'lucide-react';
 
+import React from 'react';
+import { useQuery } from '@apollo/client';
+import { GET_DASHBOARD_STATS, GET_QUICK_STATS, GET_RECENT_ACTIVITY } from '@queries/adminDashboard'
+import LoadingComponent from '@utils/LoadingSpinner';
+import { FiAward, FiBarChart2, FiBookOpen, FiClock, FiUsers } from 'react-icons/fi';
+
+interface DashboardStatsData {
+    users_aggregate: {
+        aggregate: {
+            count: number;
+        }
+    }
+    quizzes_aggregate: {
+        aggregate: {
+            count: number;
+        }
+    }
+    quiz_attempts_aggregate: {
+        aggregate: {
+            count: number;
+            avg: {
+                score: number;
+            }
+        }
+    }
+    completed_attempts: {
+        aggregate: {
+            count: number;
+        }
+    }
+    total_attempts: {
+        aggregate: {
+            count: number;
+        }
+    }
+}
+
+interface RecentActivityData {
+    quiz_attempts: Array<{
+        attempt_id: number;
+        user: {
+            username: string;
+        }
+        quiz: {
+            title: string;
+        }
+        score: number;
+        end_time: string;
+    }>;
+    users: Array<{
+        user_id: number;
+        username: string;
+        created_at: string;
+    }>;
+    quizzes: Array<{
+        quiz_id: number;
+        title: string;
+        created_at: string;
+    }>;
+}
+
+interface QuickStatsData {
+    quiz_attempts_with_duration: Array<{
+        start_time: string;
+        end_time: string;
+    }>;
+    new_users_today: {
+        aggregate: {
+            count: number;
+        }
+    }
+    new_quizzes_today: {
+        aggregate: {
+            count: number;
+        }
+    }
+}
 interface RecentActivityItem {
     id: number;
     action: string;
@@ -20,37 +85,111 @@ interface RecentActivityItem {
 }
 
 const AdminDashboardPage = () => {
-    // Mock recent activity data
-    const recentActivities: RecentActivityItem[] = [
-        {
-            id: 1,
-            action: "Completed Quiz: JavaScript Basics",
-            user: "John Doe",
-            time: "5 minutes ago",
-            type: "quiz"
-        },
-        {
-            id: 2,
-            action: "New User Registration",
-            user: "Sarah Smith",
-            time: "10 minutes ago",
-            type: "user"
-        },
-        {
-            id: 3,
-            action: "Quiz Score: 95%",
-            user: "Mike Johnson",
-            time: "15 minutes ago",
-            type: "result"
-        },
-        {
-            id: 4,
-            action: "Created New Quiz: Python Advanced",
-            user: "Emily Brown",
-            time: "30 minutes ago",
-            type: "quiz"
-        },
-    ];
+    // Set up yesterday date for the query variable
+    const yesterday = React.useMemo(() => {
+        const date = new Date();
+        date.setDate(date.getDate() - 1);
+        return date.toISOString();
+    }, []);
+
+    const { loading: statsLoading, error: statsError, data: statsData } = useQuery<DashboardStatsData>(GET_DASHBOARD_STATS);
+    const { loading: activityLoading, error: activityError, data: activityData } = useQuery<RecentActivityData>(GET_RECENT_ACTIVITY);
+    const { loading: quickStatsLoading, error: quickStatsError, data: quickStatsData } = useQuery<QuickStatsData>(
+        GET_QUICK_STATS,
+        { variables: { yesterday } }
+    );
+    const formatTime = (date: Date): string => {
+        const now = new Date();
+        const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+
+        if (diffInMinutes < 60) {
+            return `${diffInMinutes} minutes ago`;
+        } else if (diffInMinutes < 24 * 60) {
+            return `${Math.floor(diffInMinutes / 60)} hours ago`;
+        } else {
+            return `${Math.floor(diffInMinutes / (24 * 60))} days ago`;
+        }
+    };
+    const timeToMinutes = (timeString: string): number => {
+        if (timeString.includes('minutes')) {
+            return parseInt(timeString.split(' ')[0]);
+        } else if (timeString.includes('hours')) {
+            return parseInt(timeString.split(' ')[0]) * 60;
+        } else {
+            return parseInt(timeString.split(' ')[0]) * 60 * 24;
+        }
+    };
+    const recentActivities: RecentActivityItem[] = React.useMemo(() => {
+        if (activityLoading || activityError || !activityData) return [];
+
+        const activities: RecentActivityItem[] = [];
+        activityData.quiz_attempts.forEach(attempt => {
+            activities.push({
+                id: attempt.attempt_id,
+                action: `Completed Quiz: ${attempt.quiz.title} with Score: ${attempt.score}%`,
+                user: attempt.user.username,
+                time: formatTime(new Date(attempt.end_time)),
+                type: 'result'
+            });
+        });
+        activityData.users.forEach(user => {
+            activities.push({
+                id: user.user_id,
+                action: "New User Registration",
+                user: user.username,
+                time: formatTime(new Date(user.created_at)),
+                type: 'user'
+            });
+        });
+        activityData.quizzes.forEach(quiz => {
+            activities.push({
+                id: quiz.quiz_id,
+                action: `New Quiz Created: ${quiz.title}`,
+                user: "System",
+                time: formatTime(new Date(quiz.created_at)),
+                type: 'quiz'
+            });
+        });
+        return activities.sort((a, b) => {
+            const timeA = timeToMinutes(a.time);
+            const timeB = timeToMinutes(b.time);
+            return timeA - timeB;
+        }).slice(0, 5);
+    }, [activityData, activityLoading, activityError]);
+
+    // Calculate stats for stat cards
+    const userCount = statsData?.users_aggregate.aggregate.count || 0;
+    const quizCount = statsData?.quizzes_aggregate.aggregate.count || 0;
+    const completionRate = statsData?.completed_attempts && statsData?.total_attempts ?
+        Math.round((statsData.completed_attempts.aggregate.count / statsData.total_attempts.aggregate.count) * 100) : 0;
+    const avgScore = statsData?.quiz_attempts_aggregate.aggregate.avg.score ?
+        Math.round(statsData.quiz_attempts_aggregate.aggregate.avg.score) : 0;
+
+    const avgDuration = React.useMemo(() => {
+        if (!quickStatsData?.quiz_attempts_with_duration || quickStatsData.quiz_attempts_with_duration.length === 0) {
+            return 0;
+        }
+
+        const durations = quickStatsData.quiz_attempts_with_duration.map(attempt => {
+            const start = new Date(attempt.start_time);
+            const end = new Date(attempt.end_time);
+            return Math.round((end.getTime() - start.getTime()) / (1000 * 60)); // Convert to minutes
+        });
+
+        const sum = durations.reduce((acc, duration) => acc + duration, 0);
+        return Math.round(sum / durations.length);
+    }, [quickStatsData]);
+
+    const newUsersToday = quickStatsData?.new_users_today.aggregate.count || 0;
+    const newQuizzesToday = quickStatsData?.new_quizzes_today.aggregate.count || 0;
+
+    if (statsLoading || activityLoading || quickStatsLoading) {
+        return <LoadingComponent />;
+    }
+
+    if (statsError || activityError || quickStatsError) {
+        return <div className="text-center p-8 text-red-500">Error loading dashboard data. Please try again.</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -58,60 +197,30 @@ const AdminDashboardPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     title="Total Users"
-                    value="1,234"
-                    icon={Users}
-                    trend="+12%"
-                    trendUp={true}
-                    description="Active users this month"
+                    value={userCount.toLocaleString()}
+                    icon={FiUsers}
+                    description="Registered users"
                 />
                 <StatCard
-                    title="Active Quizzes"
-                    value="45"
-                    icon={BookOpen}
-                    trend="+5%"
-                    trendUp={true}
-                    description="Published quizzes"
+                    title="Total Quizzes"
+                    value={quizCount.toString()}
+                    icon={FiBookOpen}
+                    description="Available quizzes"
                 />
                 <StatCard
                     title="Completion Rate"
-                    value="78%"
-                    icon={Award}
-                    trend="-2%"
-                    trendUp={false}
+                    value={`${completionRate}%`}
+                    icon={FiAward}
                     description="Average completion rate"
                 />
                 <StatCard
                     title="Avg. Score"
-                    value="85%"
-                    icon={BarChart2}
-                    trend="+3%"
-                    trendUp={true}
-                    description="This week's average"
+                    value={`${avgScore}%`}
+                    icon={FiBarChart2}
+                    description="Average quiz score"
                 />
             </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Recent Activity */}
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md">
-                    <div className="p-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-                            Recent Activity
-                        </h2>
-                        <div className="space-y-4">
-                            {recentActivities.map((activity) => (
-                                <ActivityItem key={activity.id} activity={activity} />
-                            ))}
-                        </div>
-                    </div>
-                    <div className="border-t border-gray-100 dark:border-gray-700 p-4">
-                        <button className="text-purple-600 dark:text-purple-400 hover:text-purple-700 
-                                       dark:hover:text-purple-300 font-medium text-sm">
-                            View All Activity
-                        </button>
-                    </div>
-                </div>
-
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Quick Stats */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
@@ -119,25 +228,36 @@ const AdminDashboardPage = () => {
                     </h2>
                     <div className="space-y-4">
                         <QuickStat
-                            icon={Clock}
+                            icon={FiClock}
                             label="Average Quiz Duration"
-                            value="15 minutes"
+                            value={`${avgDuration} minutes`}
                         />
                         <QuickStat
-                            icon={CheckCircle2}
-                            label="Quiz Success Rate"
-                            value="92%"
-                        />
-                        <QuickStat
-                            icon={Users}
+                            icon={FiUsers}
                             label="New Users Today"
-                            value="48"
+                            value={newUsersToday.toString()}
                         />
                         <QuickStat
-                            icon={BookOpen}
+                            icon={FiBookOpen}
                             label="Quizzes Created Today"
-                            value="12"
+                            value={newQuizzesToday.toString()}
                         />
+                    </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                        Recent Activity
+                    </h2>
+                    <div className="space-y-4">
+                        {recentActivities.length > 0 ? (
+                            recentActivities.map((activity) => (
+                                <ActivityItem key={`${activity.type}-${activity.id}`} activity={activity} />
+                            ))
+                        ) : (
+                            <p className="text-gray-500 dark:text-gray-400">No recent activity found.</p>
+                        )}
                     </div>
                 </div>
             </div>
@@ -149,8 +269,6 @@ interface StatCardProps {
     title: string;
     value: string;
     icon: React.FC<any>;
-    trend: string;
-    trendUp: boolean;
     description: string;
 }
 
@@ -158,25 +276,12 @@ const StatCard: React.FC<StatCardProps> = ({
     title,
     value,
     icon: Icon,
-    trend,
-    trendUp,
     description
 }) => (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
         <div className="flex items-center justify-between mb-4">
             <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full">
                 <Icon className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="flex items-center space-x-1">
-                {trendUp ? (
-                    <TrendingUp className="w-4 h-4 text-green-500" />
-                ) : (
-                    <TrendingDown className="w-4 h-4 text-red-500" />
-                )}
-                <span className={`text-sm font-medium ${trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                    {trend}
-                </span>
             </div>
         </div>
         <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</h3>
@@ -192,9 +297,9 @@ interface ActivityItemProps {
 const ActivityItem: React.FC<ActivityItemProps> = ({ activity }) => (
     <div className="flex items-center space-x-4">
         <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
-            {activity.type === 'quiz' && <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-            {activity.type === 'user' && <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
-            {activity.type === 'result' && <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
+            {activity.type === 'quiz' && <FiBookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
+            {activity.type === 'user' && <FiUsers className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
+            {activity.type === 'result' && <FiAward className="w-5 h-5 text-purple-600 dark:text-purple-400" />}
         </div>
         <div className="flex-1">
             <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{activity.action}</p>

@@ -186,3 +186,22 @@ export const CHECK_EXISTING_ATTEMPT = gql`
                     }
                 }
             `
+    ;
+export const GET_QUIZZES_DATA = gql`
+  query GetQuizzesData {
+    quizzes(order_by: {created_at: desc}) {
+      quiz_id
+      title
+      average_rating
+      participants_count
+      total_questions
+      average_score: user_performances_aggregate {
+        aggregate {
+          avg {
+            average_score
+          }
+        }
+      }
+    }
+  }
+`;

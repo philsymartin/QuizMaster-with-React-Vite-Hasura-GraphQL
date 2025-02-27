@@ -1,13 +1,13 @@
-import { Plus, Edit, Trash2, Check } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Question } from '../../../types/quiz';
+import { Question } from '../../types/quiz';
 import {
     deleteQuestionRequest, openAddQuestionModal, selectAddQuestionModalOpen,
     selectDeleteQuestionError,
     selectDeleteQuestionLoading, selectQuestions, selectSelectedQuiz, setEditingQuestion,
-} from '../../../redux/quiz/quizSlice';
+} from '../../redux/quiz/quizSlice';
 import AddQuestionForm from './AddQuestionForm';
 import { useEffect, useState } from 'react';
+import { FiCheck, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 interface QuestionsTabProps {
     questions: Question[];
@@ -63,7 +63,7 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                           border-2 border-dashed border-gray-300 dark:border-gray-600 
                           rounded-lg text-gray-500 dark:text-gray-400 hover:border-purple-500 
                           hover:text-purple-500 transition-colors">
-                    <Plus className="w-5 h-5 mr-2" />
+                    <FiPlus className="w-5 h-5 mr-2" />
                     Add New Question
                 </button>
 
@@ -88,12 +88,12 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                                 <button
                                     onClick={() => handleEditQuestion(question.question_id)}
                                     className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
-                                    <Edit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                    <FiEdit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                 </button>
                                 <button
                                     onClick={() => openDeleteModal(question.question_id)}
                                     className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
-                                    <Trash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                                    <FiTrash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                 </button>
                             </div>
                         </div>
@@ -106,7 +106,7 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                                             ? 'bg-green-100 dark:bg-green-900/30'
                                             : 'bg-gray-100 dark:bg-gray-600/30'}`}>
                                         {qOption.is_correct && (
-                                            <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                            <FiCheck className="w-3 h-3 text-green-600 dark:text-green-400" />
                                         )}
                                     </div>
                                     <span className={`${qOption.is_correct

@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS quiz_feedback (
     sentiment_label VARCHAR(50),
     sentiment_score DECIMAL(5,4),
     analyzed_at TIMESTAMPTZ;
+    keyword_extracted_at TIMESTAMPTZ;
 );
 
 -- User Performance Table
@@ -107,21 +108,10 @@ CREATE TABLE IF NOT EXISTS feedback_keywords (
 );
 -- Create junction table for feedback-keyword relationship
 CREATE TABLE IF NOT EXISTS feedback_keyword_mapping (
+    feedback_keyword_id SERIAL PRIMARY KEY,
     feedback_id INT REFERENCES quiz_feedback(feedback_id),
-    keyword_id INT REFERENCES feedback_keywords(keyword_id),
-    sentiment_context DECIMAL(5,4),  -- Sentiment score for this keyword in this context
-    PRIMARY KEY (feedback_id, keyword_id)
+    keyword_id INT REFERENCES feedback_keywords(keyword_id)
 );
--- Create table for keyword analytics
-CREATE TABLE IF NOT EXISTS keyword_analytics (
-    keyword_id INT REFERENCES feedback_keywords(keyword_id),
-    quiz_id INT REFERENCES quizzes(quiz_id),
-    occurrence_count INT DEFAULT 1,
-    average_sentiment DECIMAL(5,4),
-    last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (keyword_id, quiz_id)
-);
-
 
 -- Indexes for Optimization
 CREATE INDEX idx_users_email ON users (email);
@@ -209,37 +199,6 @@ CREATE TRIGGER trigger_update_total_questions
 AFTER INSERT OR DELETE ON questions
 FOR EACH ROW
 EXECUTE FUNCTION update_total_questions();
-
--- Create or replace function to update keyword analytics
-CREATE OR REPLACE FUNCTION update_keyword_analytics()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Update or insert into keyword_analytics
-    INSERT INTO keyword_analytics (keyword_id, quiz_id, occurrence_count, average_sentiment)
-    SELECT 
-        NEW.keyword_id,
-        qf.quiz_id,
-        COUNT(*),
-        AVG(fkm.sentiment_context)
-    FROM quiz_feedback qf
-    JOIN feedback_keyword_mapping fkm ON qf.feedback_id = fkm.feedback_id
-    WHERE fkm.keyword_id = NEW.keyword_id
-    GROUP BY qf.quiz_id
-    ON CONFLICT (keyword_id, quiz_id) 
-    DO UPDATE SET
-        occurrence_count = EXCLUDED.occurrence_count,
-        average_sentiment = EXCLUDED.average_sentiment,
-        last_updated = CURRENT_TIMESTAMP;
-    
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create trigger for keyword analytics
-CREATE TRIGGER trigger_update_keyword_analytics
-AFTER INSERT OR UPDATE ON feedback_keyword_mapping
-FOR EACH ROW
-EXECUTE FUNCTION update_keyword_analytics();
 
 -- Create function for the trigger
 CREATE OR REPLACE FUNCTION update_last_active()

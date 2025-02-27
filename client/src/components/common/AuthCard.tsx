@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 
-// Define types for the props
 interface AuthCardProps {
   title: string;
   children: React.ReactNode;

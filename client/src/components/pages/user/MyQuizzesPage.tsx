@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
-import { useQuery, useMutation, gql } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { motion } from 'framer-motion';
-import { Star, Clock, Target, MessageSquare, X } from 'lucide-react';
 import type { QuizAttempt, QuizFeedback, Quiz } from '../../../types/quiz';
-import { GET_USER_QUIZZES } from '../../../api/queries/users';
-import { ADD_QUIZ_FEEDBACK, UPDATE_FEEDBACK_SENTIMENT } from '../../../api/mutations/questionsMutate';
-import { RootState } from '../../../redux/store';
+import { GET_USER_QUIZZES } from '@queries/users';
+import { ADD_QUIZ_FEEDBACK, UPDATE_FEEDBACK_SENTIMENT } from '@mutations/questionsMutate';
+import { RootState } from '@redux/store';
 import { useSelector } from 'react-redux';
-import { analyzeSentiment } from '../../../services/sentiment';
+import { analyzeSentiment } from '@services/sentiment';
+import LoadingComponent from '@utils/LoadingSpinner';
+import { FiClock, FiMessageSquare, FiStar, FiTarget, FiX } from 'react-icons/fi';
 
 interface QuizAttemptWithQuiz extends QuizAttempt {
   quiz: Pick<Quiz, 'quiz_id' | 'title' | 'difficulty' | 'description' | 'time_limit_minutes'>;
@@ -107,13 +108,7 @@ const MyQuizzesPage = () => {
     setSubmitError(null);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
-  }
+  if (loading) return <LoadingComponent />
 
   if (error) {
     return (
@@ -172,23 +167,23 @@ const MyQuizzesPage = () => {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                     <StatItem
-                      icon={<Target className="w-4 h-4" />}
+                      icon={<FiTarget className="w-4 h-4" />}
                       label="Score"
                       value={`${attempt.score}%`}
                     />
                     <StatItem
-                      icon={<Clock className="w-4 h-4" />}
+                      icon={<FiClock className="w-4 h-4" />}
                       label="Time Limit"
                       value={`${attempt.quiz.time_limit_minutes} min`}
                     />
                     <StatItem
-                      icon={<MessageSquare className="w-4 h-4" />}
+                      icon={<FiMessageSquare className="w-4 h-4" />}
                       label="Feedback"
                       value={feedback ? "Submitted" : "Not yet"}
                     />
                     {feedback && (
                       <StatItem
-                        icon={<Star className="w-4 h-4" />}
+                        icon={<FiStar className="w-4 h-4" />}
                         label="Rating"
                         value={`${feedback.rating}/5`}
                       />
@@ -239,7 +234,7 @@ const MyQuizzesPage = () => {
                   onClick={() => setShowModal(false)}
                   className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
                 >
-                  <X className="w-5 h-5" />
+                  <FiX className="w-5 h-5" />
                 </button>
               </div>
 
@@ -258,7 +253,7 @@ const MyQuizzesPage = () => {
                           : 'text-gray-300 dark:text-gray-600'
                           }`}
                       >
-                        <Star className="w-6 h-6 fill-current" />
+                        <FiStar className="w-6 h-6 fill-current" />
                       </button>
                     ))}
                   </div>

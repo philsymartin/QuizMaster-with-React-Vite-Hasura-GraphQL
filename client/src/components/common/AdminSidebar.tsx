@@ -1,17 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-    X,
-    Users,
-    BookOpen,
-    Award,
-    Settings,
-    AlertCircle,
-    Home
-} from 'lucide-react';
+import { FiUsers, FiBookOpen, FiAward, FiHome } from 'react-icons/fi';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
+import { RootState } from '@redux/store';
 
 interface AdminSidebarProps {
     isOpen: boolean;
@@ -23,12 +15,10 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
     const { user } = useSelector((state: RootState) => state.auth);
 
     const menuItems = [
-        { icon: Home, label: 'Overview', path: '/admin-dashboard' },
-        { icon: Users, label: 'User Management', path: '/admin-dashboard/users' },
-        { icon: BookOpen, label: 'Quiz Management', path: '/admin-dashboard/quizzes' },
-        { icon: Award, label: 'Results & Analytics', path: '/admin-dashboard/analytics' },
-        { icon: AlertCircle, label: 'Reports', path: '/admin-dashboard/reports' },
-        { icon: Settings, label: 'Settings', path: '/admin-dashboard/settings' },
+        { icon: FiHome, label: 'Overview', path: '/admin-dashboard' },
+        { icon: FiUsers, label: 'User Management', path: '/admin-dashboard/users' },
+        { icon: FiBookOpen, label: 'Quiz Management', path: '/admin-dashboard/quizzes' },
+        { icon: FiAward, label: 'Results & Analytics', path: '/admin-dashboard/analytics' },
     ];
 
     return (
@@ -40,24 +30,6 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
                        ${isOpen ? 'w-72' : 'w-0'}`}
         >
             <div className="flex flex-col h-full">
-                {/* Sidebar Header */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 
-                                     dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
-                            Admin Panel
-                        </h2>
-                        <button
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 
-                                     transition-colors"
-                        >
-                            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                        </button>
-                    </div>
-                </div>
-
-                {/* Navigation Menu */}
                 <nav className="flex-1 overflow-y-auto p-4">
                     {menuItems.map((item, index) => (
                         <button

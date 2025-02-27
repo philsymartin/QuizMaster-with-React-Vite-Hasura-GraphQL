@@ -11,7 +11,6 @@ import { HasuraClaims, HasuraResponse, LeaderboardQueryResult, LoginRequest, Reg
 import analysisRoutes from './routes/analysisApi';
 dotenv.config();
 
-// Environment variables with type checking
 const PORT = process.env.PORT || 5000;
 const HASURA_ENDPOINT = process.env.HASURA_ENDPOINT;
 const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
@@ -97,21 +96,17 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
         JWT_ACCESS_SECRET as jwt.Secret,
         { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRATION } as jwt.SignOptions
     );
-
-    // Generate refresh token (no need for Hasura claims here)
     const refreshToken = jwt.sign(
         { userId: user.user_id, role: user.role },
         process.env.JWT_REFRESH_TOKEN_SECRET as jwt.Secret,
         { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION } as jwt.SignOptions
     );
-
     res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: ACCESS_TOKEN_MAX_AGE
     });
-
     res.cookie('refresh_token', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -121,13 +116,11 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
 
     if (user.role === 'admin') {
         res.cookie('hasura_admin_secret', HASURA_ADMIN_SECRET, {
-            httpOnly: false, // Changed to false so JavaScript can read it
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            // maxAge: ACCESS_TOKEN_MAX_AGE
         });
     }
-
     return res.json({
         message: 'Login successful',
         user: {
@@ -216,7 +209,6 @@ app.post('/register', asyncHandler(async (req: Request<{}, {}, RegisterRequest>,
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    // Insert user into Hasura
     const createUserResponse = await axios.post<HasuraResponse<{ insert_users: { returning: User[] } }>>(
         HASURA_ENDPOINT!,
         {
@@ -251,22 +243,18 @@ app.post('/logout', (req: Request, res: Response) => {
         sameSite: 'strict',
         expires: new Date(0),
     });
-
     res.cookie('refresh_token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         expires: new Date(0),
     });
-
     res.cookie('hasura_admin_secret', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         expires: new Date(0),
     });
-
-
     res.status(200).json({ message: 'Logout successful' });
 });
 app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
@@ -328,65 +316,16 @@ app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
     }
 }));
 
-// app.post('/actions/top-performers', asyncHandler(async (req: Request, res: Response) => {
-//     const { input: { quiz_id } } = req.body;
-
-//     try {
-//         // Query Hasura directly with admin secret
-//         const response = await axios.post(
-//             HASURA_ENDPOINT!,
-//             {
-//                 query: `
-//             query GetTopPerformers($quiz_id: Int!) {
-//               user_performances(
-//                 where: { quiz_id: { _eq: $quiz_id } }
-//                 order_by: { average_score: desc }
-//                 limit: 3
-//               ) {
-//                 average_score
-//                 user {
-//                   username
-//                 }
-//               }
-//             }
-//           `,
-//                 variables: { quiz_id }
-//             },
-//             {
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'x-hasura-admin-secret': HASURA_ADMIN_SECRET
-//                 }
-//             }
-//         );
-//         console.log('Hasura response:', JSON.stringify(response.data, null, 2));
-
-//         const performers = response.data.data.user_performances.map(
-//             (p: any) => ({
-//                 username: p.user.username,
-//                 average_score: p.average_score
-//             })
-//         );
-
-//         return res.json({
-//             top_performers: performers
-//         });
-//     } catch (error) {
-//         console.error('Error fetching top performers:', error);
-//         return res.status(500).json({ message: 'Error fetching top performers' });
-//     }
-// }));
-
-// Error handling middleware
-
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);
     res.status(500).json({ message: 'Internal server error', error: err.message });
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
 
 export default app;

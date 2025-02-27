@@ -143,6 +143,36 @@ const quizSlice = createSlice({
             state.updateSettingsLoading = false;
             state.updateSettingsError = action.payload;
         },
+        addQuizRequest: (state, action: PayloadAction<Omit<Quiz, 'quiz_id' | 'created_at' | 'updated_at'>>) => {
+            state.loading = true;
+            state.error = null;
+        },
+        addQuizSuccess: (state, action: PayloadAction<Quiz>) => {
+            state.loading = false;
+            state.quizzes = [...state.quizzes, action.payload];
+            state.error = null;
+        },
+        addQuizFailure: (state, action: PayloadAction<string>) => {
+            state.loading = false;
+            state.error = action.payload;
+        },
+        deleteQuizRequest: (state, action: PayloadAction<number>) => {
+            state.loading = true;
+            state.error = null;
+        },
+        deleteQuizSuccess: (state, action: PayloadAction<number>) => {
+            state.loading = false;
+            state.quizzes = state.quizzes.filter(quiz => quiz.quiz_id !== action.payload);
+            if (state.selectedQuiz && state.selectedQuiz.quiz_id === action.payload) {
+                state.selectedQuiz = null;
+                state.questions = [];
+            }
+        },
+        deleteQuizFailure: (state, action: PayloadAction<string>) => {
+            state.loading = false;
+            state.error = action.payload;
+        }
+
     }
 });
 
@@ -194,6 +224,12 @@ export const {
     updateQuizSettingsRequest,
     updateQuizSettingsSuccess,
     updateQuizSettingsFailure,
+    addQuizRequest,
+    addQuizSuccess,
+    addQuizFailure,
+    deleteQuizRequest,
+    deleteQuizSuccess,
+    deleteQuizFailure,
 } = quizSlice.actions;
 
 export const updateQuizSettings = createAction<{

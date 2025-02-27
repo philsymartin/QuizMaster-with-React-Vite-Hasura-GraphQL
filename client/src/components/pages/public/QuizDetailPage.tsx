@@ -1,326 +1,15 @@
-// import React from 'react';
-// import { useParams, Link, useNavigate } from 'react-router-dom';
-// import { motion } from 'framer-motion';
-// import { Clock, Award, Users, Star, BrainCircuit } from 'lucide-react';
-// import { useQuery } from '@apollo/client';
-// import { GET_QUIZ_DETAILS } from '../../../api/queries/quizzes';
-// import { useDispatch } from 'react-redux';
-// import { resetQuizAttempt } from '../../../redux/quiz_attempt/quizAttemptSlice';
-
-// interface Topic {
-//   topic_id: number;
-//   topic_name: string;
-// }
-
-// interface QuizDetailData {
-//   quizzes: [
-//     {
-//       quiz_id: number;
-//       title: string;
-//       description: string;
-//       difficulty: string;
-//       time_limit_minutes: number;
-//       total_questions: number;
-//       participants_count: number;
-//       average_rating: number;
-//       quiz_topics: {
-//         topic: Topic;
-//       }[];
-//       user_performances: {
-//         user: { username: string };
-//         average_score: number;
-//       }[];
-//     }
-//   ];
-// }
-
-// const QuizDetailPage: React.FC = () => {
-//   const { quizId } = useParams<{ quizId: string }>();
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch();
-
-//   if (!quizId) {
-//     return <div>Quiz not found.</div>;
-//   }
-
-//   const { loading, error, data } = useQuery<QuizDetailData>(GET_QUIZ_DETAILS, {
-//     variables: { quiz_id: parseInt(quizId) },
-//   });
-//   const handleStartQuiz = () => {
-//     dispatch(resetQuizAttempt());
-//     navigate(`/quizzes/${quizId}/attempt`);
-//   };
-
-//   if (loading) return <div>Loading...</div>;
-//   if (error) {
-//     console.error(error);
-//     return <div>Error fetching quiz details. Please try again later.</div>;
-//   }
-//   const quiz = data?.quizzes[0];
-//   if (!quiz) {
-//     return <div>Quiz not found.</div>;
-//   }
-
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       className="max-w-4xl mx-auto"
-//     >
-//       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-//         <div className="p-8">
-//           <div className="flex items-center justify-between mb-6">
-//             {/* <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
-//               {quiz.category}
-//             </span> */}
-//             <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400">
-//               {quiz.difficulty}
-//             </span>
-//           </div>
-
-//           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-500 dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
-//             {quiz.title}
-//           </h1>
-
-//           <p className="text-gray-600 dark:text-gray-400 mb-8">
-//             {quiz.description}
-//           </p>
-
-//           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Clock className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Time Limit</span>
-//               <span className="font-semibold">{quiz.time_limit_minutes} mins</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <BrainCircuit className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Questions</span>
-//               <span className="font-semibold">{quiz.total_questions}</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Users className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Participants</span>
-//               <span className="font-semibold">{quiz.participants_count.toLocaleString()}</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Star className="w-6 h-6 mb-2 text-yellow-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Rating</span>
-//               <span className="font-semibold">{quiz.average_rating}/5.0</span>
-//             </div>
-//           </div>
-
-//           <div className="mb-8">
-//             <h3 className="text-lg font-semibold mb-4">Topics Covered</h3>
-//             <div className="flex flex-wrap gap-2">
-//               {quiz.quiz_topics.map((topic, index) => (
-//                 <span
-//                   key={index}
-//                   className="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-//                 >
-//                   {topic.topic.topic_name}
-//                 </span>
-//               ))}
-//             </div>
-//           </div>
-
-//           {/* <div className="mb-8">
-//             <h3 className="text-lg font-semibold mb-4">Top Scorers</h3>
-//             <div className="space-y-2">
-//               {quiz.user_performances.map((performance, index) => (
-//                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-//                   <div className="flex items-center">
-//                     <Award className={`w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : 'text-orange-400'}`} />
-//                     <span>{performance.user.username}</span>
-//                   </div>
-//                   <span className="font-semibold">{performance.average_score}%</span>
-//                 </div>
-//               ))}
-//             </div>
-//           </div> */}
-
-//           <button
-//             onClick={handleStartQuiz}
-//             className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold transform hover:scale-102 transition-all"
-//           >
-//             Start Quiz Now
-//           </button>
-//         </div>
-//       </div>
-//     </motion.div>
-//   );
-// };
-
-// export default QuizDetailPage;
-
-// import React from 'react';
-// import { useParams, Link, useNavigate } from 'react-router-dom';
-// import { motion } from 'framer-motion';
-// import { Clock, Award, Users, Star, BrainCircuit } from 'lucide-react';
-// import { useQuery } from '@apollo/client';
-// import { GET_QUIZ_DETAILS } from '../../../api/queries/quizzes';
-// import { useDispatch } from 'react-redux';
-// import { resetQuizAttempt } from '../../../redux/quiz_attempt/quizAttemptSlice';
-
-// interface Topic {
-//   topic_id: number;
-//   topic_name: string;
-// }
-
-// interface QuizDetailData {
-//   quizzes: [
-//     {
-//       quiz_id: number;
-//       title: string;
-//       description: string;
-//       difficulty: string;
-//       time_limit_minutes: number;
-//       total_questions: number;
-//       participants_count: number;
-//       average_rating: number;
-//       quiz_topics: {
-//         topic: Topic;
-//       }[];
-//       user_performances: {
-//         user: { username: string };
-//         average_score: number;
-//       }[];
-//     }
-//   ];
-// }
-
-// const QuizDetailPage: React.FC = () => {
-
-//   const now = new Date();
-//   console.log("Current Time:", now);
-
-
-//   const { quizId } = useParams<{ quizId: string }>();
-//   const navigate = useNavigate();
-//   const dispatch = useDispatch();
-
-//   if (!quizId) {
-//     return <div>Quiz not found.</div>;
-//   }
-
-//   const { loading, error, data } = useQuery<QuizDetailData>(GET_QUIZ_DETAILS, {
-//     variables: { quiz_id: parseInt(quizId) },
-//   });
-//   const handleStartQuiz = () => {
-//     dispatch(resetQuizAttempt());
-//     navigate(`/quizzes/${quizId}/attempt`);
-//   };
-
-//   if (loading) return <div>Loading...</div>;
-//   if (error) {
-//     console.error(error);
-//     return <div>Error fetching quiz details. Please try again later.</div>;
-//   }
-//   const quiz = data?.quizzes[0];
-//   if (!quiz) {
-//     return <div>Quiz not found.</div>;
-//   }
-
-//   return (
-//     <motion.div
-//       initial={{ opacity: 0, y: 20 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       className="max-w-4xl mx-auto"
-//     >
-//       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-//         <div className="p-8">
-//           <div className="flex items-center justify-between mb-6">
-//             {/* <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
-//               {quiz.category}
-//             </span> */}
-//             <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400">
-//               {quiz.difficulty}
-//             </span>
-//           </div>
-
-//           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-500 dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
-//             {quiz.title}
-//           </h1>
-
-//           <p className="text-gray-600 dark:text-gray-400 mb-8">
-//             {quiz.description}
-//           </p>
-
-//           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Clock className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Time Limit</span>
-//               <span className="font-semibold">{quiz.time_limit_minutes} mins</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <BrainCircuit className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Questions</span>
-//               <span className="font-semibold">{quiz.total_questions}</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Users className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Participants</span>
-//               <span className="font-semibold">{quiz.participants_count.toLocaleString()}</span>
-//             </div>
-//             <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-//               <Star className="w-6 h-6 mb-2 text-yellow-400" />
-//               <span className="text-sm text-gray-600 dark:text-gray-400">Rating</span>
-//               <span className="font-semibold">{quiz.average_rating}/5.0</span>
-//             </div>
-//           </div>
-
-//           <div className="mb-8">
-//             <h3 className="text-lg font-semibold mb-4">Topics Covered</h3>
-//             <div className="flex flex-wrap gap-2">
-//               {quiz.quiz_topics.map((topic, index) => (
-//                 <span
-//                   key={index}
-//                   className="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-//                 >
-//                   {topic.topic.topic_name}
-//                 </span>
-//               ))}
-//             </div>
-//           </div>
-
-//           {/* <div className="mb-8">
-//             <h3 className="text-lg font-semibold mb-4">Top Scorers</h3>
-//             <div className="space-y-2">
-//               {quiz.user_performances.map((performance, index) => (
-//                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-//                   <div className="flex items-center">
-//                     <Award className={`w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : 'text-orange-400'}`} />
-//                     <span>{performance.user.username}</span>
-//                   </div>
-//                   <span className="font-semibold">{performance.average_score}%</span>
-//                 </div>
-//               ))}
-//             </div>
-//           </div> */}
-
-//           <button
-//             onClick={handleStartQuiz}
-//             className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold transform hover:scale-102 transition-all"
-//           >
-//             Start Quiz Now
-//           </button>
-//         </div>
-//       </div>
-//     </motion.div>
-//   );
-// };
-
-// export default QuizDetailPage;
-
-
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Clock, Users, Star, BrainCircuit } from 'lucide-react';
 import { useQuery } from '@apollo/client';
-import { GET_QUIZ_DETAILS } from '../../../api/queries/quizzes';
-import { useDispatch } from 'react-redux';
-import { resetQuizAttempt } from '../../../redux/quiz_attempt/quizAttemptSlice';
-import LoadingComponent from '../../utils/LoadingSpinner';
+import { GET_QUIZ_DETAILS } from '@queries/quizzes';
+import { useSelector } from 'react-redux';
+import LoadingComponent from '@utils/LoadingSpinner';
+import { RootState } from '@redux/store';
+import { RoomProvider, getRoomId, useUserTracker } from '@services/liveblocks';
+import { LiveObject } from '@liveblocks/client';
+import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
+import { FaBrain } from "react-icons/fa";
 
 interface Topic {
   topic_id: number;
@@ -358,35 +47,100 @@ interface QuizStatsProps {
 const QuizStats: React.FC<QuizStatsProps> = ({ quiz }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-      <Clock className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
+      <FiClock className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
       <span className="text-sm text-gray-600 dark:text-gray-400">Time Limit</span>
       <span className="font-semibold">{quiz.time_limit_minutes} mins</span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-      <BrainCircuit className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
+      <FaBrain className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
       <span className="text-sm text-gray-600 dark:text-gray-400">Questions</span>
       <span className="font-semibold">{quiz.total_questions}</span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-      <Users className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
+      <FiUsers className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
       <span className="text-sm text-gray-600 dark:text-gray-400">Participants</span>
       <span className="font-semibold">{quiz.participants_count.toLocaleString()}</span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
-      <Star className="w-6 h-6 mb-2 text-yellow-400" />
+      <FiStar className="w-6 h-6 mb-2 text-yellow-400" />
       <span className="text-sm text-gray-600 dark:text-gray-400">Rating</span>
       <span className="font-semibold">{quiz.average_rating}/5.0</span>
     </div>
   </div>
 );
 
-const QuizDetailPage: React.FC = () => {
+const LoginNotification = () => (
+  <div className="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded-md">
+    <div className="flex items-start">
+      <FiAlertCircle className="w-5 h-5 text-blue-500 mr-2 mt-0.5" />
+      <p className="text-blue-700 dark:text-blue-300">
+        You need to be logged in to attempt this quiz and track your progress.
+      </p>
+    </div>
+  </div>
+);
+
+const AuthOptions = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className="mt-4 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl">
+      <div className="flex flex-col items-center text-center">
+        <FiLogIn className="w-8 h-8 mb-3 text-purple-600 dark:text-purple-400" />
+        <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
+        <p className="text-gray-600 dark:text-gray-400 mb-4">
+          You need to log in or create an account to start this quiz and track your progress.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
+          <button
+            onClick={() => navigate('/login')}
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Log In
+          </button>
+          <button
+            onClick={() => navigate('/register')}
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+          >
+            Sign Up
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const QuizDetailContent = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [showAuthOptions, setShowAuthOptions] = useState(false);
 
-  const now = new Date();
-  console.log("Current Time:", now);
+  // const { updateUserActivity } = useUserTracker(
+  //   user?.user_id?.toString() || 'guest',
+  //   user?.username || 'guest user'
+  // );
+  // useEffect(() => {
+  //   let mounted = true;
+  //   const initializePresence = () => {
+  //     if (mounted && quizId) {
+  //       try {
+  //         updateUserActivity(`/quizzes/${quizId}`, {
+  //           type: 'viewing',
+  //           resourceId: quizId,
+  //           startedAt: new Date().toISOString(),
+  //         });
+  //       } catch (error) {
+  //         console.error('Failed to update user activity:', error);
+  //       }
+  //     }
+  //   };
+  //   const timeoutId = setTimeout(initializePresence, 0);
+  //   return () => {
+  //     mounted = false;
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, [quizId, updateUserActivity]);
 
   if (!quizId) {
     return <div>Quiz not found.</div>;
@@ -397,7 +151,11 @@ const QuizDetailPage: React.FC = () => {
   });
 
   const handleStartQuiz = () => {
-    dispatch(resetQuizAttempt());
+    if (!user) {
+      // Show authentication options if user is not logged in
+      setShowAuthOptions(true);
+      return;
+    }
     navigate(`/quizzes/${quizId}/attempt`);
   };
 
@@ -412,72 +170,92 @@ const QuizDetailPage: React.FC = () => {
   }
 
   return (
-    <Suspense fallback={<LoadingComponent />}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
-      >
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
-              {/* <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-400">
-                {quiz.category}
-              </span> */}
-              <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400">
-                {quiz.difficulty}
-              </span>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="max-w-4xl mx-auto"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+        <div className="p-8">
+          {/* Show login notification for guests */}
+          {!user && <LoginNotification />}
+
+          <div className="flex items-center justify-between mb-6">
+            <span className="px-4 py-1.5 text-sm font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400">
+              {quiz.difficulty}
+            </span>
+          </div>
+
+          <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-500 dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
+            {quiz.title}
+          </h1>
+
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
+            {quiz.description}
+          </p>
+
+          <QuizStats quiz={quiz} />
+
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Topics Covered</h3>
+            <div className="flex flex-wrap gap-2">
+              {quiz.quiz_topics.map((topic, index) => (
+                <span
+                  key={index}
+                  className="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                >
+                  {topic.topic.topic_name}
+                </span>
+              ))}
             </div>
-
-            <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-500 dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
-              {quiz.title}
-            </h1>
-
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-              {quiz.description}
-            </p>
-
-            <QuizStats quiz={quiz} />
-
-            <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Topics Covered</h3>
-              <div className="flex flex-wrap gap-2">
-                {quiz.quiz_topics.map((topic, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  >
-                    {topic.topic.topic_name}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* <div className="mb-8">
-              <h3 className="text-lg font-semibold mb-4">Top Scorers</h3>
-              <div className="space-y-2">
-                {quiz.user_performances.map((performance, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <div className="flex items-center">
-                      <Award className={`w-5 h-5 mr-2 ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : 'text-orange-400'}`} />
-                      <span>{performance.user.username}</span>
-                    </div>
-                    <span className="font-semibold">{performance.average_score}%</span>
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
+          </div>
+          {showAuthOptions && !user ? (
+            <AuthOptions />
+          ) : (
             <button
               onClick={handleStartQuiz}
               className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold transform hover:scale-102 transition-all"
             >
-              Start Quiz Now
+              {user ? "Start Quiz Now" : "Log In to Start Quiz"}
             </button>
-          </div>
+          )}
         </div>
-      </motion.div>
-    </Suspense>
+      </div>
+    </motion.div>
+  );
+};
+
+const QuizDetailPage = () => {
+  const user = useSelector((state: RootState) => state.auth.user);
+  const { quizId } = useParams<{ quizId: string }>();
+
+  const initialPresence = useMemo(() => ({
+    currentPage: `/quizzes/${quizId}`,
+    isActive: true,
+    lastActiveAt: new Date().toISOString(),
+    userId: user?.user_id?.toString() || 'guest',
+    username: user?.username || 'guest User',
+    currentAction: {
+      type: 'viewing' as const,
+      resourceId: quizId,
+      startedAt: new Date().toISOString(),
+    },
+  }), [user?.user_id, user?.username, quizId]);
+
+  const initialStorage = useMemo(() => ({
+    userSessions: new LiveObject({})
+  }), []);
+
+  return (
+    <RoomProvider
+      id={getRoomId('admin')}
+      initialPresence={initialPresence}
+      initialStorage={initialStorage}
+    >
+      <Suspense fallback={<LoadingComponent />}>
+        <QuizDetailContent />
+      </Suspense>
+    </RoomProvider>
   );
 };
 

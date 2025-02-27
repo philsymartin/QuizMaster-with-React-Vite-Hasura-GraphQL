@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Navbar from '../components/NavBar';
-import AdminSidebar from '../components/AdminSidebar';
+import Navbar from '@components/NavBar';
+import AdminSidebar from '@components/AdminSidebar';
 
-const AdminLayout: React.FC = () => {
+const AdminLayout = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
 
     const handleToggleSidebar = () => {

@@ -1,5 +1,5 @@
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from './ThemeProvider';
+import { useTheme } from '@utils/ThemeProvider';
+import { FiMoon, FiSun } from 'react-icons/fi';
 
 const ThemeToggle = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
@@ -14,11 +14,11 @@ const ThemeToggle = () => {
             aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} theme`}
         >
             <div className="relative w-5 h-5 transition-opacity duration-200">
-                <Sun
+                <FiSun
                     className={`absolute inset-0 w-full h-full text-gray-600 dark:text-gray-300 transform transition-transform duration-200 
                      ${isDarkMode ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}
                 />
-                <Moon
+                <FiMoon
                     className={`absolute inset-0 w-full h-full text-gray-600 dark:text-gray-300 transform transition-transform duration-200 
                      ${!isDarkMode ? 'scale-100 opacity-100' : 'scale-50 opacity-0'}`}
                 />

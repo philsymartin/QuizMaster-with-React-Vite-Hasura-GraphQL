@@ -1,20 +1,18 @@
-import React, { useEffect } from 'react';
-import { checkAuthStatus } from './redux/auth/authSlice';
-import { store } from './redux/store';
-import RoutesComponent from './routes/Routes';
-import './components/styles/App.css';
+import { useEffect } from 'react';
+import { checkAuthStatus } from '@redux/auth/authSlice';
+import { store } from '@redux/store';
+import RoutesComponent from '@routes/Routes';
+import '@styles/App.css';
+import { INTERVALS } from '@config/costants';
 
-const App: React.FC = () => {
+const App = () => {
   useEffect(() => {
     store.dispatch(checkAuthStatus());
-
     const checkTokenInterval = setInterval(() => {
       store.dispatch({ type: 'CHECK_TOKEN_EXPIRATION' });
-    }, 300000); // 5 minutes
-
+    }, INTERVALS.TOKEN_CHECK); // 5 minutes
     return () => clearInterval(checkTokenInterval);
   }, []);
-  //  div and fragment ???
 
   return (
     <RoutesComponent />

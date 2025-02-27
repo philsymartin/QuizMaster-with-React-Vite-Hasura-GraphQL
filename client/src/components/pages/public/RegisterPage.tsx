@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import AuthCard from '../../components/AuthCard';
-import InputField from '../../components/InputField';
+import AuthCard from '@components/AuthCard';
+import InputField from '@components/InputField';
 import { motion } from 'framer-motion';
-import { registerUser } from '../../../services/authServices';
+import { registerUser } from '@services/authServices';
 import { RegisterFormData, RegisterErrors } from "../../../types/forms";
 
-const RegisterPage: React.FC = () => {
+const RegisterPage = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 

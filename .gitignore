@@ -16,6 +16,7 @@ dist-ssr
 Dockerfile
 docker-compose.yml
 hasura
+coverage
 
 insert_data.sql
 

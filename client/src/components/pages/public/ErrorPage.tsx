@@ -1,10 +1,8 @@
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
-import { AlertTriangle } from 'lucide-react';
 import { Provider } from 'react-redux';
-
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '../../utils/ThemeProvider';
-import { store } from '../../../redux/store';
+import { ThemeProvider } from '@utils/ThemeProvider';
+import { store } from '@redux/store';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const ErrorContent = () => {
     const error = useRouteError();
@@ -36,7 +34,7 @@ const ErrorContent = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 transition-colors duration-200">
             <div className="text-center">
                 <div className="flex justify-center mb-8">
-                    <AlertTriangle className="w-24 h-24 text-purple-600 dark:text-purple-400" />
+                    <FiAlertTriangle className="w-24 h-24 text-purple-600 dark:text-purple-400" />
                 </div>
 
                 <h1 className="text-6xl font-extrabold mb-4 bg-gradient-to-r from-purple-600 to-blue-500 dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
@@ -71,15 +69,11 @@ const ErrorContent = () => {
 
 // Wrapper component that provides all necessary contexts
 const ErrorPage = () => {
-    const queryClient = new QueryClient();
-
     return (
         <Provider store={store}>
-            <QueryClientProvider client={queryClient}>
-                <ThemeProvider>
-                    <ErrorContent />
-                </ThemeProvider>
-            </QueryClientProvider>
+            <ThemeProvider>
+                <ErrorContent />
+            </ThemeProvider>
         </Provider>
     );
 };

@@ -12,7 +12,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "types": [
-      "vite/client"
+      "vite/client",
+      "jest",
+      "node",
+      "@testing-library/jest-dom"
     ],
     /* Bundler mode */
     "moduleResolution": "node",
@@ -20,18 +23,63 @@
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
     "jsx": "react-jsx",
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@components/*": [
+        "src/components/common/*"
+      ],
+      "@pages/*": [
+        "src/components/pages/*"
+      ],
+      "@utils/*": [
+        "src/components/utils/*"
+      ],
+      "@layouts/*": [
+        "src/components/layouts/*"
+      ],
+      "@styles/*": [
+        "src/components/styles/*"
+      ],
+      "@redux/*": [
+        "src/redux/*"
+      ],
+      "@services/*": [
+        "src/services/*"
+      ],
+      "@routes/*": [
+        "src/routes/*"
+      ],
+      "@queries/*": [
+        "src/api/queries/*"
+      ],
+      "@mutations/*": [
+        "src/api/mutations/*"
+      ],
+      "@subscriptions/*": [
+        "src/api/subscriptions/*"
+      ],
+      "@containers/*": [
+        "src/containers/*"
+      ],
+      "@config/*": [
+        "src/config/*"
+      ],
+    }
   },
   "include": [
+    "src",
     "src/**/*.ts",
     "src/**/*.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "jest.setup.ts",
     "vite.config.ts",
     "tailwind.config.ts",
     "src/components/utils/ThemeProvider.tsx",

@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { asyncHandler } from '../middleware/asyncHandler';
-import { SentimentAnalysisRequest, FeedbackAnalyticsRequest, FeedbackItem } from '../types/analysisTypes';
+import { SentimentAnalysisRequest, FeedbackItem } from '../types/analysisTypes';
 
 dotenv.config();
 const router = express.Router();
@@ -12,8 +12,6 @@ const HF_KEYWORD_MODEL_API_URL = "https://api-inference.huggingface.co/models/ml
 if (!HUGGING_FACE_API_TOKEN) {
     console.error('HUGGING_FACE_API_TOKEN is not set');
 }
-const HASURA_ENDPOINT = process.env.HASURA_ENDPOINT;
-const HASURA_ADMIN_SECRET = process.env.HASURA_ADMIN_SECRET;
 
 router.post('/sentiment', asyncHandler(async (req: Request<{}, {}, SentimentAnalysisRequest>, res: Response) => {
     const { text } = req.body;
@@ -74,80 +72,81 @@ router.post('/sentiment', asyncHandler(async (req: Request<{}, {}, SentimentAnal
     }
 }));
 
-router.post('/feedback', asyncHandler(async (req: Request<{}, {}, FeedbackAnalyticsRequest>, res: Response) => {
-    const { quiz_id, date_from, date_to } = req.body;
+// router.post('/feedback', asyncHandler(async (req: Request<{}, {}, FeedbackAnalyticsRequest>, res: Response) => {
+//     const { quiz_id, date_from, date_to } = req.body;
 
-    try {
-        const feedbackResponse = await axios.post(
-            HASURA_ENDPOINT!,
-            {
-                query: `
-                    query GetFeedback($quiz_id: Int, $date_from: timestamptz, $date_to: timestamptz) {
-                        quiz_feedback(
-                            where: {
-                                _and: [
-                                    { quiz_id: { _eq: $quiz_id } },
-                                    { created_at: { _gte: $date_from } },
-                                    { created_at: { _lte: $date_to } }
-                                ]
-                            }
-                        ) {
-                            feedback_id
-                            feedback_text
-                            created_at
-                        }
-                    }
-                `,
-                variables: { quiz_id, date_from, date_to }
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
-                }
-            }
-        );
+//     try {
+//         const feedbackResponse = await axios.post(
+//             HASURA_ENDPOINT!,
+//             {
+//                 query: `
+//                     query GetFeedback($quiz_id: Int, $date_from: timestamptz, $date_to: timestamptz) {
+//                         quiz_feedback(
+//                             where: {
+//                                 _and: [
+//                                     { quiz_id: { _eq: $quiz_id } },
+//                                     { created_at: { _gte: $date_from } },
+//                                     { created_at: { _lte: $date_to } }
+//                                 ]
+//                             }
+//                         ) {
+//                             feedback_id
+//                             feedback_text
+//                             created_at
+//                         }
+//                     }
+//                 `,
+//                 variables: { quiz_id, date_from, date_to }
+//             },
+//             {
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
+//                 }
+//             }
+//         );
 
-        const feedbackItems = feedbackResponse.data.data.quiz_feedback;
+//         const feedbackItems = feedbackResponse.data.data.quiz_feedback;
 
-        const sentimentAnalysis = await Promise.all(
-            feedbackItems.map(async (item: any) => {
-                const response = await axios.post(
-                    HF_SENTIMENT_API_URL,
-                    { inputs: item.feedback_text },
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                );
+//         const sentimentAnalysis = await Promise.all(
+//             feedbackItems.map(async (item: any) => {
+//                 const response = await axios.post(
+//                     HF_SENTIMENT_API_URL,
+//                     { inputs: item.feedback_text },
+//                     {
+//                         headers: {
+//                             'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
+//                             'Content-Type': 'application/json',
+//                         }
+//                     }
+//                 );
 
-                return {
-                    feedback_id: item.feedback_id,
-                    feedback_text: item.feedback_text,
-                    sentiment: response.data[0],
-                    created_at: item.created_at
-                };
-            })
-        );
+//                 return {
+//                     feedback_id: item.feedback_id,
+//                     feedback_text: item.feedback_text,
+//                     sentiment: response.data[0],
+//                     created_at: item.created_at
+//                 };
+//             })
+//         );
 
-        const summary = {
-            total_feedback: sentimentAnalysis.length,
-            positive_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'POSITIVE').length,
-            negative_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'NEGATIVE').length,
-            average_sentiment_score: sentimentAnalysis.reduce((acc, item) => acc + item.sentiment.score, 0) / sentimentAnalysis.length
-        };
+//         const summary = {
+//             total_feedback: sentimentAnalysis.length,
+//             positive_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'POSITIVE').length,
+//             negative_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'NEGATIVE').length,
+//             average_sentiment_score: sentimentAnalysis.reduce((acc, item) => acc + item.sentiment.score, 0) / sentimentAnalysis.length
+//         };
 
-        return res.json({
-            summary,
-            detailed_analysis: sentimentAnalysis
-        });
-    } catch (error) {
-        console.error('Error analyzing feedback:', error);
-        return res.status(500).json({ message: 'Error analyzing feedback' });
-    }
-}));
+//         return res.json({
+//             summary,
+//             detailed_analysis: sentimentAnalysis
+//         });
+//     } catch (error) {
+//         console.error('Error analyzing feedback:', error);
+//         return res.status(500).json({ message: 'Error analyzing feedback' });
+//     }
+// }));
+
 router.post('/keywords', asyncHandler(async (req: Request, res: Response) => {
     const { feedbackItems } = req.body as { feedbackItems: FeedbackItem[] };
 
@@ -176,40 +175,21 @@ router.post('/keywords', asyncHandler(async (req: Request, res: Response) => {
 
                     let keywords: string[] = [];
 
-                    // Handle empty array response
                     if (Array.isArray(response.data) && response.data.length === 0) {
-                        console.log('Empty keyphrase result - extracting words from text');
-                        // Fallback: extract simple words as keywords
-                        const words = item.text
-                            .toLowerCase()
-                            .replace(/[^\w\s]/g, '')
-                            .split(/\s+/)
-                            .filter(word => word.length > 3);
-
-                        keywords = [...new Set(words)].slice(0, 5);
+                        console.log('Empty keyphrase result - currently not extracting words from text');
                     }
                     // Handle format where response.data is an array of objects with 'word' property
-                    else if (Array.isArray(response.data) &&
-                        response.data.length > 0 &&
-                        !Array.isArray(response.data[0]) &&
-                        response.data[0].word) {
+                    else if (Array.isArray(response.data) && response.data.length > 0) {
+                        // Updated to handle the actual structure returned from the API
                         keywords = response.data
-                            .map((k: any) => k.word.trim().toLowerCase())
-                            .filter(Boolean);
-                    }
-                    // Handle nested array format
-                    else if (Array.isArray(response.data) &&
-                        response.data.length > 0 &&
-                        Array.isArray(response.data[0])) {
-                        keywords = response.data[0]
-                            .map((k: any) => k.word?.toLowerCase())
+                            .map((k: any) => k.word?.trim().toLowerCase())
                             .filter(Boolean);
                     }
 
                     return {
+                        feedback_id: item.feedback_id,
                         text: item.text,
                         keywords: keywords,
-                        sentiment: item.sentiment
                     };
                 } catch (error: any) {
                     // If model is loading, propagate this error specifically
@@ -221,62 +201,22 @@ router.post('/keywords', asyncHandler(async (req: Request, res: Response) => {
                     console.error(`Error processing item: "${item.text.substring(0, 30)}..."`, error);
                     // Return item with empty keywords to allow partial results
                     return {
+                        feedback_id: item.feedback_id,
                         text: item.text,
                         keywords: [],
-                        sentiment: item.sentiment
                     };
                 }
             })
         );
 
-        // Aggregate keyword data
-        const keywordStats = new Map<string, {
-            count: number;
-            texts: string[];
-            sentimentScores: number[];
-        }>();
-
-        processedItems.forEach(item => {
-            item.keywords.forEach((keyword: string) => {
-                if (!keywordStats.has(keyword)) {
-                    keywordStats.set(keyword, {
-                        count: 0,
-                        texts: [],
-                        sentimentScores: []
-                    });
-                }
-
-                const stats = keywordStats.get(keyword)!;
-                stats.count++;
-
-                // Store up to 3 example texts
-                if (stats.texts.length < 3) {
-                    stats.texts.push(item.text);
-                }
-
-                // Store sentiment score if available
-                if (item.sentiment) {
-                    stats.sentimentScores.push(item.sentiment.score);
-                }
-            });
-        });
-
-        // Convert to array and calculate statistics
-        const keywordAnalysis = Array.from(keywordStats.entries())
-            .map(([keyword, stats]) => ({
-                keyword,
-                count: stats.count,
-                examples: stats.texts,
-                averageSentiment: stats.sentimentScores.length > 0
-                    ? stats.sentimentScores.reduce((a, b) => a + b, 0) / stats.sentimentScores.length
-                    : null
-            }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 20); // Get top 20 keywords
+        const feedbackKeywords = processedItems.map(item => ({
+            feedback_id: item.feedback_id,
+            keywords: item.keywords
+        }));
 
         return res.json({
             totalFeedback: feedbackItems.length,
-            keywords: keywordAnalysis
+            feedbackKeywords
         });
 
     } catch (error: any) {

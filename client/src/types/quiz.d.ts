@@ -71,6 +71,7 @@ export interface QuizFeedback {
     sentiment_label: string | null;
     sentiment_score: number | null;
     analyzed_at: string | null;
+    keyword_extracted_at: string | null;
 }
 
 export interface User {
@@ -114,18 +115,10 @@ export interface FeedbackKeyword {
     created_at: string;
 }
 export interface FeedbackKeywordMapping {
+    feedback_keyword_id: number;
     feedback_id: number;
     keyword_id: number;
-    sentiment_context: number;
 }
-export interface KeywordAnalytics {
-    keyword_id: number;
-    quiz_id: number;
-    occurrence_count: number;
-    average_sentiment: number;
-    last_updated: string;
-}
-// Enhanced feedback interface with sentiment analysis
 export interface EnhancedQuizFeedback extends QuizFeedback {
     sentiment_label: string | null;
     sentiment_score: number | null;

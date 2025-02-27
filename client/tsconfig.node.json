@@ -19,9 +19,13 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "composite": true
+    "composite": true,
+    "esModuleInterop": true,
+    "allowJs": true
   },
   "include": [
-    "vite.config.ts"
+    "vite.config.ts",
+    "jest.config.ts",
+    "jest.setup.ts"
   ]
 }

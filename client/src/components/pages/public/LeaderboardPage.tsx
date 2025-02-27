@@ -1,10 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Search, SlidersHorizontal, Trophy, Target, Book } from 'lucide-react';
 import { User as BaseUser, UserPerformance } from '../../../types/quiz';
-import { RootState } from '../../../redux/store';
+import { RootState } from '@redux/store';
 import { useSelector } from 'react-redux';
-import { fetchLeaderboardData } from '../../../services/adminServices';
+import { fetchLeaderboardData } from '@services/adminServices';
 import { motion } from 'framer-motion';
+import LoadingComponent from '@utils/LoadingSpinner';
+import { FiAward, FiBook, FiSearch, FiSliders, FiTarget } from 'react-icons/fi';
 
 interface User extends BaseUser {
     user_id: number;
@@ -12,7 +13,6 @@ interface User extends BaseUser {
     email: string;
     created_at: string;
     role: string;
-    status: string;
     last_active: string;
 }
 
@@ -172,11 +172,7 @@ const LeaderboardPage = () => {
     }, [leaderboardData, filters]);
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-            </div>
-        );
+        return <LoadingComponent />
     }
     if (error) {
         return (
@@ -215,7 +211,7 @@ const LeaderboardPage = () => {
                     <div className="mb-8 space-y-4">
                         <div className="flex items-center gap-4">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                                 <input
                                     type="text"
                                     placeholder="Search users..."
@@ -233,7 +229,7 @@ const LeaderboardPage = () => {
                                     bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 
                                     dark:hover:bg-gray-600 transition-colors"
                             >
-                                <SlidersHorizontal className="w-5 h-5 mr-2" />
+                                <FiSliders className="w-5 h-5 mr-2" />
                                 Filters
                             </button>
                         </div>
@@ -357,17 +353,17 @@ const LeaderboardPage = () => {
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                                     <StatItem
-                                        icon={<Trophy className="w-4 h-4" />}
+                                        icon={<FiAward className="w-4 h-4" />}
                                         label="Best Performance"
                                         value={user.topPerformance}
                                     />
                                     <StatItem
-                                        icon={<Target className="w-4 h-4" />}
+                                        icon={<FiTarget className="w-4 h-4" />}
                                         label="Total Correct Answers"
                                         value={user.totalCorrectAnswers.toString()}
                                     />
                                     <StatItem
-                                        icon={<Book className="w-4 h-4" />}
+                                        icon={<FiBook className="w-4 h-4" />}
                                         label="Quizzes Completed"
                                         value={user.totalQuizzes.toString()}
                                     />

@@ -1,5 +1,5 @@
 import { call, put, select, takeLatest } from 'redux-saga/effects';
-import client from '../../services/hasuraApi';
+import client from '@services/hasuraApi';
 import {
     fetchQuizzesSuccess,
     fetchQuizzesFailure,
@@ -20,9 +20,16 @@ import {
     updateQuizSettingsSuccess,
     updateQuizSettingsFailure,
     refetchQuizzes,
+    addQuizSuccess,
+    addQuizFailure,
+    addQuizRequest,
+    deleteQuizRequest,
+    deleteQuizSuccess,
+    deleteQuizFailure,
 } from './quizSlice';
 import { CHECK_OPTION_USAGE, GET_OPTIONS, GET_QUESTION_OPTIONS, GET_QUIZZES_BASIC, GET_QUIZZES_WITH_TOPICS, GET_QUIZ_QUESTIONS, GET_SINGLE_QUESTION } from '../../api/queries/quizzes';
-import { ADD_QUESTION_AND_OPTIONS, LINK_QUESTION_OPTIONS, DELETE_QUESTION, DELETE_QUESTION_OPTIONS, DELETE_OPTION, UPDATE_QUESTION, INSERT_NEW_OPTIONS, UPDATE_QUIZ_SETTINGS } from '../../api/mutations/questionsMutate';
+import { ADD_QUESTION_AND_OPTIONS, LINK_QUESTION_OPTIONS, DELETE_QUESTION, DELETE_QUESTION_OPTIONS, DELETE_OPTION, UPDATE_QUESTION, INSERT_NEW_OPTIONS } from '../../api/mutations/questionsMutate';
+import { CREATE_QUIZ, DELETE_QUIZ, UPDATE_QUIZ_SETTINGS } from '../../api/mutations/quizMutate'
 import { Question, QuestionOption, Quiz, Option } from '../../types/quiz';
 import { ApolloQueryResult, FetchResult } from '@apollo/client';
 
@@ -393,6 +400,62 @@ function* editQuestionSaga(action: ReturnType<typeof editQuestionRequest>) {
         yield put(editQuestionFailure(errorMessage));
     }
 }
+function* addQuizSaga(action: ReturnType<typeof addQuizRequest>) {
+    try {
+        const { title, description, difficulty, time_limit_minutes } = action.payload;
+
+        const result: FetchResult<{
+            insert_quizzes_one: Quiz
+        }> = yield call([client, client.mutate], {
+            mutation: CREATE_QUIZ,
+            variables: {
+                title,
+                description,
+                difficulty,
+                time_limit_minutes
+            }
+        });
+
+        if (!result.data || !result.data.insert_quizzes_one) {
+            throw new Error('Failed to create quiz: No data returned');
+        }
+        // Extract the created quiz from the response
+        const newQuiz = result.data.insert_quizzes_one;
+        // Dispatch success action with the new quiz
+        yield put(addQuizSuccess(newQuiz));
+        // Refresh the quiz list
+        yield put(refetchQuizzes());
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create quiz';
+        yield put(addQuizFailure(errorMessage));
+        console.error('Create quiz error:', error);
+    }
+}
+function* deleteQuizSaga(action: ReturnType<typeof deleteQuizRequest>) {
+    try {
+        const quizId = action.payload;
+        const result: FetchResult<{
+            delete_quizzes_by_pk: {
+                quiz_id: number;
+                title: string;
+            } | null
+        }> = yield call([client, client.mutate], {
+            mutation: DELETE_QUIZ,
+            variables: { quiz_id: quizId }
+        });
+
+        if (!result.data?.delete_quizzes_by_pk) {
+            throw new Error('Quiz not found or already deleted');
+        }
+        yield put(deleteQuizSuccess(quizId));
+        yield put(refetchQuizzes());
+
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to delete quiz';
+        yield put(deleteQuizFailure(errorMessage));
+        console.error('Delete quiz error:', error);
+    }
+}
 
 
 export function* watchQuizSaga() {
@@ -403,5 +466,6 @@ export function* watchQuizSaga() {
     yield takeLatest(addQuestionRequest.type, addQuestionSaga);
     yield takeLatest(deleteQuestionRequest.type, deleteQuestionSaga);
     yield takeLatest(editQuestionRequest.type, editQuestionSaga);
-
+    yield takeLatest(addQuizRequest.type, addQuizSaga);
+    yield takeLatest(deleteQuizRequest.type, deleteQuizSaga);
 }

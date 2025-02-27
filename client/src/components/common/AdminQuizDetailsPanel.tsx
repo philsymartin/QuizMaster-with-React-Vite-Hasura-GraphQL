@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import QuestionsTab from './QuestionsTab';
-import SettingsTab from './SettingsTab';
-import { Quiz } from '../../../types/quiz';
+import SettingsTab from '@components/SettingsTab';
 import {
     selectQuestions,
     setSelectedQuiz,
     selectLoading,
     selectError
-} from '../../../redux/quiz/quizSlice';
+} from '@redux/quiz/quizSlice';
+import LoadingComponent from '@utils/LoadingSpinner';
+import QuestionsTab from '@components/QuestionsTab';
+import { Quiz } from 'src/types/quiz';
+import { FiX } from 'react-icons/fi';
 
 interface AdminQuizDetailsPanelProps {
     isOpen: boolean;
@@ -18,7 +19,7 @@ interface AdminQuizDetailsPanelProps {
     initialTab?: 'questions' | 'settings';
 }
 
-const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz,initialTab ='questions' }: AdminQuizDetailsPanelProps) => {
+const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz, initialTab = 'questions' }: AdminQuizDetailsPanelProps) => {
     const dispatch = useDispatch();
     const [activeTab, setActiveTab] = useState<'questions' | 'settings'>(initialTab);
     const questions = useSelector(selectQuestions);
@@ -31,13 +32,13 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz,initialTab ='questions' }
         }
     }, [dispatch, isOpen, quiz]);
     useEffect(() => {
-        if(initialTab){
+        if (initialTab) {
             setActiveTab(initialTab);
         }
-    },[initialTab]);
+    }, [initialTab]);
 
     if (loading) {
-        return <div className="p-4">Loading quiz details...</div>;
+        return <LoadingComponent />
     }
 
     if (error) {
@@ -65,7 +66,7 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz,initialTab ='questions' }
                             onClick={onClose}
                             className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
                         >
-                            <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                            <FiX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                         </button>
                     </div>
 
