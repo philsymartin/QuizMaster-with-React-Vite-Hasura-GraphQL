@@ -81,7 +81,6 @@ const authSlice = createSlice({
             const user = localStorage.getItem('user');
             const authToken = localStorage.getItem('authToken');
 
-
             if (tokenExpiration && user && authToken) {
                 const expirationTime = parseInt(tokenExpiration);
                 if (Date.now() < expirationTime) {

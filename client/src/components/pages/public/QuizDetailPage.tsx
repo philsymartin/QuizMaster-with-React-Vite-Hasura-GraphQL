@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from '@apollo/client';
@@ -6,7 +6,7 @@ import { GET_QUIZ_DETAILS } from '@queries/quizzes';
 import { useSelector } from 'react-redux';
 import LoadingComponent from '@utils/LoadingSpinner';
 import { RootState } from '@redux/store';
-import { RoomProvider, getRoomId, useUserTracker } from '@services/liveblocks';
+import { RoomProvider, getRoomId } from '@services/liveblocks';
 import { LiveObject } from '@liveblocks/client';
 import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
 import { FaBrain } from "react-icons/fa";
@@ -38,12 +38,10 @@ interface QuizDetailData {
   ];
 }
 
-// Type for QuizStats props
 interface QuizStatsProps {
   quiz: QuizDetailData['quizzes'][0];
 }
 
-// Separate component for quiz stats
 const QuizStats: React.FC<QuizStatsProps> = ({ quiz }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
@@ -115,32 +113,6 @@ const QuizDetailContent = () => {
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.auth.user);
   const [showAuthOptions, setShowAuthOptions] = useState(false);
-
-  // const { updateUserActivity } = useUserTracker(
-  //   user?.user_id?.toString() || 'guest',
-  //   user?.username || 'guest user'
-  // );
-  // useEffect(() => {
-  //   let mounted = true;
-  //   const initializePresence = () => {
-  //     if (mounted && quizId) {
-  //       try {
-  //         updateUserActivity(`/quizzes/${quizId}`, {
-  //           type: 'viewing',
-  //           resourceId: quizId,
-  //           startedAt: new Date().toISOString(),
-  //         });
-  //       } catch (error) {
-  //         console.error('Failed to update user activity:', error);
-  //       }
-  //     }
-  //   };
-  //   const timeoutId = setTimeout(initializePresence, 0);
-  //   return () => {
-  //     mounted = false;
-  //     clearTimeout(timeoutId);
-  //   };
-  // }, [quizId, updateUserActivity]);
 
   if (!quizId) {
     return <div>Quiz not found.</div>;

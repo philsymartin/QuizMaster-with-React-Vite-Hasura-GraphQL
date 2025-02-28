@@ -1,179 +1,34 @@
-import { useState, useMemo, useEffect } from 'react';
-import { User as BaseUser, UserPerformance } from '../../../types/quiz';
-import { RootState } from '@redux/store';
-import { useSelector } from 'react-redux';
-import { fetchLeaderboardData } from '@services/adminServices';
 import { motion } from 'framer-motion';
-import LoadingComponent from '@utils/LoadingSpinner';
 import { FiAward, FiBook, FiSearch, FiSliders, FiTarget } from 'react-icons/fi';
+import LoadingComponent from '@utils/LoadingSpinner';
+import { LeaderboardEntry, FilterState } from 'src/types/leaderboard';
 
-interface User extends BaseUser {
-    user_id: number;
-    username: string;
-    email: string;
-    created_at: string;
-    role: string;
-    last_active: string;
+interface LeaderboardPageProps {
+    loading: boolean;
+    error: Error | null;
+    filteredLeaderboard: LeaderboardEntry[];
+    quizOptions: string[];
+    filters: FilterState;
+    isFilterOpen: boolean;
+    setIsFilterOpen: (isOpen: boolean) => void;
+    updateFilters: (newFilters: Partial<FilterState>) => void;
 }
 
-// Now extend the User interface with additional fields
-interface ExtendedUser extends User {
-    user_performances: UserPerformance[];
-    quiz_attempts: QuizAttemptWithQuiz[];
-}
-
-interface QuizAttemptWithQuiz {
-    quiz_id: number;
-    score: number;
-    quiz: {
-        title: string;
-    };
-}
-
-interface LeaderboardQueryResult {
-    users: ExtendedUser[];
-}
-
-interface LeaderboardEntry {
-    userId: number;
-    username: string;
-    totalQuizzes: number;
-    averageScore: number;
-    totalCorrectAnswers: number;
-    topPerformance: string;
-    completedQuizzes: string[];
-    quizScores: {
-        quizId: number;
-        quizTitle: string;
-        score: number;
-    }[];
-}
-
-interface FilterState {
-    search: string;
-    quizId: string;
-    scoreRange: {
-        min: number;
-        max: number;
-    };
-    minQuizzes: number;
-}
-
-
-const LeaderboardPage = () => {
-    const { user } = useSelector((state: RootState) => state.auth);
-    const isAdmin = user?.role === 'admin';
-
-    const [filters, setFilters] = useState<FilterState>({
-        search: '',
-        quizId: 'all',
-        scoreRange: { min: 0, max: 100 },
-        minQuizzes: 1
-    });
-
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
-    // Custom hook for fetching data
-    const useLeaderboardData = () => {
-        const [data, setData] = useState<LeaderboardQueryResult | null>(null);
-        const [loading, setLoading] = useState(true);
-        const [error, setError] = useState<Error | null>(null);
-
-        useEffect(() => {
-            const fetchData = async () => {
-                try {
-                    const result = await fetchLeaderboardData(isAdmin);
-                    setData(result);
-                } catch (err) {
-                    setError(err instanceof Error ? err : new Error('Unknown error'));
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            fetchData();
-        }, [isAdmin]);
-
-        return { data, loading, error };
-    };
-    const { data, loading, error } = useLeaderboardData();
-    const leaderboardData: LeaderboardEntry[] = useMemo(() => {
-        if (!data?.users) return [];
-
-        return data.users.map((user: ExtendedUser) => {
-            const performances = user.user_performances || [];
-            const attempts = user.quiz_attempts || [];
-
-            const totalCorrectAnswers = performances.reduce(
-                (sum, perf) => sum + perf.correct_answers,
-                0
-            );
-            const bestAttempt = attempts.reduce(
-                (best: QuizAttemptWithQuiz, current: QuizAttemptWithQuiz) =>
-                    (current.score > best.score ? current : best),
-                attempts[0]
-            );
-            const completedQuizzes = [...new Set(attempts.map(a => a.quiz.title))] as string[];
-            const quizScores = attempts.map((attempt: QuizAttemptWithQuiz) => ({
-                quizId: attempt.quiz_id,
-                quizTitle: attempt.quiz.title,
-                score: attempt.score
-            }));
-            const averageScore = performances.length
-                ? performances.reduce((sum, perf) => sum + perf.average_score, 0) / performances.length
-                : 0;
-            return {
-                userId: user.user_id,
-                username: user.username,
-                totalQuizzes: completedQuizzes.length,
-                averageScore,
-                totalCorrectAnswers,
-                topPerformance: bestAttempt
-                    ? `${bestAttempt.quiz.title} (${bestAttempt.score}%)`
-                    : 'No attempts yet',
-                completedQuizzes,
-                quizScores
-            };
-        });
-    }, [data]);
-
-    // Get unique quizzes for filter options
-    const quizOptions = useMemo(() => {
-        const quizzes = new Set<string>();
-        leaderboardData.forEach(user => {
-            user.quizScores.forEach(score => {
-                quizzes.add(score.quizTitle);
-            });
-        });
-        return Array.from(quizzes);
-    }, [leaderboardData]);
-
-    // Filter leaderboard data
-    const filteredLeaderboard = useMemo(() => {
-        return leaderboardData
-            .filter(user => {
-                const matchesSearch = user.username.toLowerCase().includes(filters.search.toLowerCase());
-                const matchesQuiz = filters.quizId === 'all' || user.quizScores.some(
-                    score => score.quizTitle === filters.quizId
-                );
-                const matchesScoreRange = user.averageScore >= filters.scoreRange.min &&
-                    user.averageScore <= filters.scoreRange.max;
-                const matchesMinQuizzes = user.totalQuizzes >= filters.minQuizzes;
-
-                return matchesSearch && matchesQuiz && matchesScoreRange && matchesMinQuizzes;
-            })
-            .sort((a, b) => {
-                if (filters.quizId === 'all') {
-                    return b.averageScore - a.averageScore;
-                }
-                const aScore = a.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
-                const bScore = b.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
-                return bScore - aScore;
-            });
-    }, [leaderboardData, filters]);
+const LeaderboardPage = ({
+    loading,
+    error,
+    filteredLeaderboard,
+    quizOptions,
+    filters,
+    isFilterOpen,
+    setIsFilterOpen,
+    updateFilters
+}: LeaderboardPageProps) => {
 
     if (loading) {
         return <LoadingComponent />
     }
+
     if (error) {
         return (
             <div className="text-center py-12">
@@ -184,7 +39,8 @@ const LeaderboardPage = () => {
             </div>
         );
     }
-    if (!data?.users || data.users.length === 0) {
+
+    if (filteredLeaderboard.length === 0) {
         return (
             <div className="text-center py-8">
                 <p className="text-gray-600 dark:text-gray-400">
@@ -193,6 +49,7 @@ const LeaderboardPage = () => {
             </div>
         );
     }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -203,7 +60,7 @@ const LeaderboardPage = () => {
                 <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 md:p-8">
                     {/* Header Section */}
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 
-                        dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent mb-8">
+              dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent mb-8">
                         Quiz Masters Leaderboard
                     </h1>
 
@@ -216,18 +73,18 @@ const LeaderboardPage = () => {
                                     type="text"
                                     placeholder="Search users..."
                                     className="w-full pl-10 pr-4 py-2 text-gray-700 dark:text-gray-200 
-                                        bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                                        rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 
-                                        focus:border-transparent"
+                      bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                      rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 
+                      focus:border-transparent"
                                     value={filters.search}
-                                    onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+                                    onChange={(e) => updateFilters({ search: e.target.value })}
                                 />
                             </div>
                             <button
                                 onClick={() => setIsFilterOpen(!isFilterOpen)}
                                 className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 
-                                    bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 
-                                    dark:hover:bg-gray-600 transition-colors"
+                    bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 
+                    dark:hover:bg-gray-600 transition-colors"
                             >
                                 <FiSliders className="w-5 h-5 mr-2" />
                                 Filters
@@ -245,10 +102,10 @@ const LeaderboardPage = () => {
                                         </label>
                                         <select
                                             className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 
-                                                bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                                                rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                          rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             value={filters.quizId}
-                                            onChange={(e) => setFilters(prev => ({ ...prev, quizId: e.target.value }))}
+                                            onChange={(e) => updateFilters({ quizId: e.target.value })}
                                         >
                                             <option value="all">All Quizzes</option>
                                             {quizOptions.map(quiz => (
@@ -268,13 +125,12 @@ const LeaderboardPage = () => {
                                                 min="0"
                                                 max="100"
                                                 value={filters.scoreRange.min}
-                                                onChange={(e) => setFilters(prev => ({
-                                                    ...prev,
-                                                    scoreRange: { ...prev.scoreRange, min: Number(e.target.value) }
-                                                }))}
+                                                onChange={(e) => updateFilters({
+                                                    scoreRange: { ...filters.scoreRange, min: Number(e.target.value) }
+                                                })}
                                                 className="w-24 px-2 py-2 text-gray-700 dark:text-gray-200 
-                                                    bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                                                    rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                            rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             />
                                             <span className="text-gray-700 dark:text-gray-300">to</span>
                                             <input
@@ -282,13 +138,12 @@ const LeaderboardPage = () => {
                                                 min="0"
                                                 max="100"
                                                 value={filters.scoreRange.max}
-                                                onChange={(e) => setFilters(prev => ({
-                                                    ...prev,
-                                                    scoreRange: { ...prev.scoreRange, max: Number(e.target.value) }
-                                                }))}
+                                                onChange={(e) => updateFilters({
+                                                    scoreRange: { ...filters.scoreRange, max: Number(e.target.value) }
+                                                })}
                                                 className="w-24 px-2 py-2 text-gray-700 dark:text-gray-200 
-                                                    bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                                                    rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                            rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                             />
                                         </div>
                                     </div>
@@ -302,13 +157,12 @@ const LeaderboardPage = () => {
                                             type="number"
                                             min="0"
                                             value={filters.minQuizzes}
-                                            onChange={(e) => setFilters(prev => ({
-                                                ...prev,
+                                            onChange={(e) => updateFilters({
                                                 minQuizzes: Number(e.target.value)
-                                            }))}
+                                            })}
                                             className="w-full px-4 py-2 text-gray-700 dark:text-gray-200 
-                                                bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
-                                                rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 
+                          rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         />
                                     </div>
                                 </div>
@@ -339,7 +193,7 @@ const LeaderboardPage = () => {
                                     </div>
                                     <div className="text-right">
                                         <p className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 
-                                            dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
+                        dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
                                             {filters.quizId === 'all'
                                                 ? `${user.averageScore.toFixed(1)}%`
                                                 : `${user.quizScores.find(s => s.quizTitle === filters.quizId)?.score.toFixed(1)}%`
@@ -378,7 +232,7 @@ const LeaderboardPage = () => {
                                             <span
                                                 key={quiz}
                                                 className="px-3 py-1 text-sm rounded-full bg-purple-100 
-                                                    text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                            text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
                                             >
                                                 {quiz}
                                             </span>
@@ -393,6 +247,7 @@ const LeaderboardPage = () => {
         </motion.div>
     );
 };
+
 const StatItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
     <div className="flex items-center gap-2">
         <div className="text-purple-600 dark:text-purple-400">

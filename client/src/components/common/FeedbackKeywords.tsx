@@ -66,7 +66,6 @@ interface KeywordAnalyticsProps {
     limit?: number;
 }
 
-// Simple SVG icon component to replace Lucide React BarChartHorizontal
 const BarChartHorizontalIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 3v18h18" />
@@ -82,7 +81,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
     const [feedbackKeywords, setFeedbackKeywords] = useState<ProcessedKeywordData[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-    // Query to get keyword analytics
     const { data: analyticsData, loading: analyticsLoading, refetch: refetchAnalytics } = useQuery<KeywordAnalyticsData>(
         GET_KEYWORD_ANALYTICS,
         {
@@ -96,7 +94,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
         }
     );
 
-    // Query to get unprocessed feedback
     const { data: unprocessedData, refetch: refetchUnprocessed } = useQuery<UnprocessedFeedbackData>(
         GET_UNPROCESSED_FEEDBACK,
         {
@@ -109,10 +106,8 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
     const [insertKeywordMappings] = useMutation(INSERT_FEEDBACK_KEYWORD_MAPPING);
     const [updateFeedbackExtracted] = useMutation(UPDATE_FEEDBACK_KEYWORD_EXTRACTED);
 
-    // Process keyword data
     const processKeywordData = (keywords: KeywordData[]) => {
         const processedData: ProcessedKeywordData[] = keywords.map(keyword => {
-            // Create a map to store quiz information for this keyword
             const quizMap = new Map<number, {
                 title: string;
                 instances: Array<{
@@ -121,7 +116,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
                 }>;
             }>();
 
-            // Calculate overall sentiment for this keyword
             let totalSentimentScore = 0;
             let totalInstances = 0;
 
@@ -129,13 +123,10 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
             keyword.feedback_keyword_mappings.forEach(mapping => {
                 const feedback = mapping.quiz_feedback;
                 const quizId = feedback.quiz.quiz_id;
-
-                // Determine sentiment category
                 const sentimentCategory: 'positive' | 'negative' | 'neutral' =
                     feedback.sentiment_label === 'POSITIVE' ? 'positive' :
                         feedback.sentiment_label === 'NEGATIVE' ? 'negative' : 'neutral';
 
-                // Add to sentiment calculation
                 totalSentimentScore += feedback.sentiment_score;
                 totalInstances++;
 
@@ -146,14 +137,12 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
                         instances: []
                     });
                 }
-
                 quizMap.get(quizId)?.instances.push({
                     sentiment: sentimentCategory,
                     score: feedback.sentiment_score
                 });
             });
 
-            // Calculate average sentiment
             const avgSentiment = totalInstances > 0 ? totalSentimentScore / totalInstances : 0.5;
 
             // Determine overall sentiment category
@@ -212,7 +201,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
             const uniqueKeywords = new Set<string>();
             analysisResult.feedbackKeywords.forEach(item => {
                 item.keywords.forEach(keyword => {
-                    // Store lowercase for uniqueness check but maintain original case for display
                     uniqueKeywords.add(keyword.toLowerCase().trim());
                 });
             });
@@ -296,7 +284,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
     // Determine max value for percentage calculations
     const maxValue = feedbackKeywords.length ? Math.max(...feedbackKeywords.map(k => k.value)) : 0;
 
-    // Get sentiment color
     const getSentimentColor = (sentiment: 'positive' | 'negative' | 'neutral') => {
         switch (sentiment) {
             case 'positive':

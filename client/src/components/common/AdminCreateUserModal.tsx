@@ -81,7 +81,6 @@ const AdminCreateUserModal = ({ isOpen, onClose, onUserCreated }: AdminCreateUse
         setError(null);
 
         try {
-            // Using the same registration service used in the register page
             await registerUser(
                 formData.username,
                 formData.email,
@@ -91,7 +90,6 @@ const AdminCreateUserModal = ({ isOpen, onClose, onUserCreated }: AdminCreateUse
             onUserCreated();
             handleClose();
         } catch (error: any) {
-            // Handle registration errors
             if (error.message.includes('already exists')) {
                 if (error.message.toLowerCase().includes('username')) {
                     setFormErrors({
@@ -114,7 +112,6 @@ const AdminCreateUserModal = ({ isOpen, onClose, onUserCreated }: AdminCreateUse
         }
     };
 
-    // Reset form when modal is closed
     const handleClose = () => {
         setFormData({
             username: '',

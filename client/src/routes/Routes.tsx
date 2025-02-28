@@ -1,21 +1,27 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { lazy, Suspense } from 'react';
 import MainLayout from '@layouts/MainLayout';
-import HomePage from '@pages/public/HomePage';
-import LoginPage from '@pages/public/LoginPage';
-import RegisterPage from '@pages/public/RegisterPage';
-import QuizzesPage from '@pages/public/QuizzesPage';
-import QuizDetailPage from '@pages/public/QuizDetailPage';
-import QuizAttemptPage from '@pages/user/QuizAttemptPage';
-import UserDashboardPage from '@pages/user/UserDashboardPage';
-import ProtectedRoute from '@components/ProtectedRoute';
-import AdminDashboardPage from '@pages/admin/AdminDashboardPage';
 import AdminLayout from '@layouts/AdminLayout';
-import AdminUserManagementPage from '@pages/admin/AdminUserManagementPage';
-import AdminQuizManagementPage from '@pages/admin/AdminQuizManagementPage';
 import ErrorPage from '@pages/public/ErrorPage';
-import AdminAnalyticsPage from '@pages/admin/AdminAnalyticsPage';
-import LeaderboardPage from '@pages/public/LeaderboardPage';
-import MyQuizzesPage from '@pages/user/MyQuizzesPage';
+import LoadingComponent from '@utils/LoadingSpinner';
+import ProtectedRoute from '@components/ProtectedRoute';
+
+const HomePage = lazy(() => import('@pages/public/HomePage'));
+const LeaderboardContainer = lazy(() => import('@containers/public/LeaderboardContainer'));
+const LoginPage = lazy(() => import('@pages/public/LoginPage'));
+const RegisterPage = lazy(() => import('@pages/public/RegisterPage'));
+const QuizzesContainer = lazy(() => import('@containers/public/QuizzesContainer'));
+const QuizDetailPage = lazy(() => import('@pages/public/QuizDetailPage'));
+const QuizAttemptPage = lazy(() => import('@pages/user/QuizAttemptPage'));
+// user
+const UserDashboardPage = lazy(() => import('@pages/user/UserDashboardPage'));
+const MyQuizzesPage = lazy(() => import('@pages/user/MyQuizzesPage'));
+// admin
+const AdminUserManagementPage = lazy(() => import('@pages/admin/AdminUserManagementPage'));
+const AdminAnalyticsPage = lazy(() => import('@pages/admin/AdminAnalyticsPage'));
+const AdminDashboardContainer = lazy(() => import('@containers/admin/AdminDashboardContainer'));
+const AdminQuizManagementContainer = lazy(() => import('@containers/admin/AdminQuizManagementContainer'));
+
 const RoutesComponent = () => {
     const router = createBrowserRouter([
         {
@@ -26,7 +32,9 @@ const RoutesComponent = () => {
                 // Protected Routes    
                 {
                     path: "user-dashboard", element: (<ProtectedRoute requiredRole="user">
-                        <UserDashboardPage />
+                        <Suspense fallback={<LoadingComponent />}>
+                            <UserDashboardPage />
+                        </Suspense>
                     </ProtectedRoute>),
                 },
                 {
@@ -40,12 +48,36 @@ const RoutesComponent = () => {
                     </ProtectedRoute>),
                 },
                 // Public Routes
-                { path: "/", element: <HomePage /> },
-                { path: "login", element: <LoginPage /> },
-                { path: "register", element: <RegisterPage /> },
-                { path: "quizzes", element: <QuizzesPage /> },
-                { path: "quizzes/:quizId", element: <QuizDetailPage /> },
-                { path: "leaderboard", element: <LeaderboardPage /> },
+                {
+                    path: "/", element: (<Suspense fallback={<LoadingComponent />}>
+                        <HomePage />
+                    </Suspense>)
+                },
+                {
+                    path: "login", element: (<Suspense fallback={<LoadingComponent />}>
+                        <LoginPage />
+                    </Suspense>)
+                },
+                {
+                    path: "register", element: (<Suspense fallback={<LoadingComponent />}>
+                        <RegisterPage />
+                    </Suspense>)
+                },
+                {
+                    path: "quizzes", element: (<Suspense fallback={<LoadingComponent />}>
+                        <QuizzesContainer />
+                    </Suspense>)
+                },
+                {
+                    path: "quizzes/:quizId", element: (<Suspense fallback={<LoadingComponent />}>
+                        <QuizDetailPage />
+                    </Suspense>)
+                },
+                {
+                    path: "leaderboard", element: (<Suspense fallback={<LoadingComponent />}>
+                        <LeaderboardContainer />
+                    </Suspense>)
+                },
             ],
         },
         {
@@ -57,10 +89,26 @@ const RoutesComponent = () => {
             ),
             errorElement: <ErrorPage />,
             children: [
-                { path: "", element: <AdminDashboardPage /> },
-                { path: "analytics", element: <AdminAnalyticsPage /> },
-                { path: "users", element: <AdminUserManagementPage /> },
-                { path: "quizzes", element: <AdminQuizManagementPage /> },
+                {
+                    path: "", element: (<Suspense fallback={<LoadingComponent />}>
+                        <AdminDashboardContainer />
+                    </Suspense>)
+                },
+                {
+                    path: "analytics", element: (<Suspense fallback={<LoadingComponent />}>
+                        <AdminAnalyticsPage />
+                    </Suspense>),
+                },
+                {
+                    path: "users", element: (<Suspense fallback={<LoadingComponent />}>
+                        <AdminUserManagementPage />
+                    </Suspense>),
+                },
+                {
+                    path: "quizzes", element: (<Suspense fallback={<LoadingComponent />}>
+                        <AdminQuizManagementContainer />
+                    </Suspense>),
+                },
             ],
         },
     ]);

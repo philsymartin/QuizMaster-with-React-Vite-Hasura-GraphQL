@@ -26,11 +26,11 @@ import {
     deleteQuizRequest,
     deleteQuizSuccess,
     deleteQuizFailure,
-} from './quizSlice';
+} from '@redux/quiz/quizSlice';
 import { CHECK_OPTION_USAGE, GET_OPTIONS, GET_QUESTION_OPTIONS, GET_QUIZZES_BASIC, GET_QUIZZES_WITH_TOPICS, GET_QUIZ_QUESTIONS, GET_SINGLE_QUESTION } from '../../api/queries/quizzes';
 import { ADD_QUESTION_AND_OPTIONS, LINK_QUESTION_OPTIONS, DELETE_QUESTION, DELETE_QUESTION_OPTIONS, DELETE_OPTION, UPDATE_QUESTION, INSERT_NEW_OPTIONS } from '../../api/mutations/questionsMutate';
-import { CREATE_QUIZ, DELETE_QUIZ, UPDATE_QUIZ_SETTINGS } from '../../api/mutations/quizMutate'
-import { Question, QuestionOption, Quiz, Option } from '../../types/quiz';
+import { CREATE_QUIZ, DELETE_QUIZ, UPDATE_QUIZ_SETTINGS } from '@mutations/quizMutate'
+import { Question, QuestionOption, Quiz, Option } from 'src/types/quiz';
 import { ApolloQueryResult, FetchResult } from '@apollo/client';
 
 interface QuizzesQueryResponse {

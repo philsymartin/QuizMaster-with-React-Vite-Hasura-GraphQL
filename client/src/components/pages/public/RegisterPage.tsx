@@ -4,7 +4,7 @@ import AuthCard from '@components/AuthCard';
 import InputField from '@components/InputField';
 import { motion } from 'framer-motion';
 import { registerUser } from '@services/authServices';
-import { RegisterFormData, RegisterErrors } from "../../../types/forms";
+import { RegisterFormData, RegisterErrors } from "src/types/forms";
 
 const RegisterPage = () => {
     const navigate = useNavigate();

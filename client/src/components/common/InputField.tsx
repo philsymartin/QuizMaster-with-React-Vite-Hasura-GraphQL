@@ -1,7 +1,6 @@
 import React, { useState, InputHTMLAttributes, ReactNode } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-// Define types for the props of the InputField component
 interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: ReactNode;
   type?: string;

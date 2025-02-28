@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Question } from '../../types/quiz';
+import { Question } from 'src/types/quiz';
 
 interface QuizAttemptState {
     currentQuiz: {

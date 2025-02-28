@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { Question } from '../../types/quiz';
+import { Question } from 'src/types/quiz';
 import {
     deleteQuestionRequest, openAddQuestionModal, selectAddQuestionModalOpen,
     selectDeleteQuestionError,
     selectDeleteQuestionLoading, selectQuestions, selectSelectedQuiz, setEditingQuestion,
-} from '../../redux/quiz/quizSlice';
-import AddQuestionForm from './AddQuestionForm';
+} from '@redux/quiz/quizSlice';
+import AddQuestionForm from '@components/AddQuestionForm';
 import { useEffect, useState } from 'react';
 import { FiCheck, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
 

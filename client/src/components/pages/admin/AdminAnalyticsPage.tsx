@@ -1,8 +1,8 @@
 import { useQuery } from '@apollo/client';
 import { GET_FEEDBACK_ANALYTICS } from '@queries/analytics'
 import SentimentAnalysis from '@components/SentimentalAnalysis';
-import { SentimentQueryResponse, RecentFeedbackItem } from '../../../types/adminAnalysis';
-import FeedbackKeywords from '../../common/FeedbackKeywords';
+import { SentimentQueryResponse, RecentFeedbackItem } from 'src/types/adminAnalysis';
+import FeedbackKeywords from '@components/FeedbackKeywords';
 import QuizCategoriesPerformanceCard from '@components/QuizCategoriesPerformanceCard';
 import LoadingComponent from '@utils/LoadingSpinner';
 
@@ -39,20 +39,13 @@ const AdminAnalyticsPage = () => {
 
             {/* Quiz Category Performance and Sentiment Analysis */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Quiz Category Performance */}
                 <QuizCategoriesPerformanceCard />
-
-                {/* Sentiment Analysis */}
                 {data && <SentimentAnalysis data={data} />}
             </div>
 
             {/* Common Feedback Keywords and Recent Feedback */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Common Feedback Keywords */}
-
                 <FeedbackKeywords />
-
-
                 {/* Recent Feedback */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                     <div className="flex items-center justify-between mb-6">

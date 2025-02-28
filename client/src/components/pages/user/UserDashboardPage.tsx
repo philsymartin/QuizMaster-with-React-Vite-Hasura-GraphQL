@@ -1,8 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { motion } from 'framer-motion';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { RootState } from '@redux/store';
 import { logoutRequest } from '@redux/auth/authSlice';
 import { GET_USER_DASHBOARD_DATA } from '@queries/users';
 import type { User, QuizAttempt, QuizFeedback, UserPerformance } from '../../../types/quiz';
@@ -18,8 +17,6 @@ interface UserDashboardData extends User {
 const UserDashboardPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user } = useSelector((state: RootState) => state.auth);
-
     const { loading, error, data } = useQuery<{ users: UserDashboardData[] }>(
         GET_USER_DASHBOARD_DATA,
         {

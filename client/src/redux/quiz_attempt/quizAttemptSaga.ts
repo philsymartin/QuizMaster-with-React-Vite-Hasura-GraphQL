@@ -11,10 +11,10 @@ import {
     submitQuizFailure,
     selectQuizAttemptState,
     resetQuizAttempt
-} from './quizAttemptSlice';
-import { CHECK_EXISTING_ATTEMPT, GET_QUIZ_QUESTIONS } from '../../api/queries/quizzes';
-import { START_QUIZ_ATTEMPT, SUBMIT_QUIZ_ATTEMPT } from '../../api/mutations/questionsMutate';
-import { RootState } from '../store';
+} from '@redux/quiz_attempt/quizAttemptSlice';
+import { CHECK_EXISTING_ATTEMPT, GET_QUIZ_QUESTIONS } from '@queries/quizzes';
+import { START_QUIZ_ATTEMPT, SUBMIT_QUIZ_ATTEMPT } from '@mutations/questionsMutate';
+import { RootState } from '@redux/store';
 interface StartQuizAttemptResponse {
     data: {
         insert_quiz_attempts_one: {

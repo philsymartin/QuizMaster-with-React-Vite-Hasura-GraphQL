@@ -73,11 +73,8 @@ const CreateQuizModal = ({ isOpen, onClose }: CreateQuizModalProps) => {
             average_rating: 0,
         };
 
-        // Dispatch action to create quiz
         dispatch(addQuizRequest(newQuiz));
         onClose();
-
-        // Reset form data after submission
         setFormData({
             title: '',
             description: '',

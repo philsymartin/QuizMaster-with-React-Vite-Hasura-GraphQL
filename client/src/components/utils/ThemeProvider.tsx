@@ -12,7 +12,6 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
   useEffect(() => {
-    // to Simply add or remove the 'dark' class from the document body
     document.body.classList.toggle('dark', isDarkMode);
     localStorage.setItem('darkMode', isDarkMode.toString());
   }, [isDarkMode]);

@@ -18,7 +18,6 @@ export default defineConfig({
       '@styles': path.resolve(__dirname, 'src/components/styles'),
       '@components': path.resolve(__dirname, 'src/components/common'),
       '@redux': path.resolve(__dirname, 'src/redux'),
-      // '@types': path.resolve(__dirname, 'src/types'),
       '@services': path.resolve(__dirname, 'src/services'),
       '@routes': path.resolve(__dirname, 'src/routes'),
       '@subscriptions': path.resolve(__dirname, 'src/api/subscriptions'),

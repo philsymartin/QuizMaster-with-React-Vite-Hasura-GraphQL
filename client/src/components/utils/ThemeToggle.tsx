@@ -12,6 +12,7 @@ const ThemeToggle = () => {
                 transition-colors duration-200 ease-in-out
                 focus:outline-none focus:ring-2 focus:ring-purple-500"
             aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} theme`}
+            title='change theme'
         >
             <div className="relative w-5 h-5 transition-opacity duration-200">
                 <FiSun
