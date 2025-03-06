@@ -37,7 +37,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
                             onClick={() => navigate(item.path)}
                             className="w-full flex items-center space-x-3 p-3 rounded-lg
                                      text-gray-700 dark:text-gray-200 hover:bg-gray-100 
-                                     dark:hover:bg-gray-700 transition-colors mb-2"
+                                     dark:hover:bg-gray-700 transition-colors mb-2 cursor-pointer"
                         >
                             <item.icon className="w-5 h-5" />
                             <span>{item.label}</span>

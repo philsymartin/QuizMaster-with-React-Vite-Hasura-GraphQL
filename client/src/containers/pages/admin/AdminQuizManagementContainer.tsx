@@ -3,19 +3,8 @@ import { useQuery } from '@apollo/client';
 import { GET_QUIZZES_BASIC, GET_QUIZ_DETAILS } from '@queries/quizzes';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteQuizRequest, selectLoading } from '@redux/quiz/quizSlice';
-import { Quiz } from 'src/types/quiz';
 import AdminQuizManagementPage from '@pages/admin/AdminQuizManagementPage';
-
-type BasicQuiz = Pick<Quiz,
-    'quiz_id' |
-    'title' |
-    'description' |
-    'difficulty' |
-    'time_limit_minutes' |
-    'total_questions' |
-    'participants_count' |
-    'average_rating'
->;
+import { BasicQuiz } from '@pages/admin/AdminQuizManagementPage/types';
 
 const AdminQuizManagementContainer = () => {
     const { loading, error, data } = useQuery(GET_QUIZZES_BASIC, {

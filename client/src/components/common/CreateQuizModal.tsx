@@ -97,7 +97,7 @@ const CreateQuizModal = ({ isOpen, onClose }: CreateQuizModalProps) => {
                         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Create New Quiz</h2>
                         <button
                             onClick={onClose}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
                         >
                             <FiX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                         </button>
@@ -147,7 +147,7 @@ const CreateQuizModal = ({ isOpen, onClose }: CreateQuizModalProps) => {
                                     name="difficulty"
                                     value={formData.difficulty}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 cursor-pointer"
                                 >
                                     <option value="Easy">Easy</option>
                                     <option value="Medium">Medium</option>
@@ -178,13 +178,13 @@ const CreateQuizModal = ({ isOpen, onClose }: CreateQuizModalProps) => {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
-                                className="px-4 py-2 bg-purple-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-purple-700"
+                                className="px-4 py-2 bg-purple-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-purple-700 cursor-pointer"
                             >
                                 Create Quiz
                             </button>

@@ -1,26 +1,16 @@
-import { useQuery } from '@apollo/client';
-import { GET_FEEDBACK_ANALYTICS } from '@queries/analytics'
 import SentimentAnalysis from '@components/SentimentalAnalysis';
-import { SentimentQueryResponse, RecentFeedbackItem } from 'src/types/adminAnalysis';
 import FeedbackKeywords from '@components/FeedbackKeywords';
 import QuizCategoriesPerformanceCard from '@components/QuizCategoriesPerformanceCard';
 import LoadingComponent from '@utils/LoadingSpinner';
+import { AdminAnalyticsPageProps } from '@pages/admin/AdminAnalyticsPage/types';
 
-const AdminAnalyticsPage = () => {
-    const { data, loading, error } = useQuery<SentimentQueryResponse>(GET_FEEDBACK_ANALYTICS);
+const AdminAnalyticsPage: React.FC<AdminAnalyticsPageProps> = ({
+    data,
+    loading,
+    error,
+    processRecentFeedback
 
-    const processRecentFeedback = (): RecentFeedbackItem[] => {
-        if (!data?.quiz_feedback) return [];
-
-        return data.quiz_feedback.map(feedback => ({
-            id: feedback.feedback_id,
-            user: feedback.user.username,
-            quiz: feedback.quiz.title,
-            feedback: feedback.feedback_text,
-            sentiment: feedback.sentiment_label?.toLowerCase() || 'neutral',
-            date: new Date(feedback.submitted_at).toLocaleDateString()
-        }));
-    };
+}) => {
 
     if (loading) return <LoadingComponent />;
     if (error) return <div>Error loading feedback data</div>;
@@ -50,7 +40,7 @@ const AdminAnalyticsPage = () => {
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Feedback</h2>
-                        <button className="text-purple-600 dark:text-purple-400 text-sm font-medium">View All</button>
+                        <button className="text-purple-600 dark:text-purple-400 text-sm font-medium cursor-pointer">View All</button>
                     </div>
                     <div className="space-y-4">
                         {recentFeedback.map((item) => (

@@ -1,8 +1,8 @@
 import { useRouteError, isRouteErrorResponse, Link } from 'react-router-dom';
+import { FiAlertTriangle } from 'react-icons/fi';
 import { Provider } from 'react-redux';
 import { ThemeProvider } from '@utils/ThemeProvider';
 import { store } from '@redux/store';
-import { FiAlertTriangle } from 'react-icons/fi';
 
 const ErrorContent = () => {
     const error = useRouteError();

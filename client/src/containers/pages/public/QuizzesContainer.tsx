@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_QUIZZES_WITH_TOPICS } from '@queries/quizzes';
 import { useSelector } from 'react-redux';
+import QuizzesPage from '@pages/public/QuizzesPage';
 import { RootState } from '@redux/store';
 import { RoomProvider, getRoomId } from '@services/liveblocks';
+import { GET_QUIZZES_WITH_TOPICS } from '@queries/quizzes';
 import { LiveObject } from '@liveblocks/client';
-import QuizzesPage from '@pages/public/QuizzesPage';
 
 export interface QuizData {
     quiz_id: string;
@@ -47,6 +47,7 @@ export interface FilterState {
 export interface FilterOptions {
     topics: string[];
     maxTime: number;
+    minTime: number;
 }
 
 const QuizzesContainer = () => {
@@ -62,7 +63,7 @@ const QuizzesContainer = () => {
     });
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
-    
+
     const transformedQuizzes: QuizType[] = useMemo(() => {
         if (!data?.quizzes) return [];
 
@@ -82,24 +83,34 @@ const QuizzesContainer = () => {
     const filterOptions = useMemo(() => {
         const topics = new Set<string>();
         let maxTime = 0;
+        let minTime = Infinity;
 
         transformedQuizzes.forEach((quiz) => {
             quiz.topics?.forEach((topic) => topics.add(topic));
             maxTime = Math.max(maxTime, quiz.timeLimit);
+            minTime = Math.min(minTime, quiz.timeLimit);
         });
-
-        if (maxTime > 0 && filters.timeRange.max === 0) {
-            setFilters(prev => ({
-                ...prev,
-                timeRange: { ...prev.timeRange, max: maxTime }
-            }));
-        }
 
         return {
             topics: Array.from(topics),
-            maxTime,
+            maxTime: maxTime || 60,  // Default to 60 if no quizzes
+            minTime: minTime === Infinity ? 0 : minTime
         };
-    }, [transformedQuizzes, filters.timeRange.max]);
+    }, [transformedQuizzes]);
+
+    // Initialize time range filter when data is loaded
+    useEffect(() => {
+        if (transformedQuizzes.length > 0 &&
+            (filters.timeRange.min === 0 || filters.timeRange.max === 0)) {
+            setFilters(prev => ({
+                ...prev,
+                timeRange: {
+                    min: filterOptions.minTime,
+                    max: filterOptions.maxTime
+                }
+            }));
+        }
+    }, [filterOptions.maxTime, filterOptions.minTime, transformedQuizzes.length, filters.timeRange]);
 
     // Filter quizzes
     const filteredQuizzes = useMemo(() => {
@@ -132,10 +143,11 @@ const QuizzesContainer = () => {
         setFilters(prev => ({ ...prev, difficulty: value }));
     };
 
-    const handleTimeRangeChange = (type: 'min' | 'max', value: number) => {
+    // Updated time range handler for the single range slider with two handles
+    const handleTimeRangeChange = (min: number, max: number) => {
         setFilters(prev => ({
             ...prev,
-            timeRange: { ...prev.timeRange, [type]: value }
+            timeRange: { min, max }
         }));
     };
 

@@ -84,6 +84,7 @@
     "tailwind.config.ts",
     "src/components/utils/ThemeProvider.tsx",
     "src/components/utils/InputField.tsx",
+    "src/components/styles",
   ],
   "exclude": [
     "node_modules"

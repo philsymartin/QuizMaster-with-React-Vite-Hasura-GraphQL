@@ -3,7 +3,7 @@ import { checkAuthStatus } from '@redux/auth/authSlice';
 import { store } from '@redux/store';
 import RoutesComponent from '@routes/Routes';
 import '@styles/App.css';
-import { INTERVALS } from '@config/costants';
+import { INTERVALS } from '@config/constants';
 
 const App = () => {
   useEffect(() => {

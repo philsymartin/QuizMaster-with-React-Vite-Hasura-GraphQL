@@ -65,10 +65,10 @@ CREATE TABLE IF NOT EXISTS quiz_feedback (
     quiz_id INT REFERENCES quizzes(quiz_id),
     feedback_text TEXT,
     rating INT CHECK (rating BETWEEN 1 AND 10),  
-    submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    submitted_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     sentiment_label VARCHAR(50),
     sentiment_score DECIMAL(5,4),
-    analyzed_at TIMESTAMPTZ;
+    analyzed_at TIMESTAMPTZ,
     keyword_extracted_at TIMESTAMPTZ;
 );
 
@@ -81,7 +81,8 @@ CREATE TABLE IF NOT EXISTS user_performance (
     correct_answers INT DEFAULT 0,
     average_score DECIMAL(5,2) DEFAULT 0.0
 );
-
+ALTER TABLE user_performance 
+ADD CONSTRAINT unique_user_quiz UNIQUE (user_id, quiz_id);
 
 CREATE TABLE IF NOT EXISTS topics (
     topic_id SERIAL PRIMARY KEY,
@@ -239,3 +240,49 @@ CREATE TRIGGER trigger_update_sentiment_analyzed_at
 BEFORE UPDATE ON quiz_feedback
 FOR EACH ROW
 EXECUTE FUNCTION update_sentiment_analyzed_at();
+
+
+CREATE OR REPLACE FUNCTION update_user_performance_on_attempt()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Try to update existing record, insert if not exists
+    WITH upsert AS (
+        UPDATE user_performance 
+        SET 
+            total_attempts = total_attempts + 1,
+            average_score = ((average_score * total_attempts) + NEW.score) / (total_attempts + 1)
+        WHERE user_id = NEW.user_id AND quiz_id = NEW.quiz_id
+        RETURNING *
+    )
+    INSERT INTO user_performance (user_id, quiz_id, total_attempts, average_score)
+    SELECT NEW.user_id, NEW.quiz_id, 1, NEW.score
+    WHERE NOT EXISTS (SELECT 1 FROM upsert);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER trigger_update_user_performance_attempt
+AFTER INSERT ON quiz_attempts
+FOR EACH ROW
+EXECUTE FUNCTION update_user_performance_on_attempt();
+
+CREATE OR REPLACE FUNCTION update_correct_answers()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE user_performance
+    SET correct_answers = (
+        SELECT COUNT(*)
+        FROM answers a
+        JOIN question_options qo ON a.option_id = qo.option_id
+        WHERE qo.is_correct = TRUE AND a.attempt_id = NEW.attempt_id
+    )
+    WHERE user_id = (SELECT user_id FROM quiz_attempts WHERE attempt_id = NEW.attempt_id)
+      AND quiz_id = (SELECT quiz_id FROM quiz_attempts WHERE attempt_id = NEW.attempt_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_correct_answers
+AFTER INSERT ON answers
+FOR EACH ROW
+EXECUTE FUNCTION update_correct_answers();

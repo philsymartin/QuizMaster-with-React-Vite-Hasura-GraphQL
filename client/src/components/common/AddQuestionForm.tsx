@@ -8,7 +8,7 @@ import {
     selectEditingQuestion,
     selectIsEditing,
     editQuestionRequest,
-} from '../../redux/quiz/quizSlice';
+} from '@redux/quiz/quizSlice';
 import { FiMinus, FiPlus, FiX } from 'react-icons/fi';
 
 interface AddQuestionFormProps {
@@ -121,7 +121,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                         </h2>
                         <button
                             onClick={() => dispatch(closeAddQuestionModal())}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
                         >
                             <FiX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                         </button>
@@ -135,7 +135,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                             <select
                                 value={formData.question_type}
                                 onChange={(e) => handleQuestionTypeChange(e.target.value as 'multiple_choice' | 'true_false')}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md"
+                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md cursor-pointer"
                             >
                                 <option value="multiple_choice">Multiple Choice</option>
                                 <option value="true_false">True/False</option>
@@ -162,7 +162,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Options
                             </label>
-                            <div className="space-y-3">
+                            <div className="space-y-3 ">
                                 {formData.options.map((option, index) => (
                                     <div key={index} className="flex items-center space-x-3">
                                         <input
@@ -170,7 +170,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                                             name="correct_answer"
                                             checked={option.is_correct}
                                             onChange={() => handleOptionChange(index, 'is_correct', true)}
-                                            className="w-4 h-4 text-purple-600"
+                                            className="w-4 h-4 text-purple-600 cursor-pointer"
                                             required
                                         />
                                         <input
@@ -186,7 +186,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                                             <button
                                                 type="button"
                                                 onClick={() => handleRemoveOption(index)}
-                                                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
                                             >
                                                 <FiMinus className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                                             </button>
@@ -198,7 +198,7 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                                 <button
                                     type="button"
                                     onClick={handleAddOption}
-                                    className="mt-3 flex items-center text-sm text-purple-600 hover:text-purple-700"
+                                    className="mt-3 flex items-center text-sm text-purple-600 hover:text-purple-700 cursor-pointer"
                                 >
                                     <FiPlus className="w-4 h-4 mr-1" />
                                     Add Option
@@ -216,14 +216,14 @@ const AddQuestionForm = ({ quizId, quizTitle }: AddQuestionFormProps) => {
                             <button
                                 type="button"
                                 onClick={() => dispatch(closeAddQuestionModal())}
-                                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50"
+                                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 cursor-pointer"
                             >
                                 {loading ? 'Saving...' : isEditing ? 'Save Changes' : 'Add Question'}
                             </button>

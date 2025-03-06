@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiBookOpen, FiClock, FiSearch, FiSliders, FiStar, FiUsers } from 'react-icons/fi';
-import { FilterState, FilterOptions, QuizType } from '@containers/public/QuizzesContainer';
-import { motionContainer, motionItem } from '@styles/common';
+import { FilterState, FilterOptions, QuizType } from '@containers/pages/public/QuizzesContainer';
+import { motionContainer, motionItem } from 'src/components/styles/common';
 
 interface QuizzesPageProps {
   loading: boolean;
@@ -13,7 +13,7 @@ interface QuizzesPageProps {
   isFilterOpen: boolean;
   onSearchChange: (value: string) => void;
   onDifficultyChange: (value: FilterState['difficulty']) => void;
-  onTimeRangeChange: (type: 'min' | 'max', value: number) => void;
+  onTimeRangeChange: (min: number, max: number) => void;
   onTopicChange: (topic: string, checked: boolean) => void;
   onSelectAllTopics: () => void;
   onClearAllTopics: () => void;
@@ -87,13 +87,78 @@ const SearchBar = ({ value, onChange, onToggleFilter, isFilterOpen }: {
     </div>
     <button
       onClick={onToggleFilter}
-      className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+      className="flex items-center px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors cursor-pointer"
     >
       <FiSliders className="w-5 h-5 mr-2" />
       Filters
     </button>
   </div>
 );
+
+const RangeSlider = ({
+  min,
+  max,
+  currentMin,
+  currentMax,
+  onChange
+}: {
+  min: number;
+  max: number;
+  currentMin: number;
+  currentMax: number;
+  onChange: (min: number, max: number) => void;
+}) => {
+  return (
+    <div className="mt-6 mb-8">
+      <div className="space-y-6">
+        {/* Min slider */}
+        <div>
+          <div className="flex justify-between">
+            <label className="text-sm text-gray-600 dark:text-gray-400">
+              Minimum time: {currentMin} mins
+            </label>
+          </div>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={currentMin}
+            onChange={(e) => {
+              const newMin = parseInt(e.target.value);
+              onChange(newMin, Math.max(newMin, currentMax));
+            }}
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer"
+          />
+        </div>
+
+        {/* Max slider */}
+        <div>
+          <div className="flex justify-between">
+            <label className="text-sm text-gray-600 dark:text-gray-400">
+              Maximum time: {currentMax} mins
+            </label>
+          </div>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            value={currentMax}
+            onChange={(e) => {
+              const newMax = parseInt(e.target.value);
+              onChange(Math.min(currentMin, newMax), newMax);
+            }}
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full appearance-none cursor-pointer"
+          />
+        </div>
+      </div>
+
+      {/* Range display */}
+      <div className="mt-4 text-center text-sm font-medium text-purple-600 dark:text-purple-400">
+        Time range: {currentMin} - {currentMax} minutes
+      </div>
+    </div>
+  );
+};
 
 const FilterPanel = ({
   filters,
@@ -107,7 +172,7 @@ const FilterPanel = ({
   filters: FilterState;
   filterOptions: FilterOptions;
   onDifficultyChange: (value: FilterState['difficulty']) => void;
-  onTimeRangeChange: (type: 'min' | 'max', value: number) => void;
+  onTimeRangeChange: (min: number, max: number) => void;
   onTopicChange: (topic: string, checked: boolean) => void;
   onSelectAllTopics: () => void;
   onClearAllTopics: () => void;
@@ -120,41 +185,29 @@ const FilterPanel = ({
           Difficulty
         </label>
         <select
-          className="w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2"
+          className="w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 cursor-pointer appearance-none"
           value={filters.difficulty}
           onChange={(e) => onDifficultyChange(e.target.value as FilterState['difficulty'])}
         >
-          <option value="all">All Difficulties</option>
+          <option className="cursor-pointer" value="all">All Difficulties</option>
           <option value="Easy">Easy</option>
           <option value="Medium">Medium</option>
           <option value="Hard">Hard</option>
         </select>
       </div>
 
-      {/* Time Range Filter */}
+      {/* Time Range Filter with Single Range Slider */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Time Range (minutes)
         </label>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min="0"
-            max={filterOptions.maxTime}
-            value={filters.timeRange.min}
-            onChange={(e) => onTimeRangeChange('min', Number(e.target.value))}
-            className="w-24 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-2"
-          />
-          <span className="text-gray-600 dark:text-gray-400">to</span>
-          <input
-            type="number"
-            min="0"
-            max={filterOptions.maxTime}
-            value={filters.timeRange.max}
-            onChange={(e) => onTimeRangeChange('max', Number(e.target.value))}
-            className="w-24 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-2 py-2"
-          />
-        </div>
+        <RangeSlider
+          min={filterOptions.minTime}
+          max={filterOptions.maxTime}
+          currentMin={filters.timeRange.min}
+          currentMax={filters.timeRange.max}
+          onChange={onTimeRangeChange}
+        />
       </div>
 
       {/* Topics Filter */}
@@ -213,14 +266,14 @@ const FilterPanel = ({
             <button
               onClick={onSelectAllTopics}
               className="text-sm text-purple-600 dark:text-purple-400 
-               hover:text-purple-800 dark:hover:text-purple-200"
+               hover:text-purple-800 dark:hover:text-purple-200 cursor-pointer"
             >
               Select All
             </button>
             <button
               onClick={onClearAllTopics}
               className="text-sm text-purple-600 dark:text-purple-400 
-               hover:text-purple-800 dark:hover:text-purple-200"
+               hover:text-purple-800 dark:hover:text-purple-200 cursor-pointer"
             >
               Clear All
             </button>

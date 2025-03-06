@@ -66,8 +66,7 @@ const SettingsTab = ({ quiz }: SettingsTabProps) => {
                     onChange={(e) => handleInputChange('time_limit_minutes', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
                              rounded-md bg-white dark:bg-gray-700 
-                             text-gray-900 dark:text-gray-100 focus:ring-2 
-                             focus:ring-purple-500 focus:border-transparent"
+                             text-gray-900 dark:text-gray-100"
                 />
             </div>
 
@@ -84,8 +83,7 @@ const SettingsTab = ({ quiz }: SettingsTabProps) => {
                     onChange={(e) => handleInputChange('difficulty', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
                              rounded-md bg-white dark:bg-gray-700 
-                             text-gray-900 dark:text-gray-100 focus:ring-2 
-                             focus:ring-purple-500 focus:border-transparent"
+                             text-gray-900 dark:text-gray-100 cursor-pointer"
                 >
                     <option value="Easy">Easy</option>
                     <option value="Medium">Medium</option>
@@ -107,8 +105,7 @@ const SettingsTab = ({ quiz }: SettingsTabProps) => {
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
                              rounded-md bg-white dark:bg-gray-700 
-                             text-gray-900 dark:text-gray-100 focus:ring-2 
-                             focus:ring-purple-500 focus:border-transparent"
+                             text-gray-900 dark:text-gray-100"
                 />
             </div>
 
@@ -126,8 +123,7 @@ const SettingsTab = ({ quiz }: SettingsTabProps) => {
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 
                              rounded-md bg-white dark:bg-gray-700 
-                             text-gray-900 dark:text-gray-100 focus:ring-2 
-                             focus:ring-purple-500 focus:border-transparent"
+                             text-gray-900 dark:text-gray-100"
                 />
             </div>
 
@@ -142,7 +138,7 @@ const SettingsTab = ({ quiz }: SettingsTabProps) => {
                     onClick={handleSaveChanges}
                     disabled={!hasChanges || isLoading}
                     className={`px-4 py-2 rounded-md font-medium ${hasChanges && !isLoading
-                        ? 'bg-purple-600 hover:bg-purple-700 text-white'
+                        ? 'bg-purple-600 hover:bg-purple-700 text-white cursor-pointer'
                         : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         }`}
                 >

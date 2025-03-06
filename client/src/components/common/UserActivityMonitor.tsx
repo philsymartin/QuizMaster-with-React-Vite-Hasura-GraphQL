@@ -24,7 +24,7 @@ const UserActivityMonitor = () => {
                                 <span>{user.presence?.username}</span>
                             </div>
                             <span className="text-sm text-gray-500">
-                                {new Date(user.presence?.lastActiveAt || '').toLocaleTimeString()}
+                                {new Date(user.presence?.lastActiveAt || '').toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
                             </span>
                         </div>
                     ))}

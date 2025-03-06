@@ -9,6 +9,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import ms from 'ms';
 import { HasuraClaims, HasuraResponse, LeaderboardQueryResult, LoginRequest, RegisterRequest, TimeString, User, UserResponse } from './types/indexTypes';
 import analysisRoutes from './routes/analysisApi';
+import { asyncHandler } from './middleware/asyncHandler';
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
@@ -30,12 +31,6 @@ app.use(cors({ origin: [FRONTEND_URL, HASURA_ORIGIN], credentials: true }));
 app.use(cookieParser());
 
 app.use('/analysis', analysisRoutes);
-
-// Error handler for async routes
-const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
-    (req: Request, res: Response, next: NextFunction) => {
-        Promise.resolve(fn(req, res, next)).catch(next);
-    };
 
 app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: Response) => {
     const { email, password } = req.body;
@@ -274,6 +269,7 @@ app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
                         ) {
                             user_id
                             username
+                            last_active
                             user_performances {
                                 quiz_id
                                 total_attempts

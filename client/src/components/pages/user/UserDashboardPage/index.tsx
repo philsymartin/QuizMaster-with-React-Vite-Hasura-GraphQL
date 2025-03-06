@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logoutRequest } from '@redux/auth/authSlice';
 import { GET_USER_DASHBOARD_DATA } from '@queries/users';
-import type { User, QuizAttempt, QuizFeedback, UserPerformance } from '../../../types/quiz';
+import type { User, QuizAttempt, QuizFeedback, UserPerformance } from 'src/types/quiz';
 import LoadingComponent from '@utils/LoadingSpinner';
 import { FiAward, FiClock, FiLogOut, FiStar, FiTarget, FiUser } from 'react-icons/fi';
 
@@ -127,7 +127,7 @@ const UserDashboardPage = () => {
                         <StatCard
                             icon={<FiAward className="w-5 h-5" />}
                             title="Member Since"
-                            value={new Date(userData.created_at).toLocaleDateString()}
+                            value={new Date(userData.created_at).toLocaleDateString("en-IN")}
                         />
                     </div>
 
@@ -141,7 +141,7 @@ const UserDashboardPage = () => {
                                         <div>
                                             <p className="font-medium">{attempt.quiz.title}</p>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                {new Date(attempt.start_time).toLocaleDateString()}
+                                                {new Date(attempt.start_time).toLocaleDateString("en-IN")}
                                             </p>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -169,12 +169,12 @@ const UserDashboardPage = () => {
                                         <div>
                                             <p className="font-medium">{feedback.quiz.title}</p>
                                             <p className="text-sm text-gray-600 dark:text-gray-400">
-                                                {new Date(feedback.submitted_at).toLocaleDateString()}
+                                                {new Date(feedback.submitted_at).toLocaleDateString("en-IN")}
                                             </p>
                                         </div>
                                         <div className="flex items-center">
                                             <FiStar className="w-4 h-4 text-yellow-400 mr-1" />
-                                            <span>{feedback.rating}/5</span>
+                                            <span>{feedback.rating}/10</span>
                                         </div>
                                     </div>
                                 ))}

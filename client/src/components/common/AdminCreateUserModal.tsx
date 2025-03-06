@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FiX, FiUserPlus, FiAlertTriangle } from 'react-icons/fi';
 import { registerUser } from '@services/authServices';
-import InputField from './InputField';
+import InputField from '@components/InputField';
 
 interface CreateUserFormData {
     username: string;
@@ -191,14 +191,14 @@ const AdminCreateUserModal = ({ isOpen, onClose, onUserCreated }: AdminCreateUse
                             <button
                                 type="button"
                                 onClick={handleClose}
-                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white rounded-md shadow-sm text-sm font-medium flex items-center transform hover:scale-102 transition-all"
+                                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white rounded-md shadow-sm text-sm font-medium flex items-center transform hover:scale-102 transition-all cursor-pointer"
                             >
                                 {loading ? (
                                     <>

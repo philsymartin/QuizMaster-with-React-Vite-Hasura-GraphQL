@@ -11,7 +11,7 @@ import { RootState, persistor } from '@redux/store';
 import client from '@services/hasuraApi';
 import { UPDATE_USER_STATUS } from '@mutations/usersMutate'
 
-function* updateUserStatus(status: string): Generator<Effect, void, any> {
+export function* updateUserStatus(status: string): Generator<Effect, void, any> {
     const state: RootState = yield select();
     const userId = state.auth.user?.user_id;
 
@@ -29,7 +29,7 @@ function* updateUserStatus(status: string): Generator<Effect, void, any> {
         }
     }
 }
-function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect, void, LoginResponse> {
+export function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect, void, LoginResponse> {
     try {
         const response: LoginResponse = yield call(loginUser, action.payload.email, action.payload.password);
         console.log('Login Response:', response);
@@ -48,7 +48,7 @@ function* handleLogin(action: ReturnType<typeof loginRequest>): Generator<Effect
     }
 }
 
-function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
+export function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
     try {
         const response: RefreshTokenResponse = yield call(refreshToken);
         if (response.expiresIn) {
@@ -70,7 +70,7 @@ function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
     }
 }
 
-function* handleLogout(): Generator<Effect, void, void> {
+export function* handleLogout(): Generator<Effect, void, void> {
     try {
         yield call(updateUserStatus, 'inactive');
         yield call(logoutUser);

@@ -63,7 +63,7 @@ const QuizPerformanceCard = () => {
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quiz Performance Overview</h2>
                 <button
-                    className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                    className="inline-flex items-center text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer"
                     onClick={() => setShowFilter(!showFilter)}
                 >
                     <FiFilter className="w-4 h-4 mr-1" />
@@ -75,7 +75,7 @@ const QuizPerformanceCard = () => {
                 <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-medium">Select Quizzes to Compare</span>
-                        <button onClick={() => setShowFilter(false)} className="text-gray-500">
+                        <button onClick={() => setShowFilter(false)} className="text-gray-500 cursor-pointer">
                             <FiX className="w-4 h-4" />
                         </button>
                     </div>
@@ -87,9 +87,9 @@ const QuizPerformanceCard = () => {
                                     id={`quiz-${quiz.quiz_id}`}
                                     checked={selectedQuizzes.includes(quiz.quiz_id)}
                                     onChange={() => toggleQuiz(quiz.quiz_id)}
-                                    className="mr-2"
+                                    className="mr-2 cursor-pointer"
                                 />
-                                <label htmlFor={`quiz-${quiz.quiz_id}`} className="text-sm truncate">
+                                <label htmlFor={`quiz-${quiz.quiz_id}`} className="text-sm truncate cursor-pointer">
                                     #{quiz.quiz_id}: {quiz.title}
                                 </label>
                             </div>

@@ -8,9 +8,16 @@ export interface User {
 }
 
 export interface UserPerformance {
+    quiz_id: number;
+    total_attempts: number;
     correct_answers: number;
     average_score: number;
+    quiz?: {
+        title: string;
+        total_questions: number;
+    };
 }
+
 export interface QuizAttemptWithQuiz {
     quiz_id: number;
     score: number;
@@ -27,6 +34,7 @@ export interface ExtendedUser extends User {
 export interface LeaderboardQueryResult {
     users: ExtendedUser[];
 }
+
 export interface LeaderboardEntry {
     userId: number;
     username: string;
@@ -35,12 +43,16 @@ export interface LeaderboardEntry {
     totalCorrectAnswers: number;
     topPerformance: string;
     completedQuizzes: string[];
+    lastActive: string;
     quizScores: {
         quizId: number;
         quizTitle: string;
         score: number;
+        bestScore: number;
+        attempts: number;
     }[];
 }
+
 export interface FilterState {
     search: string;
     quizId: string;
@@ -49,4 +61,6 @@ export interface FilterState {
         max: number;
     };
     minQuizzes: number;
+    difficulty?: string;
+    sortBy: 'score' | 'quizzes';
 }

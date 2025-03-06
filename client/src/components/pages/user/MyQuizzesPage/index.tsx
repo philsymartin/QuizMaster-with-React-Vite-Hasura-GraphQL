@@ -1,14 +1,16 @@
-import { useMemo, useState } from 'react';
+import { startTransition, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useQuery, useMutation } from '@apollo/client';
+import { FiClock, FiMessageSquare, FiStar, FiTarget, FiX } from 'react-icons/fi';
 import { motion } from 'framer-motion';
-import type { QuizAttempt, QuizFeedback, Quiz } from '../../../types/quiz';
+import type { QuizAttempt, QuizFeedback, Quiz } from 'src/types/quiz';
 import { GET_USER_QUIZZES } from '@queries/users';
 import { ADD_QUIZ_FEEDBACK, UPDATE_FEEDBACK_SENTIMENT } from '@mutations/questionsMutate';
 import { RootState } from '@redux/store';
-import { useSelector } from 'react-redux';
 import { analyzeSentiment } from '@services/sentiment';
 import LoadingComponent from '@utils/LoadingSpinner';
-import { FiClock, FiMessageSquare, FiStar, FiTarget, FiX } from 'react-icons/fi';
+import { StatItem } from '@components/StatItem';
+import { calculateTimeTaken } from '@utils/Helpers';
 
 interface QuizAttemptWithQuiz extends QuizAttempt {
   quiz: Pick<Quiz, 'quiz_id' | 'title' | 'difficulty' | 'description' | 'time_limit_minutes'>;
@@ -19,16 +21,14 @@ interface QuizFeedbackWithQuiz extends QuizFeedback {
 }
 
 interface UserQuizzesData {
-  users: [{
-    quiz_attempts: QuizAttemptWithQuiz[];
-    quiz_feedbacks: QuizFeedbackWithQuiz[];
-  }];
+  users: Array<{ quiz_attempts: QuizAttemptWithQuiz[]; quiz_feedbacks: QuizFeedbackWithQuiz[]; }>
 }
 
 const MyQuizzesPage = () => {
   const [selectedQuiz, setSelectedQuiz] = useState<{
     quizId: number;
     title: string;
+    attemptId: number;
   } | null>(null);
   const [feedbackText, setFeedbackText] = useState('');
   const [rating, setRating] = useState(0);
@@ -76,6 +76,7 @@ const MyQuizzesPage = () => {
         variables: {
           quizId: selectedQuiz.quizId,
           userId,
+          attemptId: selectedQuiz.attemptId,
           feedbackText,
           rating
         }
@@ -86,7 +87,9 @@ const MyQuizzesPage = () => {
       setRating(0);
       setShowModal(false);
       setSubmitError(null);
-      refetch();
+      startTransition(() => {
+        refetch();
+      });
       // Trigger sentiment analysis in background
       const feedbackId = result.data.insert_quiz_feedback_one.feedback_id;
       performSentimentAnalysis(feedbackId, feedbackText);
@@ -99,11 +102,8 @@ const MyQuizzesPage = () => {
     }
   };
 
-
-
-
-  const openFeedbackModal = (quizId: number, title: string) => {
-    setSelectedQuiz({ quizId, title });
+  const openFeedbackModal = (quizId: number, title: string, attemptId: number) => {
+    setSelectedQuiz({ quizId, title, attemptId });
     setShowModal(true);
     setSubmitError(null);
   };
@@ -138,81 +138,92 @@ const MyQuizzesPage = () => {
             dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent mb-8">
             My Quizzes
           </h1>
+          {quiz_attempts.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                No results found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">
+                You have'nt attempted any quiz yet.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {quiz_attempts.map((attempt: QuizAttemptWithQuiz) => {
+                const feedback = feedbackMap[attempt.quiz.quiz_id];
+                const timeTaken = attempt.start_time && attempt.end_time
+                  ? calculateTimeTaken(attempt.start_time, attempt.end_time)
+                  : "In progress";
 
-          <div className="space-y-6">
-            {quiz_attempts.map((attempt: QuizAttemptWithQuiz) => {
-              const feedback = feedbackMap[attempt.quiz.quiz_id];
-
-              return (
-                <div key={attempt.attempt_id}
-                  className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 transition-all hover:shadow-md">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                        {attempt.quiz.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {attempt.quiz.description}
-                      </p>
+                return (
+                  <div key={attempt.attempt_id}
+                    className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-6 transition-all hover:shadow-md">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                          {attempt.quiz.title}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {attempt.quiz.description}
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-sm ${attempt.quiz.difficulty === 'Hard'
+                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
+                        : attempt.quiz.difficulty === 'Medium'
+                          ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                          : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                        }`}>
+                        {attempt.quiz.difficulty}
+                      </span>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm ${attempt.quiz.difficulty === 'Hard'
-                      ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-                      : attempt.quiz.difficulty === 'Medium'
-                        ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
-                        : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                      }`}>
-                      {attempt.quiz.difficulty}
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                    <StatItem
-                      icon={<FiTarget className="w-4 h-4" />}
-                      label="Score"
-                      value={`${attempt.score}%`}
-                    />
-                    <StatItem
-                      icon={<FiClock className="w-4 h-4" />}
-                      label="Time Limit"
-                      value={`${attempt.quiz.time_limit_minutes} min`}
-                    />
-                    <StatItem
-                      icon={<FiMessageSquare className="w-4 h-4" />}
-                      label="Feedback"
-                      value={feedback ? "Submitted" : "Not yet"}
-                    />
-                    {feedback && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                       <StatItem
-                        icon={<FiStar className="w-4 h-4" />}
-                        label="Rating"
-                        value={`${feedback.rating}/5`}
+                        icon={<FiTarget className="w-4 h-4" />}
+                        label="Score"
+                        value={`${attempt.score}%`}
                       />
+                      <StatItem
+                        icon={<FiClock className="w-4 h-4" />}
+                        label="Time Taken"
+                        value={timeTaken}
+                      />
+                      <StatItem
+                        icon={<FiMessageSquare className="w-4 h-4" />}
+                        label="Feedback"
+                        value={feedback ? "Submitted" : "Not yet"}
+                      />
+                    </div>
+
+                    {feedback ? (
+                      <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-600/30 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FiStar className="w-4 h-4 text-yellow-400" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            {feedback.rating}/10
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          {feedback.feedback_text}
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                          Submitted on {new Date(feedback.submitted_at).toLocaleDateString("en-IN")}
+                        </p>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => openFeedbackModal(attempt.quiz.quiz_id, attempt.quiz.title, attempt.attempt_id)}
+                        className="inline-flex items-center px-4 py-2 bg-purple-600 text-white 
+                           rounded-lg hover:bg-purple-700 transition-colors cursor-pointer"
+                      >
+                        Add Feedback
+                      </button>
                     )}
                   </div>
-
-                  {feedback ? (
-                    <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-600/30 rounded-lg">
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {feedback.feedback_text}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                        Submitted on {new Date(feedback.submitted_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => openFeedbackModal(attempt.quiz.quiz_id, attempt.quiz.title)}
-                      className="w-full mt-4 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-700 
-                        dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 
-                        dark:hover:bg-gray-600 transition-colors"
-                    >
-                      Add Feedback
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -232,7 +243,7 @@ const MyQuizzesPage = () => {
                 </h3>
                 <button
                   onClick={() => setShowModal(false)}
-                  className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                  className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 cursor-pointer"
                 >
                   <FiX className="w-5 h-5" />
                 </button>
@@ -296,17 +307,5 @@ const MyQuizzesPage = () => {
     </motion.div>
   );
 };
-
-const StatItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) => (
-  <div className="flex items-center gap-2">
-    <div className="text-purple-600 dark:text-purple-400">
-      {icon}
-    </div>
-    <div>
-      <p className="text-xs text-gray-600 dark:text-gray-400">{label}</p>
-      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{value}</p>
-    </div>
-  </div>
-);
 
 export default MyQuizzesPage;

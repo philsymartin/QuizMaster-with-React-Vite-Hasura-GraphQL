@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { FiX } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import SettingsTab from '@components/SettingsTab';
 import {
@@ -10,7 +11,6 @@ import {
 import LoadingComponent from '@utils/LoadingSpinner';
 import QuestionsTab from '@components/QuestionsTab';
 import { Quiz } from 'src/types/quiz';
-import { FiX } from 'react-icons/fi';
 
 interface AdminQuizDetailsPanelProps {
     isOpen: boolean;
@@ -64,7 +64,7 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz, initialTab = 'questions'
                         </h2>
                         <button
                             onClick={onClose}
-                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                            className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
                         >
                             <FiX className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                         </button>
@@ -79,7 +79,7 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz, initialTab = 'questions'
                         <button
                             className={`px-4 py-2 text-sm font-medium ${activeTab === 'questions'
                                 ? 'border-b-2 border-purple-500 text-purple-600 dark:text-purple-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                : 'text-gray-500 dark:text-gray-400  cursor-pointer'
                                 }`}
                             onClick={() => setActiveTab('questions')}
                         >
@@ -88,7 +88,7 @@ const AdminQuizDetailsPanel = ({ isOpen, onClose, quiz, initialTab = 'questions'
                         <button
                             className={`px-4 py-2 text-sm font-medium ${activeTab === 'settings'
                                 ? 'border-b-2 border-purple-500 text-purple-600 dark:text-purple-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                : 'text-gray-500 dark:text-gray-400 cursor-pointer'
                                 }`}
                             onClick={() => setActiveTab('settings')}
                         >

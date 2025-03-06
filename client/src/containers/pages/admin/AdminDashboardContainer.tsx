@@ -3,135 +3,17 @@ import { useQuery } from '@apollo/client';
 import { GET_DASHBOARD_STATS, GET_QUICK_STATS, GET_RECENT_ACTIVITY } from '@queries/adminDashboard';
 import LoadingComponent from '@utils/LoadingSpinner';
 import AdminDashboardPage from '@pages/admin/AdminDashboardPage';
+import { DashboardData, DashboardStatsData, QuickStatsData, RecentActivityData, RecentActivityItem } from '@pages/admin/AdminDashboardPage/types';
+import { getTimeDifferenceFromNow, timeToMinutes, yesterdayForQuery } from '@utils/Helpers';
 
-interface DashboardStatsData {
-    users_aggregate: {
-        aggregate: {
-            count: number;
-        }
-    }
-    quizzes_aggregate: {
-        aggregate: {
-            count: number;
-        }
-    }
-    quiz_attempts_aggregate: {
-        aggregate: {
-            count: number;
-            avg: {
-                score: number;
-            }
-        }
-    }
-    completed_attempts: {
-        aggregate: {
-            count: number;
-        }
-    }
-    total_attempts: {
-        aggregate: {
-            count: number;
-        }
-    }
-}
-
-interface RecentActivityData {
-    quiz_attempts: Array<{
-        attempt_id: number;
-        user: {
-            username: string;
-        }
-        quiz: {
-            title: string;
-        }
-        score: number;
-        end_time: string;
-    }>;
-    users: Array<{
-        user_id: number;
-        username: string;
-        created_at: string;
-    }>;
-    quizzes: Array<{
-        quiz_id: number;
-        title: string;
-        created_at: string;
-    }>;
-}
-
-interface QuickStatsData {
-    quiz_attempts_with_duration: Array<{
-        start_time: string;
-        end_time: string;
-    }>;
-    new_users_today: {
-        aggregate: {
-            count: number;
-        }
-    }
-    new_quizzes_today: {
-        aggregate: {
-            count: number;
-        }
-    }
-}
-
-export interface RecentActivityItem {
-    id: number;
-    action: string;
-    user: string;
-    time: string;
-    type: 'quiz' | 'user' | 'result';
-}
-
-export interface DashboardData {
-    userCount: number;
-    quizCount: number;
-    completionRate: number;
-    avgScore: number;
-    avgDuration: number;
-    newUsersToday: number;
-    newQuizzesToday: number;
-    recentActivities: RecentActivityItem[];
-}
 
 const AdminDashboardContainer = () => {
-    // Set up yesterday date for the query variable
-    const yesterday = React.useMemo(() => {
-        const date = new Date();
-        date.setDate(date.getDate() - 1);
-        return date.toISOString();
-    }, []);
-
     const { loading: statsLoading, error: statsError, data: statsData } = useQuery<DashboardStatsData>(GET_DASHBOARD_STATS);
     const { loading: activityLoading, error: activityError, data: activityData } = useQuery<RecentActivityData>(GET_RECENT_ACTIVITY);
     const { loading: quickStatsLoading, error: quickStatsError, data: quickStatsData } = useQuery<QuickStatsData>(
         GET_QUICK_STATS,
-        { variables: { yesterday } }
+        { variables: { yesterday: yesterdayForQuery() } }
     );
-
-    const formatTime = (date: Date): string => {
-        const now = new Date();
-        const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-
-        if (diffInMinutes < 60) {
-            return `${diffInMinutes} minutes ago`;
-        } else if (diffInMinutes < 24 * 60) {
-            return `${Math.floor(diffInMinutes / 60)} hours ago`;
-        } else {
-            return `${Math.floor(diffInMinutes / (24 * 60))} days ago`;
-        }
-    };
-
-    const timeToMinutes = (timeString: string): number => {
-        if (timeString.includes('minutes')) {
-            return parseInt(timeString.split(' ')[0]);
-        } else if (timeString.includes('hours')) {
-            return parseInt(timeString.split(' ')[0]) * 60;
-        } else {
-            return parseInt(timeString.split(' ')[0]) * 60 * 24;
-        }
-    };
 
     const recentActivities: RecentActivityItem[] = React.useMemo(() => {
         if (activityLoading || activityError || !activityData) return [];
@@ -142,7 +24,7 @@ const AdminDashboardContainer = () => {
                 id: attempt.attempt_id,
                 action: `Completed Quiz: ${attempt.quiz.title} with Score: ${attempt.score}%`,
                 user: attempt.user.username,
-                time: formatTime(new Date(attempt.end_time)),
+                time: getTimeDifferenceFromNow(new Date(attempt.end_time)),
                 type: 'result'
             });
         });
@@ -151,7 +33,7 @@ const AdminDashboardContainer = () => {
                 id: user.user_id,
                 action: "New User Registration",
                 user: user.username,
-                time: formatTime(new Date(user.created_at)),
+                time: getTimeDifferenceFromNow(new Date(user.created_at)),
                 type: 'user'
             });
         });
@@ -160,7 +42,7 @@ const AdminDashboardContainer = () => {
                 id: quiz.quiz_id,
                 action: `New Quiz Created: ${quiz.title}`,
                 user: "System",
-                time: formatTime(new Date(quiz.created_at)),
+                time: getTimeDifferenceFromNow(new Date(quiz.created_at)),
                 type: 'quiz'
             });
         });
@@ -205,7 +87,6 @@ const AdminDashboardContainer = () => {
         return <div className="text-center p-8 text-red-500">Error loading dashboard data. Please try again.</div>;
     }
 
-    // Prepare the data to pass to the presentation component
     const dashboardData: DashboardData = {
         userCount,
         quizCount,

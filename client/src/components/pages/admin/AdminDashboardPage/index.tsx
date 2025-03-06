@@ -1,25 +1,6 @@
 import React from 'react';
 import { FiAward, FiBarChart2, FiBookOpen, FiClock, FiUsers } from 'react-icons/fi';
-import { DashboardData, RecentActivityItem } from '@containers/admin/AdminDashboardContainer';
-
-interface AdminDashboardPageProps {
-    dashboardData: DashboardData;
-}
-interface StatCardProps {
-    title: string;
-    value: string;
-    icon: React.FC<any>;
-    description: string;
-}
-interface ActivityItemProps {
-    activity: RecentActivityItem;
-}
-interface QuickStatProps {
-    icon: React.FC<any>;
-    label: string;
-    value: string;
-}
-
+import { ActivityItemProps, AdminDashboardPageProps, QuickStatProps, StatCardProps } from '@pages/admin/AdminDashboardPage/types';
 const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({ dashboardData }) => {
     const {
         userCount,

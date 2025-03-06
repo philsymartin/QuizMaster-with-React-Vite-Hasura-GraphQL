@@ -1,13 +1,13 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { FiCheck, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
+import AddQuestionForm from '@components/AddQuestionForm';
 import { Question } from 'src/types/quiz';
 import {
     deleteQuestionRequest, openAddQuestionModal, selectAddQuestionModalOpen,
     selectDeleteQuestionError,
     selectDeleteQuestionLoading, selectQuestions, selectSelectedQuiz, setEditingQuestion,
 } from '@redux/quiz/quizSlice';
-import AddQuestionForm from '@components/AddQuestionForm';
-import { useEffect, useState } from 'react';
-import { FiCheck, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
 
 interface QuestionsTabProps {
     questions: Question[];
@@ -62,7 +62,7 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                     className="w-full flex items-center justify-center px-4 py-2 
                           border-2 border-dashed border-gray-300 dark:border-gray-600 
                           rounded-lg text-gray-500 dark:text-gray-400 hover:border-purple-500 
-                          hover:text-purple-500 transition-colors">
+                          hover:text-purple-500 transition-colors cursor-pointer">
                     <FiPlus className="w-5 h-5 mr-2" />
                     Add New Question
                 </button>
@@ -87,12 +87,12 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                             <div className="flex space-x-2">
                                 <button
                                     onClick={() => handleEditQuestion(question.question_id)}
-                                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
+                                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded cursor-pointer">
                                     <FiEdit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                 </button>
                                 <button
                                     onClick={() => openDeleteModal(question.question_id)}
-                                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded">
+                                    className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded cursor-pointer">
                                     <FiTrash2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                 </button>
                             </div>

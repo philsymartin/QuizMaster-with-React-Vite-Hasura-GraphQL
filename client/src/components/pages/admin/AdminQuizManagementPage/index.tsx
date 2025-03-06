@@ -1,42 +1,11 @@
 
 import AdminQuizDetailsPanel from '@components/AdminQuizDetailsPanel';
 import CreateQuizModal from '@components/CreateQuizModal';
-import { Quiz } from 'src/types/quiz';
 import { FiBookOpen, FiEdit, FiPlus, FiSearch, FiSettings, FiTrash2 } from 'react-icons/fi';
-
-type BasicQuiz = Pick<Quiz,
-    'quiz_id' |
-    'title' |
-    'description' |
-    'difficulty' |
-    'time_limit_minutes' |
-    'total_questions' |
-    'participants_count' |
-    'average_rating'
->;
-
-interface AdminQuizManagementPageProps {
-    loading: boolean;
-    quizzes: BasicQuiz[];
-    searchTerm: string;
-    selectedDifficulty: 'all' | 'Easy' | 'Medium' | 'Hard';
-    detailsPanelOpen: boolean;
-    activeTab: 'questions' | 'settings';
-    createModalOpen: boolean;
-    deleteDialogOpen: boolean;
-    quizToDelete: BasicQuiz | null;
-    isDeleteLoading: boolean;
-    selectedQuizData: Quiz | undefined;
-    onSearchChange: (value: string) => void;
-    onDifficultyChange: (value: 'all' | 'Easy' | 'Medium' | 'Hard') => void;
-    onQuizSelect: (quiz: BasicQuiz, tab?: 'questions' | 'settings') => void;
-    onDeleteClick: (quiz: BasicQuiz) => void;
-    onConfirmDelete: () => void;
-    onCancelDelete: () => void;
-    onClosePanel: () => void;
-    onOpenCreateModal: () => void;
-    onCloseCreateModal: () => void;
-}
+import { getDifficultyColor } from '@config/styleConstants';
+import DeleteConfirmationModal from '@components/DeleteConfirmationModal';
+import SkeletonRow from '@pages/admin/AdminQuizManagementPage/SkeletonRow';
+import { AdminQuizManagementPageProps, BasicQuiz } from '@pages/admin/AdminQuizManagementPage/types';
 
 const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
     loading,
@@ -60,14 +29,6 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
     onOpenCreateModal,
     onCloseCreateModal,
 }) => {
-    const getDifficultyColor = (difficulty: string) => {
-        switch (difficulty) {
-            case 'Easy': return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-            case 'Medium': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-            case 'Hard': return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-            default: return '';
-        }
-    };
 
     const tableHeaders = [
         { label: "Quiz Info", align: "text-left" },
@@ -78,40 +39,6 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
         { label: "Actions", align: "text-right" },
     ];
 
-    const SkeletonRow = () => (
-        <tr>
-            <td className="px-6 py-4">
-                <div className="flex items-center">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                    <div className="ml-4 space-y-2">
-                        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                        <div className="h-3 w-48 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    </div>
-                </div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </td>
-            <td className="px-6 py-4">
-                <div className="h-4 w-28 mb-2 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right">
-                <div className="flex items-center justify-end space-x-2">
-                    <div className="h-6 w-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-6 w-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-6 w-6 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                </div>
-            </td>
-        </tr>
-    );
-
     return (
         <div className="space-y-6 p-6">
             {/* Header */}
@@ -121,7 +48,7 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
                     <p className="text-gray-500 dark:text-gray-400">Create and manage your quizzes</p>
                 </div>
                 <button
-                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors  cursor-pointer"
                     onClick={onOpenCreateModal}
                     title='create new quiz'
                 >
@@ -144,7 +71,7 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
                     />
                 </div>
                 <select
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2  cursor-pointer"
                     value={selectedDifficulty}
                     onChange={(e) => onDifficultyChange(e.target.value as 'all' | 'Easy' | 'Medium' | 'Hard')}
                     title='filter difficulty levels'
@@ -217,20 +144,20 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
                                             <div className="flex items-center justify-end space-x-2">
                                                 <button
                                                     onClick={() => onQuizSelect(quiz, 'questions')}
-                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded  cursor-pointer"
                                                     title="Edit Questions"
                                                 >
                                                     <FiEdit className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                                 </button>
                                                 <button
-                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded  cursor-pointer"
                                                     onClick={() => onQuizSelect(quiz, 'settings')}
                                                     title="Edit Settings"
                                                 >
                                                     <FiSettings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                                                 </button>
                                                 <button
-                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                                                    className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded  cursor-pointer"
                                                     onClick={() => onDeleteClick(quiz)}
                                                     title="Delete Quiz"
                                                 >
@@ -263,31 +190,16 @@ const AdminQuizManagementPage: React.FC<AdminQuizManagementPageProps> = ({
             />
 
             {/* Delete Confirmation Dialog */}
-            {deleteDialogOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
-                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Delete Quiz</h3>
-                        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                            Are you sure you want to delete "{quizToDelete?.title}"? This action cannot be undone and will remove all questions, attempts, and feedback associated with this quiz.
-                        </p>
-                        <div className="mt-4 flex justify-end space-x-3">
-                            <button
-                                onClick={onCancelDelete}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-lg transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={onConfirmDelete}
-                                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
-                                disabled={isDeleteLoading}
-                            >
-                                {isDeleteLoading ? 'Deleting...' : 'Delete Quiz'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <DeleteConfirmationModal
+                isOpen={deleteDialogOpen}
+                onClose={onCancelDelete}
+                onConfirm={onConfirmDelete}
+                itemName={quizToDelete?.title}
+                confirmationText="Are you sure you want to delete"
+                isLoading={isDeleteLoading}
+                deleteButtonText="Delete Quiz"
+                warningMessage="This action cannot be undone and will remove all questions, attempts, and feedback associated with this quiz."
+            />
         </div>
     );
 };

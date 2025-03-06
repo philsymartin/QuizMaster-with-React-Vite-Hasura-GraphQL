@@ -1,15 +1,15 @@
 import React, { Suspense, useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
+import { FaBrain } from "react-icons/fa";
 import { motion } from 'framer-motion';
 import { useQuery } from '@apollo/client';
 import { GET_QUIZ_DETAILS } from '@queries/quizzes';
-import { useSelector } from 'react-redux';
 import LoadingComponent from '@utils/LoadingSpinner';
 import { RootState } from '@redux/store';
 import { RoomProvider, getRoomId } from '@services/liveblocks';
 import { LiveObject } from '@liveblocks/client';
-import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
-import { FaBrain } from "react-icons/fa";
 
 interface Topic {
   topic_id: number;
@@ -62,7 +62,7 @@ const QuizStats: React.FC<QuizStatsProps> = ({ quiz }) => (
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
       <FiStar className="w-6 h-6 mb-2 text-yellow-400" />
       <span className="text-sm text-gray-600 dark:text-gray-400">Rating</span>
-      <span className="font-semibold">{quiz.average_rating}/5.0</span>
+      <span className="font-semibold">{quiz.average_rating}/10.0</span>
     </div>
   </div>
 );
@@ -92,13 +92,13 @@ const AuthOptions = () => {
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <button
             onClick={() => navigate('/login')}
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer "
           >
             Log In
           </button>
           <button
             onClick={() => navigate('/register')}
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer "
           >
             Sign Up
           </button>
@@ -186,7 +186,7 @@ const QuizDetailContent = () => {
           ) : (
             <button
               onClick={handleStartQuiz}
-              className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold transform hover:scale-102 transition-all"
+              className="block w-full text-center bg-gradient-to-r from-purple-600 to-blue-500 hover:from-purple-700 hover:to-blue-600 text-white px-8 py-4 rounded-xl font-semibold transform hover:scale-102 transition-all cursor-pointer"
             >
               {user ? "Start Quiz Now" : "Log In to Start Quiz"}
             </button>

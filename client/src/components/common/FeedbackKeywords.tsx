@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { INSERT_FEEDBACK_KEYWORD, INSERT_FEEDBACK_KEYWORD_MAPPING, UPDATE_FEEDBACK_KEYWORD_EXTRACTED } from '@mutations/analysisMutate';
-import { analyzeKeywords } from '@services/sentiment';
-import type { FeedbackItem } from '@services/sentiment';
-import { GET_KEYWORD_ANALYTICS, GET_UNPROCESSED_FEEDBACK } from '@queries/analytics';
 import { FiRefreshCw } from 'react-icons/fi';
+import { BarChartHorizontalIcon, getSentimentColor } from '@config/styleConstants';
+import { INSERT_FEEDBACK_KEYWORD, INSERT_FEEDBACK_KEYWORD_MAPPING, UPDATE_FEEDBACK_KEYWORD_EXTRACTED } from '@mutations/analysisMutate';
+import { analyzeKeywords, FeedbackItem } from '@services/sentiment';
+import { GET_KEYWORD_ANALYTICS, GET_UNPROCESSED_FEEDBACK } from '@queries/analytics';
 
 interface KeywordMapping {
     feedback_keyword_id: number;
@@ -65,15 +65,6 @@ interface KeywordAnalyticsProps {
     quizId?: number;
     limit?: number;
 }
-
-const BarChartHorizontalIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 3v18h18" />
-        <path d="M7 16h8" />
-        <path d="M7 11h12" />
-        <path d="M7 6h3" />
-    </svg>
-);
 
 const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
     limit = 10
@@ -284,24 +275,13 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
     // Determine max value for percentage calculations
     const maxValue = feedbackKeywords.length ? Math.max(...feedbackKeywords.map(k => k.value)) : 0;
 
-    const getSentimentColor = (sentiment: 'positive' | 'negative' | 'neutral') => {
-        switch (sentiment) {
-            case 'positive':
-                return 'bg-green-500';
-            case 'negative':
-                return 'bg-red-500';
-            default:
-                return 'bg-gray-500';
-        }
-    };
-
     return (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Common Feedback Keywords</h2>
                 <button
                     onClick={onAnalyzeClick}
-                    className="inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-sm rounded-md hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors"
+                    className={`inline-flex items-center px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-sm rounded-md hover:bg-purple-200 dark:hover:bg-purple-900/50 transition-colors ${isAnalyzing ? 'cursor-wait' : 'cursor-pointer'}`}
                     disabled={isAnalyzing}
                 >
                     {isAnalyzing ? (
@@ -330,17 +310,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
                                 <div className="text-md font-medium text-gray-800 dark:text-gray-200 flex-1">
                                     {keyword.text}
                                 </div>
-                                <div className="flex items-center">
-                                    <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700 w-32">
-                                        <div
-                                            className={`h-2 rounded-full ${getSentimentColor(keyword.sentiment || 'neutral')}`}
-                                            style={{ width: `${maxValue ? (keyword.value / maxValue) * 100 : 0}%` }}
-                                        ></div>
-                                    </div>
-                                    <span className="ml-2 text-xs text-gray-500 dark:text-gray-400 w-8 text-right">
-                                        {keyword.value}
-                                    </span>
-                                </div>
                             </div>
 
                             {/* Quiz details */}
@@ -365,9 +334,6 @@ const FeedbackKeywords: React.FC<KeywordAnalyticsProps> = ({
                 </div>
             ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-gray-500 dark:text-gray-400">
-                    <div className="w-10 h-10 mb-2 opacity-50">
-                        <BarChartHorizontalIcon />
-                    </div>
                     <p>No keyword data available</p>
                     <button
                         onClick={onAnalyzeClick}

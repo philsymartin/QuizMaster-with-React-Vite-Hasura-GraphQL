@@ -197,7 +197,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onUserUpdated }: AdminUserE
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 cursor-pointer"
                                 >
                                     <option value="user">User</option>
                                     <option value="admin">Admin</option>
@@ -212,7 +212,7 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onUserUpdated }: AdminUserE
                                     name="status"
                                     value={formData.status}
                                     onChange={handleChange}
-                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                                    className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 shadow-sm p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 cursor-pointer"
                                 >
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
@@ -223,8 +223,8 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onUserUpdated }: AdminUserE
 
                             <div className="pt-2 text-xs text-gray-500 dark:text-gray-400">
                                 <p>User ID: {user.id}</p>
-                                <p>Created: {new Date(user.created_at).toLocaleString()}</p>
-                                <p>Last Active: {new Date(user.last_active).toLocaleString()}</p>
+                                <p>Created: {new Date(user.created_at).toLocaleString("en-In", { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
+                                <p>Last Active: {new Date(user.last_active).toLocaleString("en-In", { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</p>
                             </div>
                         </div>
 
@@ -232,14 +232,14 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onUserUpdated }: AdminUserE
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600  cursor-pointer"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="px-4 py-2 bg-purple-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-purple-700 flex items-center"
+                                className="px-4 py-2 bg-purple-600 text-white rounded-md shadow-sm text-sm font-medium hover:bg-purple-700 flex items-center cursor-pointer"
                             >
                                 {loading ? (
                                     <>

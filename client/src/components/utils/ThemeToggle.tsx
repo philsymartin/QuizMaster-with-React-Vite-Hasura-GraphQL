@@ -10,7 +10,7 @@ const ThemeToggle = () => {
             className="relative p-2 rounded-lg 
                 hover:bg-gray-100 dark:hover:bg-gray-700 
                 transition-colors duration-200 ease-in-out
-                focus:outline-none focus:ring-2 focus:ring-purple-500"
+                focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
             aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} theme`}
             title='change theme'
         >

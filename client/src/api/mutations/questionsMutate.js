@@ -188,6 +188,7 @@ export const ADD_QUIZ_FEEDBACK = gql`
   mutation AddQuizFeedback(
     $quizId: Int!
     $userId: Int!
+    $attemptId: Int!
     $feedbackText: String!
     $rating: Int!
   ) {
@@ -195,6 +196,7 @@ export const ADD_QUIZ_FEEDBACK = gql`
       object: {
         quiz_id: $quizId
         user_id: $userId
+        attempt_id: $attemptId
         feedback_text: $feedbackText
         rating: $rating
       }

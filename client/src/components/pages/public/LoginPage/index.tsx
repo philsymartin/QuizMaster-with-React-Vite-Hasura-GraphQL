@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '@redux/store';
-import { loginRequest } from '@redux/auth/authSlice';
+import { motion } from 'framer-motion';
 import AuthCard from '@components/AuthCard';
 import InputField from '@components/InputField';
-import { motion } from 'framer-motion';
+import { RootState } from '@redux/store';
+import { loginRequest } from '@redux/auth/authSlice';
+
 
 interface LoginFormData {
   email: string;
@@ -56,7 +57,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <AuthCard title="Welcome Back">
+      <AuthCard title="Welcome">
         <motion.form
           onSubmit={handleSubmit}
           className="space-y-6"
@@ -82,17 +83,6 @@ const LoginPage = () => {
             placeholder="Enter your password"
             required
           />
-
-          <div className="flex items-center justify-between">
-            <Link
-              to="/forgot-password"
-              className="text-sm text-purple-600 dark:text-purple-400 hover:text-purple-500
-                      dark:hover:text-purple-300 transition-colors"
-            >
-              Forgot password?
-            </Link>
-          </div>
-
           <button
             type="submit"
             disabled={!isFormValid() || loading}

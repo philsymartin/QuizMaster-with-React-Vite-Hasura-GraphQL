@@ -46,40 +46,27 @@ export const UPDATE_QUIZ_SETTINGS = gql`
 `;
 export const DELETE_QUIZ = gql`
   mutation DeleteQuiz($quiz_id: Int!) {
-    # Delete quiz_topics
     delete_quiz_topics(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-    
-    # Delete quiz_feedback
     delete_quiz_feedback(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-    
-    # Delete user_performance
     delete_user_performance(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-
-    # Delete quiz_attempts and related answers
     delete_answers(where: { quiz_attempt: { quiz_id: { _eq: $quiz_id } } }) {
       affected_rows
     }
-    
     delete_quiz_attempts(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-    
-    # Delete questions and related data
     delete_question_options(where: { question: { quiz_id: { _eq: $quiz_id } } }) {
       affected_rows
     }
-    
     delete_questions(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-    
-    # delete the quiz itself
     delete_quizzes_by_pk(quiz_id: $quiz_id) {
       quiz_id
       title

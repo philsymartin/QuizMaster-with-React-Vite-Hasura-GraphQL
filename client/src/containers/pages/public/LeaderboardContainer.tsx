@@ -12,7 +12,9 @@ const LeaderboardContainer = () => {
         search: '',
         quizId: 'all',
         scoreRange: { min: 40, max: 100 },
-        minQuizzes: 1
+        minQuizzes: 1,
+        difficulty: 'all',
+        sortBy: 'score'
     });
 
     const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -35,49 +37,61 @@ const LeaderboardContainer = () => {
         fetchData();
     }, [isAdmin]);
 
+    // Process raw data into leaderboard entries
     const leaderboardData: LeaderboardEntry[] = useMemo(() => {
         if (!data?.users) return [];
 
         return data.users.map((user: ExtendedUser) => {
-            const performances = user.user_performances || [];
+            // Filter out users with no attempts
+            if (!user.quiz_attempts || user.quiz_attempts.length === 0) {
+                return null;
+            }
             const attempts = user.quiz_attempts || [];
 
-            const totalCorrectAnswers = performances.reduce(
-                (sum, perf) => sum + perf.correct_answers,
-                0
-            );
 
+            // Find best performance
             const bestAttempt = attempts.reduce(
-                (best: QuizAttemptWithQuiz, current: QuizAttemptWithQuiz) =>
-                    (current.score > best.score ? current : best),
-                attempts[0]
+                (best: QuizAttemptWithQuiz | null, current: QuizAttemptWithQuiz) =>
+                    best === null || current.score > best.score ? current : best,
+                null
             );
 
-            const completedQuizzes = [...new Set(attempts.map(a => a.quiz.title))] as string[];
+            // Get unique completed quizzes
+            const completedQuizzes = [...new Set(attempts.map(a => a.quiz.title))];
 
-            const quizScores = attempts.map((attempt: QuizAttemptWithQuiz) => ({
-                quizId: attempt.quiz_id,
-                quizTitle: attempt.quiz.title,
-                score: attempt.score
-            }));
+            // Calculate average scores per quiz
+            const quizScores = completedQuizzes.map(quizTitle => {
+                const quizAttempts = attempts.filter(a => a.quiz.title === quizTitle);
+                const avgScore = quizAttempts.reduce((sum, a) => sum + a.score, 0) / quizAttempts.length;
+                const bestScore = Math.max(...quizAttempts.map(a => a.score));
 
-            const averageScore = performances.length
-                ? performances.reduce((sum, perf) => sum + perf.average_score, 0) / performances.length
-                : 0;
+                return {
+                    quizId: quizAttempts[0].quiz_id,
+                    quizTitle,
+                    score: avgScore,
+                    bestScore,
+                    attempts: quizAttempts.length
+                };
+            });
+
+            // Calculate overall average score weighted by number of questions
+            const totalAttempts = attempts.length;
+            const totalScoreSum = attempts.reduce((sum, attempt) => sum + attempt.score, 0);
+            const averageScore = totalAttempts > 0 ? totalScoreSum / totalAttempts : 0;
 
             return {
                 userId: user.user_id,
                 username: user.username,
                 totalQuizzes: completedQuizzes.length,
                 averageScore,
-                totalCorrectAnswers,
                 topPerformance: bestAttempt
-                    ? `${bestAttempt.quiz.title} (${bestAttempt.score}%)`
+                    ? `${bestAttempt.quiz.title} (${bestAttempt.score.toFixed(1)}%)`
                     : 'No attempts yet',
                 completedQuizzes,
-                quizScores
+                quizScores,
+                lastActive: user.last_active
             };
-        });
+        }).filter(Boolean) as LeaderboardEntry[];
     }, [data]);
 
     // Get unique quizzes for filter options
@@ -88,30 +102,51 @@ const LeaderboardContainer = () => {
                 quizzes.add(score.quizTitle);
             });
         });
-        return Array.from(quizzes);
+        return Array.from(quizzes).sort();
     }, [leaderboardData]);
 
-    // Filter leaderboard data
+    // Filter and sort leaderboard data
     const filteredLeaderboard = useMemo(() => {
         return leaderboardData
             .filter(user => {
+                // Search filter
                 const matchesSearch = user.username.toLowerCase().includes(filters.search.toLowerCase());
+
+                // Quiz filter
                 const matchesQuiz = filters.quizId === 'all' || user.quizScores.some(
                     score => score.quizTitle === filters.quizId
                 );
-                const matchesScoreRange = user.averageScore >= filters.scoreRange.min &&
-                    user.averageScore <= filters.scoreRange.max;
+
+                // Score range filter
+                let scoreToCheck = user.averageScore;
+                if (filters.quizId !== 'all') {
+                    const quizScore = user.quizScores.find(s => s.quizTitle === filters.quizId);
+                    scoreToCheck = quizScore ? quizScore.score : 0;
+                }
+
+                const matchesScoreRange = scoreToCheck >= filters.scoreRange.min &&
+                    scoreToCheck <= filters.scoreRange.max;
+
+                // Minimum quizzes filter
                 const matchesMinQuizzes = user.totalQuizzes >= filters.minQuizzes;
 
                 return matchesSearch && matchesQuiz && matchesScoreRange && matchesMinQuizzes;
             })
             .sort((a, b) => {
-                if (filters.quizId === 'all') {
-                    return b.averageScore - a.averageScore;
+                // Sort based on selected criteria
+                switch (filters.sortBy) {
+                    case 'quizzes':
+                        return b.totalQuizzes - a.totalQuizzes;
+                    case 'score':
+                    default:
+                        if (filters.quizId === 'all') {
+                            return b.averageScore - a.averageScore;
+                        }
+
+                        const aScore = a.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
+                        const bScore = b.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
+                        return bScore - aScore;
                 }
-                const aScore = a.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
-                const bScore = b.quizScores.find(s => s.quizTitle === filters.quizId)?.score || 0;
-                return bScore - aScore;
             });
     }, [leaderboardData, filters]);
 

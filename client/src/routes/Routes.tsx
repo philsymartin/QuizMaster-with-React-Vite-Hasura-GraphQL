@@ -7,20 +7,20 @@ import LoadingComponent from '@utils/LoadingSpinner';
 import ProtectedRoute from '@components/ProtectedRoute';
 
 const HomePage = lazy(() => import('@pages/public/HomePage'));
-const LeaderboardContainer = lazy(() => import('@containers/public/LeaderboardContainer'));
+const LeaderboardContainer = lazy(() => import('@containers/pages/public/LeaderboardContainer'));
 const LoginPage = lazy(() => import('@pages/public/LoginPage'));
 const RegisterPage = lazy(() => import('@pages/public/RegisterPage'));
-const QuizzesContainer = lazy(() => import('@containers/public/QuizzesContainer'));
-const QuizDetailPage = lazy(() => import('@pages/public/QuizDetailPage'));
+const QuizzesContainer = lazy(() => import('@containers/pages/public/QuizzesContainer'));
+const QuizDetailPage = lazy(() => import('@pages/public/QuiDetailPage'));
 const QuizAttemptPage = lazy(() => import('@pages/user/QuizAttemptPage'));
 // user
 const UserDashboardPage = lazy(() => import('@pages/user/UserDashboardPage'));
 const MyQuizzesPage = lazy(() => import('@pages/user/MyQuizzesPage'));
 // admin
-const AdminUserManagementPage = lazy(() => import('@pages/admin/AdminUserManagementPage'));
-const AdminAnalyticsPage = lazy(() => import('@pages/admin/AdminAnalyticsPage'));
-const AdminDashboardContainer = lazy(() => import('@containers/admin/AdminDashboardContainer'));
-const AdminQuizManagementContainer = lazy(() => import('@containers/admin/AdminQuizManagementContainer'));
+const AdminUserManagementContainer = lazy(() => import('@containers/pages/admin/AdminUserManagementContainer'));
+const AdmninAnalyticsPageContainer = lazy(() => import('@containers/pages/admin/AdminAnalyticsContainer'));
+const AdminQuizManagementContainer = lazy(() => import('@containers/pages/admin/AdminQuizManagementContainer'));
+const AdminDashboardContainer = lazy(() => import('@containers/pages/admin/AdminDashboardContainer'));
 
 const RoutesComponent = () => {
     const router = createBrowserRouter([
@@ -96,12 +96,12 @@ const RoutesComponent = () => {
                 },
                 {
                     path: "analytics", element: (<Suspense fallback={<LoadingComponent />}>
-                        <AdminAnalyticsPage />
+                        <AdmninAnalyticsPageContainer />
                     </Suspense>),
                 },
                 {
                     path: "users", element: (<Suspense fallback={<LoadingComponent />}>
-                        <AdminUserManagementPage />
+                        <AdminUserManagementContainer />
                     </Suspense>),
                 },
                 {
