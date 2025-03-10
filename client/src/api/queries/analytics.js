@@ -18,7 +18,6 @@ export const GET_FEEDBACK_ANALYTICS = gql`
   }
   quiz_feedback(
     order_by: { submitted_at: desc }
-    limit: 4
   ) {
     feedback_id
     feedback_text

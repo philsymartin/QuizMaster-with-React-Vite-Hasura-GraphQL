@@ -7,10 +7,9 @@ import { RootState } from '@redux/store';
 
 interface AdminSidebarProps {
     isOpen: boolean;
-    setIsOpen: (isOpen: boolean) => void;
 }
 
-const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, setIsOpen }) => {
+const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen}) => {
     const navigate = useNavigate();
     const { user } = useSelector((state: RootState) => state.auth);
 

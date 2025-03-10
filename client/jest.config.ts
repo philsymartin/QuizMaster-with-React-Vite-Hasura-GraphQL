@@ -8,9 +8,6 @@ const config: Config = {
   },
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-    "^@redux/(.*)$": "<rootDir>/src/redux/$1",
-    "^@services/(.*)$": "<rootDir>/src/services/$1",
-    "^@mutations/(.*)$": "<rootDir>/src/mutations/$1"
   },
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   transformIgnorePatterns: ["node_modules/(?!(lucide-react)/)",

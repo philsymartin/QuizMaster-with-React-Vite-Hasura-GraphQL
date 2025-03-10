@@ -4,7 +4,7 @@ export const motionContainer = {
     show: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1
+            staggerChildren: 0.1  // Each child appears with a 0.1s delay
         }
     }
 };

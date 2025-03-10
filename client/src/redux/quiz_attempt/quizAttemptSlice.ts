@@ -37,6 +37,9 @@ const quizAttemptSlice = createSlice({
     name: 'quizAttempt',
     initialState,
     reducers: {
+        setQuizDetails: (state, action) => {
+            state.currentQuiz = action.payload;
+        },
         startQuizAttempt: (state, action: PayloadAction<{
             quizId: number;
             timeLimit: number;
@@ -120,6 +123,7 @@ export const selectQuizScore = (state: { quizAttempt: QuizAttemptState }) =>
     state.quizAttempt.score;
 
 export const {
+    setQuizDetails,
     startQuizAttempt,
     setAttemptId,
     setQuestions,

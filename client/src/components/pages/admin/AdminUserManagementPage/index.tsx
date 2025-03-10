@@ -1,7 +1,7 @@
 import { FiEdit, FiSearch, FiTrash2, FiUserPlus } from 'react-icons/fi';
-import UserActivityMonitor from '@components/UserActivityMonitor';
-import AdminUserEditModal from '@components/AdminUserEditModal';
-import AdminCreateUserModal from '@components/AdminCreateUserModal';
+import UserActivityMonitor from '@components/AdminUserManagement/UserActivityMonitor';
+import AdminUserEditModal from '@components/AdminUserManagement/AdminUserEditModal';
+import AdminCreateUserModal from '@components/AdminUserManagement/AdminCreateUserModal';
 import LoadingComponent from '@utils/LoadingSpinner';
 import DeleteConfirmationModal from '@components/DeleteConfirmationModal';
 import { AdminUserManagementPageProps, User } from '@pages/admin/AdminUserManagementPage/types';

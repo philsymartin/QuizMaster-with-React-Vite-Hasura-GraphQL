@@ -8,10 +8,10 @@ export const yesterdayForQuery = () => {
     return date.toISOString().split('T')[0]; // Returns date in YYYY-MM-DD format
 };
 export const getTimeDifferenceFromNow = (date: Date): string => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const now = Date.now();
+    const diffInMinutes = Math.floor((now - date.getTime()) / (1000 * 60));
     if (diffInMinutes < 1) {
-        return `${diffInMinutes} just now`;
+        return `just now`;
     } else if (diffInMinutes === 1) {
         return `${diffInMinutes} minute ago`;
     } else if (diffInMinutes < 60) {
@@ -44,4 +44,4 @@ export const calculateTimeTaken = (startTime: string, endTime: string): string =
     const diffInMinutes = Math.round(diffInMs / 60000);
 
     return `${diffInMinutes} min`;
-  };
+};

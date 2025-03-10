@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useState } from 'react';
 import { FiCheck, FiEdit, FiPlus, FiTrash2 } from 'react-icons/fi';
-import AddQuestionForm from '@components/AddQuestionForm';
+import AddQuestionForm from '@components/AdminQuizManagement/AddQuestionForm';
 import { Question } from 'src/types/quiz';
 import {
     deleteQuestionRequest, openAddQuestionModal, selectAddQuestionModalOpen,

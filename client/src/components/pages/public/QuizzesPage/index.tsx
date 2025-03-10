@@ -68,11 +68,10 @@ const PageHeader = () => (
   </div>
 );
 
-const SearchBar = ({ value, onChange, onToggleFilter, isFilterOpen }: {
+const SearchBar = ({ value, onChange, onToggleFilter }: {
   value: string;
   onChange: (value: string) => void;
   onToggleFilter: () => void;
-  isFilterOpen: boolean;
 }) => (
   <div className="flex items-center gap-4">
     <div className="relative flex-1">
@@ -375,7 +374,6 @@ const QuizzesPage = ({
           value={filters.search}
           onChange={onSearchChange}
           onToggleFilter={toggleFilter}
-          isFilterOpen={isFilterOpen}
         />
 
         {/* Expandable Filter Panel */}

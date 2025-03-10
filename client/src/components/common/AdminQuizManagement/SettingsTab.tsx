@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Quiz } from '../../types/quiz';
+import { Quiz } from 'src/types/quiz';
 import { updateQuizSettings, selectUpdateSettingsLoading, selectUpdateSettingsError } from '@redux/quiz/quizSlice';
 
 interface SettingsTabProps {

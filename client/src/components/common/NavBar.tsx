@@ -5,10 +5,9 @@ import { FiMenu } from 'react-icons/fi';
 
 interface NavBarProps {
     onToggleSidebar?: () => void;
-    isSidebarOpen?: boolean;
 }
 
-const NavBar: React.FC<NavBarProps> = ({ onToggleSidebar, isSidebarOpen }) => {
+const NavBar: React.FC<NavBarProps> = ({ onToggleSidebar}) => {
     const location = useLocation();
     const { user, isDropdownOpen, setIsDropdownOpen, dropdownRef, handleLogout } = useNavBar();
 

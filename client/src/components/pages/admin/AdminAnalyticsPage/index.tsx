@@ -1,8 +1,9 @@
-import SentimentAnalysis from '@components/SentimentalAnalysis';
-import FeedbackKeywords from '@components/FeedbackKeywords';
-import QuizCategoriesPerformanceCard from '@components/QuizCategoriesPerformanceCard';
+import SentimentAnalysis from '@components/AdminAnalytics/SentimentalAnalysis';
+import FeedbackKeywords from '@components/AdminAnalytics/FeedbackKeywords';
+import QuizCategoriesPerformanceCard from '@components/AdminAnalytics/QuizCategoriesPerformanceCard';
 import LoadingComponent from '@utils/LoadingSpinner';
 import { AdminAnalyticsPageProps } from '@pages/admin/AdminAnalyticsPage/types';
+import { useState } from 'react';
 
 const AdminAnalyticsPage: React.FC<AdminAnalyticsPageProps> = ({
     data,
@@ -12,10 +13,16 @@ const AdminAnalyticsPage: React.FC<AdminAnalyticsPageProps> = ({
 
 }) => {
 
+    const [showAllFeedback, setShowAllFeedback] = useState(false);
     if (loading) return <LoadingComponent />;
     if (error) return <div>Error loading feedback data</div>;
 
     const recentFeedback = processRecentFeedback();
+    const displayFeedback = showAllFeedback ? recentFeedback : recentFeedback.slice(0, 3);
+
+    const toggleShowAllFeedback = () => {
+        setShowAllFeedback(!showAllFeedback);
+    };
 
     return (
         <div className="space-y-6 p-6">
@@ -39,11 +46,14 @@ const AdminAnalyticsPage: React.FC<AdminAnalyticsPageProps> = ({
                 {/* Recent Feedback */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                     <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Feedback</h2>
-                        <button className="text-purple-600 dark:text-purple-400 text-sm font-medium cursor-pointer">View All</button>
+                        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            {showAllFeedback ? "All Feedback" : "Recent Feedback"}
+                        </h2>
+                        <button onClick={toggleShowAllFeedback} className="text-purple-600 dark:text-purple-400 text-sm font-medium cursor-pointer">
+                            {showAllFeedback ? "Show less" : "View All"}</button>
                     </div>
-                    <div className="space-y-4">
-                        {recentFeedback.map((item) => (
+                    <div className={`space-y-4 ${showAllFeedback ? 'max-h-96 overflow-y-auto pr-2' : ''}`}>
+                        {displayFeedback.map((item) => (
                             <div key={item.id} className="p-4 border border-gray-100 dark:border-gray-700 rounded-lg">
                                 <div className="flex justify-between mb-2">
                                     <div className="font-medium text-gray-900 dark:text-gray-100">

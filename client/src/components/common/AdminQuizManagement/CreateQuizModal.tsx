@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addQuizRequest } from '@redux/quiz/quizSlice';
-import { Quiz } from '../../types/quiz';
+import { Quiz } from 'src/types/quiz';
 import { FiX } from 'react-icons/fi';
 
 interface CreateQuizModalProps {

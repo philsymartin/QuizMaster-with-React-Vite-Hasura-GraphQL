@@ -1,5 +1,5 @@
 import React, { Suspense, useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
 import { FaBrain } from "react-icons/fa";
@@ -10,6 +10,7 @@ import LoadingComponent from '@utils/LoadingSpinner';
 import { RootState } from '@redux/store';
 import { RoomProvider, getRoomId } from '@services/liveblocks';
 import { LiveObject } from '@liveblocks/client';
+import { setQuizDetails } from '@redux/quiz_attempt/quizAttemptSlice';
 
 interface Topic {
   topic_id: number;
@@ -111,6 +112,7 @@ const AuthOptions = () => {
 const QuizDetailContent = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const [showAuthOptions, setShowAuthOptions] = useState(false);
 
@@ -127,6 +129,12 @@ const QuizDetailContent = () => {
       // Show authentication options if user is not logged in
       setShowAuthOptions(true);
       return;
+    }
+    if (quiz) {
+      dispatch(setQuizDetails({
+        timeLimit: quiz.time_limit_minutes,
+        totalQuestions: quiz.total_questions
+      }));
     }
     navigate(`/quizzes/${quizId}/attempt`);
   };

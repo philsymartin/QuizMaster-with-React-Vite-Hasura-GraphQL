@@ -130,7 +130,6 @@ const AdminUserEditModal = ({ isOpen, onClose, user, onUserUpdated }: AdminUserE
         <>
             <div
                 className="fixed inset-0 bg-black/20 dark:bg-black/40 z-30"
-                onClick={onClose}
             />
             <div className="fixed inset-0 flex items-center justify-center z-40">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md p-6">

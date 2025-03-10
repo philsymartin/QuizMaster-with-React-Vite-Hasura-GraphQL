@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { FilterState, FilterOptions } from '@containers/pages/public/QuizzesContainer';
 
 export const FilterPanel = ({
@@ -12,18 +11,6 @@ export const FilterPanel = ({
     onSelectAllTopics: () => void;
     onClearAllTopics: () => void;
 }) => {
-    // State to track the displayed values
-    const [displayValues, setDisplayValues] = useState({
-        min: filters.timeRange.min,
-        max: filters.timeRange.max
-    });
-    // Function to handle the slider change
-    const handleRangeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseInt(e.target.value);
-        const range = JSON.parse(e.target.value); // Parse the JSON string from the slider
-        setDisplayValues({ min: range[0], max: range[1] });
-        onTimeRangeChange(range[0], range[1]);
-    };
     return (
         <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

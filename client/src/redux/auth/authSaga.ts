@@ -48,7 +48,13 @@ export function* handleLogin(action: ReturnType<typeof loginRequest>): Generator
     }
 }
 
-export function* handleRefreshToken(): Generator<Effect, void, RefreshTokenResponse> {
+export function* handleRefreshToken() {
+    const authState: { isAuthenticated: boolean, user: any } = yield select((state: RootState) => state.auth);
+    if (!authState.isAuthenticated || !authState.user) {
+        console.log('User not logged in, skipping token refresh');
+        return;
+    }
+
     try {
         const response: RefreshTokenResponse = yield call(refreshToken);
         if (response.expiresIn) {

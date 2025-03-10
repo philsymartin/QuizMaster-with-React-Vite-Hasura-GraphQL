@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, Suspense, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FiArrowLeft, FiArrowRight, FiClock } from 'react-icons/fi';
 import {
   startQuizAttempt,
   answerQuestion,
@@ -16,7 +17,6 @@ import {
   resetQuizAttempt,
 } from '@redux/quiz_attempt/quizAttemptSlice';
 import LoadingComponent from '@utils/LoadingSpinner';
-import { FiArrowLeft, FiArrowRight, FiClock } from 'react-icons/fi';
 import { Question } from 'src/types/quiz';
 import { RootState } from '@redux/store';
 import { LiveObject } from '@liveblocks/client';
@@ -73,14 +73,15 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
   const timeRemaining = useSelector(selectTimeRemaining);
   const isComplete = useSelector(selectIsComplete);
   const score = useSelector(selectQuizScore);
+  const quizDetails = useSelector((state: RootState) => state.quizAttempt.currentQuiz);
 
   const initializeQuiz = useCallback(() => {
-    if (quizId && !initializationRef.current) {
+    if (quizId && !initializationRef.current && quizDetails) {
       initializationRef.current = true;
       dispatch(startQuizAttempt({
         quizId: parseInt(quizId),
-        timeLimit: 10,
-        totalQuestions: 6,
+        timeLimit: quizDetails.timeLimit,
+        totalQuestions: quizDetails.totalQuestions,
       }));
 
       if (trackQuizAttempt && quizId) {

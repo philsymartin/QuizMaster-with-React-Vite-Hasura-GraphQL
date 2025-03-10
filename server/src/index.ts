@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { JwtPayload } from 'jsonwebtoken';
@@ -10,6 +10,7 @@ import ms from 'ms';
 import { HasuraClaims, HasuraResponse, LeaderboardQueryResult, LoginRequest, RegisterRequest, TimeString, User, UserResponse } from './types/indexTypes';
 import analysisRoutes from './routes/analysisApi';
 import { asyncHandler } from './middleware/asyncHandler';
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;

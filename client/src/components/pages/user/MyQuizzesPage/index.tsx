@@ -254,7 +254,7 @@ const MyQuizzesPage = () => {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Rating
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap justify-center">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
                       <button
                         key={value}

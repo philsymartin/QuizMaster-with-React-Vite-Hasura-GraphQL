@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { SentimentQueryResponse, SentimentDataItem } from '../../types/adminAnalysis';
+import { SentimentQueryResponse, SentimentDataItem } from 'src/types/adminAnalysis';
 import { FiMinus, FiThumbsDown, FiThumbsUp } from 'react-icons/fi';
 
 interface SentimentAnalysisProps {

@@ -12,9 +12,9 @@ const AdminLayout = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
-            <Navbar onToggleSidebar={handleToggleSidebar} isSidebarOpen={isSidebarOpen} />
+            <Navbar onToggleSidebar={handleToggleSidebar} />
             <div className="flex flex-1">
-                <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} />
+                <AdminSidebar isOpen={isSidebarOpen} />
                 <main
                     className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'ml-72' : 'ml-0'
                         }`}

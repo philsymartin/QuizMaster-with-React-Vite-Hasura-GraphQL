@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
-import SettingsTab from '@components/SettingsTab';
+import SettingsTab from '@components/AdminQuizManagement/SettingsTab';
 import {
     selectQuestions,
     setSelectedQuiz,
@@ -9,7 +9,7 @@ import {
     selectError
 } from '@redux/quiz/quizSlice';
 import LoadingComponent from '@utils/LoadingSpinner';
-import QuestionsTab from '@components/QuestionsTab';
+import QuestionsTab from '@components/AdminQuizManagement/QuestionsTab';
 import { Quiz } from 'src/types/quiz';
 
 interface AdminQuizDetailsPanelProps {

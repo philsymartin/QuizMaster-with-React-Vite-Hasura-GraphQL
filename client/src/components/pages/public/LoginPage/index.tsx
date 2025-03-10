@@ -87,12 +87,12 @@ const LoginPage = () => {
             type="submit"
             disabled={!isFormValid() || loading}
             className={`w-full bg-gradient-to-r from-purple-600 to-blue-500
-                    hover:from-purple-700 hover:to-blue-600
                     text-white py-2.5 px-4 rounded-xl font-semibold
-                    transform hover:scale-102 transition-all
+                    transform  transition-all
                     focus:outline-none focus:ring-2 focus:ring-purple-500
                     focus:ring-offset-2 dark:focus:ring-offset-gray-800
-                    ${!isFormValid() || loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    ${!isFormValid() || loading ? 'opacity-70 cursor-not-allowed'
+                : ' hover:from-purple-700 hover:to-blue-600 hover:scale-102'}`}
           >
             {loading ? 'Signing In...' : 'Sign In'}
           </button>

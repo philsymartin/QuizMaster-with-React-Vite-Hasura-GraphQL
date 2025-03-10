@@ -1,6 +1,6 @@
 
-import AdminQuizDetailsPanel from '@components/AdminQuizDetailsPanel';
-import CreateQuizModal from '@components/CreateQuizModal';
+import AdminQuizDetailsPanel from '@components/AdminQuizManagement/AdminQuizDetailsPanel';
+import CreateQuizModal from '@components/AdminQuizManagement/CreateQuizModal';
 import { FiBookOpen, FiEdit, FiPlus, FiSearch, FiSettings, FiTrash2 } from 'react-icons/fi';
 import { getDifficultyColor } from '@config/styleConstants';
 import DeleteConfirmationModal from '@components/DeleteConfirmationModal';
