@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, Suspense, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowLeft, FiArrowRight, FiClock } from 'react-icons/fi';
+import { useCallback, useEffect, useRef, Suspense, useMemo } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiArrowLeft, FiArrowRight, FiClock } from "react-icons/fi";
 import {
   startQuizAttempt,
   answerQuestion,
@@ -15,17 +15,17 @@ import {
   selectIsComplete,
   selectQuizScore,
   resetQuizAttempt,
-} from '@redux/quiz_attempt/quizAttemptSlice';
-import LoadingComponent from '@utils/LoadingSpinner';
-import { Question } from 'src/types/quiz';
-import { RootState } from '@redux/store';
-import { LiveObject } from '@liveblocks/client';
-import { RoomProvider, getRoomId, useUserTracker } from '@services/liveblocks';
+} from "@redux/quiz_attempt/quizAttemptSlice";
+import LoadingComponent from "@utils/LoadingSpinner";
+import { Question } from "src/types/quiz";
+import { RootState } from "@redux/store";
+import { LiveObject } from "@liveblocks/client";
+import { RoomProvider, getRoomId, useUserTracker } from "@services/liveblocks";
 
 const QuestionContent = ({
   currentQuestion,
   answers,
-  handleAnswer
+  handleAnswer,
 }: {
   currentQuestion: Question;
   answers: Record<number, number>;
@@ -37,13 +37,17 @@ const QuestionContent = ({
         key={option.option.option_id}
         onClick={() => handleAnswer(option.option.option_id)}
         className={`p-4 text-left rounded-xl transition-all transform hover:scale-102
-          ${answers[currentQuestion.question_id] === option.option.option_id
-            ? 'bg-purple-100 dark:bg-purple-900 border-purple-500'
-            : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'}
+          ${
+            answers[currentQuestion.question_id] === option.option.option_id
+              ? "bg-purple-100 dark:bg-purple-900 border-purple-500"
+              : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+          }
           border-2
-          ${answers[currentQuestion.question_id] === option.option.option_id
-            ? 'border-purple-500'
-            : 'border-transparent'}`}
+          ${
+            answers[currentQuestion.question_id] === option.option.option_id
+              ? "border-purple-500"
+              : "border-transparent"
+          }`}
       >
         {option.option.option_text}
       </button>
@@ -57,32 +61,37 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
   const navigate = useNavigate();
   const initializationRef = useRef(false);
 
-  const userId = useMemo(() => user?.user_id?.toString() || 'guest', [user?.user_id]);
-  const username = useMemo(() => user?.username || 'guest user', [user?.username]);
+  const userId = useMemo(
+    () => user?.user_id?.toString() || "guest",
+    [user?.user_id],
+  );
+  const username = useMemo(
+    () => user?.username || "guest user",
+    [user?.username],
+  );
 
   const { trackQuizAttempt } = useUserTracker(userId, username);
 
-  const {
-    questions,
-    currentQuestionIndex,
-    answers,
-    isSubmitting,
-    error,
-  } = useSelector(selectQuizAttemptState);
+  const { questions, currentQuestionIndex, answers, isSubmitting, error } =
+    useSelector(selectQuizAttemptState);
   const currentQuestion = useSelector(selectCurrentQuestion);
   const timeRemaining = useSelector(selectTimeRemaining);
   const isComplete = useSelector(selectIsComplete);
   const score = useSelector(selectQuizScore);
-  const quizDetails = useSelector((state: RootState) => state.quizAttempt.currentQuiz);
+  const quizDetails = useSelector(
+    (state: RootState) => state.quizAttempt.currentQuiz,
+  );
 
   const initializeQuiz = useCallback(() => {
     if (quizId && !initializationRef.current && quizDetails) {
       initializationRef.current = true;
-      dispatch(startQuizAttempt({
-        quizId: parseInt(quizId),
-        timeLimit: quizDetails.timeLimit,
-        totalQuestions: quizDetails.totalQuestions,
-      }));
+      dispatch(
+        startQuizAttempt({
+          quizId: parseInt(quizId),
+          timeLimit: quizDetails.timeLimit,
+          totalQuestions: quizDetails.totalQuestions,
+        }),
+      );
 
       if (trackQuizAttempt && quizId) {
         trackQuizAttempt(quizId, "attempting_quiz");
@@ -102,17 +111,22 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
   const formatTime = useCallback((seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   }, []);
 
-  const handleAnswer = useCallback((optionId: number) => {
-    if (currentQuestion && !isComplete) {
-      dispatch(answerQuestion({
-        questionId: currentQuestion.question_id,
-        optionId,
-      }));
-    }
-  }, [currentQuestion, isComplete, dispatch]);
+  const handleAnswer = useCallback(
+    (optionId: number) => {
+      if (currentQuestion && !isComplete) {
+        dispatch(
+          answerQuestion({
+            questionId: currentQuestion.question_id,
+            optionId,
+          }),
+        );
+      }
+    },
+    [currentQuestion, isComplete, dispatch],
+  );
 
   const handleSubmit = useCallback(() => {
     dispatch(submitQuizRequest());
@@ -133,17 +147,20 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-2xl mx-auto text-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl"
         >
-          <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-500 
-                      dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent">
+          <h2
+            className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-blue-500 
+                      dark:from-purple-400 dark:to-blue-300 bg-clip-text text-transparent"
+          >
             Quiz Complete!
           </h2>
           <p className="text-2xl mb-8">
-            Your score: <span className="font-bold text-purple-600 dark:text-purple-400">
+            Your score:{" "}
+            <span className="font-bold text-purple-600 dark:text-purple-400">
               {score?.toFixed(1)}%
             </span>
           </p>
           <button
-            onClick={() => navigate('/quizzes')}
+            onClick={() => navigate("/quizzes")}
             className="inline-block bg-gradient-to-r from-purple-600 to-blue-500 
                       hover:from-purple-700 hover:to-blue-600 text-white px-8 py-3 
                       rounded-xl font-semibold transform hover:scale-105 transition-all"
@@ -196,9 +213,11 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
             onClick={() => dispatch(previousQuestion())}
             disabled={currentQuestionIndex === 0}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
-                ${currentQuestionIndex === 0
-                ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                : 'bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500'}`}
+                ${
+                  currentQuestionIndex === 0
+                    ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
+                    : "bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500"
+                }`}
           >
             <FiArrowLeft className="w-5 h-5" />
             Previous
@@ -213,7 +232,7 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
                          px-8 py-3 rounded-xl font-semibold transform 
                          hover:scale-105 transition-all disabled:opacity-50"
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Quiz'}
+              {isSubmitting ? "Submitting..." : "Submit Quiz"}
             </button>
           ) : (
             <button
@@ -241,25 +260,31 @@ const QuizAttemptPage = () => {
   const { quizId } = useParams<{ quizId: string }>();
   const user = useSelector((state: RootState) => state.auth.user);
 
-  const initialPresence = useMemo(() => ({
-    currentPage: `/quizzes/${quizId}/attempt`,
-    isActive: true,
-    lastActiveAt: new Date().toISOString(),
-    userId: user?.user_id?.toString() || 'guest',
-    username: user?.username || 'guest User',
-    currentAction: {
-      type: 'attempting_quiz' as const,
-      startedAt: new Date().toISOString(),
-    },
-  }), [quizId, user?.user_id, user?.username]);
+  const initialPresence = useMemo(
+    () => ({
+      currentPage: `/quizzes/${quizId}/attempt`,
+      isActive: true,
+      lastActiveAt: new Date().toISOString(),
+      userId: user?.user_id?.toString() || "guest",
+      username: user?.username || "guest User",
+      currentAction: {
+        type: "attempting_quiz" as const,
+        startedAt: new Date().toISOString(),
+      },
+    }),
+    [quizId, user?.user_id, user?.username],
+  );
 
-  const initialStorage = useMemo(() => ({
-    userSessions: new LiveObject({})
-  }), []);
+  const initialStorage = useMemo(
+    () => ({
+      userSessions: new LiveObject({}),
+    }),
+    [],
+  );
 
   return (
     <RoomProvider
-      id={getRoomId('admin')}
+      id={getRoomId("admin")}
       initialPresence={initialPresence}
       initialStorage={initialStorage}
     >

@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_USERS = gql`
   query GetUsers {
@@ -85,37 +85,37 @@ export const GET_USER_QUIZZES = gql`
   }
 `;
 export const LEADERBOARD_QUERY = gql`
-    query GetLeaderboardData {
-        users(
-            where: {
-                _and: [
-                    { role: { _eq: "user" } },
-                    { quiz_attempts: { end_time: { _is_null: false } } }  
-                ]
-            }
-        ) {
-            user_id
-            username
-            user_performances {
-                quiz_id
-                total_attempts
-                correct_answers
-                average_score
-                quiz {
-                    title
-                    total_questions
-                }
-            }
-            quiz_attempts(
-                where: { end_time: { _is_null: false } }  
-                order_by: { score: desc } 
-            ) {
-                quiz_id
-                score
-                quiz {
-                    title
-                }
-            }
+  query GetLeaderboardData {
+    users(
+      where: {
+        _and: [
+          { role: { _eq: "user" } }
+          { quiz_attempts: { end_time: { _is_null: false } } }
+        ]
+      }
+    ) {
+      user_id
+      username
+      user_performances {
+        quiz_id
+        total_attempts
+        correct_answers
+        average_score
+        quiz {
+          title
+          total_questions
         }
+      }
+      quiz_attempts(
+        where: { end_time: { _is_null: false } }
+        order_by: { score: desc }
+      ) {
+        quiz_id
+        score
+        quiz {
+          title
+        }
+      }
     }
+  }
 `;

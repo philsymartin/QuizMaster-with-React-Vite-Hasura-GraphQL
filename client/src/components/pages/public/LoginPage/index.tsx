@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { motion } from 'framer-motion';
-import AuthCard from '@components/AuthCard';
-import InputField from '@components/InputField';
-import { RootState } from '@redux/store';
-import { loginRequest } from '@redux/auth/authSlice';
-
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
+import AuthCard from "@components/AuthCard";
+import InputField from "@components/InputField";
+import { RootState } from "@redux/store";
+import { loginRequest } from "@redux/auth/authSlice";
 
 interface LoginFormData {
   email: string;
@@ -18,7 +17,9 @@ const LoginPage = () => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const { user, loading, error, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { user, loading, error, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth,
+  );
 
   const isFormValid = () => {
     return (
@@ -28,31 +29,36 @@ const LoginPage = () => {
   };
 
   const [formData, setFormData] = useState<LoginFormData>({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
-  const from = (location.state as { from?: Location })?.from?.pathname || '/user-dashboard';
+  const from =
+    (location.state as { from?: Location })?.from?.pathname ||
+    "/user-dashboard";
 
   useEffect(() => {
     // Only redirect if successfully authenticated
     if (isAuthenticated && user) {
-      navigate(user.role === 'admin' ? '/admin-dashboard' : from, { replace: true });
+      navigate(user.role === "admin" ? "/admin-dashboard" : from, {
+        replace: true,
+      });
     }
   }, [isAuthenticated, user, navigate, from]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [e.target.id]: e.target.value
+      [e.target.id]: e.target.value,
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Clear any existing errors from the Redux store
-    dispatch(loginRequest({ email: formData.email, password: formData.password }));
+    dispatch(
+      loginRequest({ email: formData.email, password: formData.password }),
+    );
   };
 
   return (
@@ -66,7 +72,11 @@ const LoginPage = () => {
           transition={{ delay: 0.2 }}
         >
           <InputField
-            label={<>Email Address <span className="text-red-500">*</span></>}
+            label={
+              <>
+                Email Address <span className="text-red-500">*</span>
+              </>
+            }
             type="email"
             id="email"
             value={formData.email}
@@ -75,7 +85,11 @@ const LoginPage = () => {
             required
           />
           <InputField
-            label={<>Password <span className="text-red-500">*</span></>}
+            label={
+              <>
+                Password <span className="text-red-500">*</span>
+              </>
+            }
             type="password"
             id="password"
             value={formData.password}
@@ -91,22 +105,27 @@ const LoginPage = () => {
                     transform  transition-all
                     focus:outline-none focus:ring-2 focus:ring-purple-500
                     focus:ring-offset-2 dark:focus:ring-offset-gray-800
-                    ${!isFormValid() || loading ? 'opacity-70 cursor-not-allowed'
-                : ' hover:from-purple-700 hover:to-blue-600 hover:scale-102'}`}
+                    ${
+                      !isFormValid() || loading
+                        ? "opacity-70 cursor-not-allowed"
+                        : " hover:from-purple-700 hover:to-blue-600 hover:scale-102"
+                    }`}
           >
-            {loading ? 'Signing In...' : 'Sign In'}
+            {loading ? "Signing In..." : "Sign In"}
           </button>
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
               <p className="text-center text-red-600 dark:text-red-400 text-sm">
-                {error === 'Invalid credentials' ? 'Invalid email or password' : error}
+                {error === "Invalid credentials"
+                  ? "Invalid email or password"
+                  : error}
               </p>
             </div>
           )}
 
           <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link
               to="/register"
               className="text-purple-600 dark:text-purple-400

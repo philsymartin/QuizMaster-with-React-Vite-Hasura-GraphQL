@@ -1,16 +1,22 @@
-import React, { Suspense, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FiAlertCircle, FiClock, FiLogIn, FiStar, FiUsers } from 'react-icons/fi';
+import React, { Suspense, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  FiAlertCircle,
+  FiClock,
+  FiLogIn,
+  FiStar,
+  FiUsers,
+} from "react-icons/fi";
 import { FaBrain } from "react-icons/fa";
-import { motion } from 'framer-motion';
-import { useQuery } from '@apollo/client';
-import { GET_QUIZ_DETAILS } from '@queries/quizzes';
-import LoadingComponent from '@utils/LoadingSpinner';
-import { RootState } from '@redux/store';
-import { RoomProvider, getRoomId } from '@services/liveblocks';
-import { LiveObject } from '@liveblocks/client';
-import { setQuizDetails } from '@redux/quiz_attempt/quizAttemptSlice';
+import { motion } from "framer-motion";
+import { useQuery } from "@apollo/client";
+import { GET_QUIZ_DETAILS } from "@queries/quizzes";
+import LoadingComponent from "@utils/LoadingSpinner";
+import { RootState } from "@redux/store";
+import { RoomProvider, getRoomId } from "@services/liveblocks";
+import { LiveObject } from "@liveblocks/client";
+import { setQuizDetails } from "@redux/quiz_attempt/quizAttemptSlice";
 
 interface Topic {
   topic_id: number;
@@ -35,30 +41,38 @@ interface QuizDetailData {
         user: { username: string };
         average_score: number;
       }[];
-    }
+    },
   ];
 }
 
 interface QuizStatsProps {
-  quiz: QuizDetailData['quizzes'][0];
+  quiz: QuizDetailData["quizzes"][0];
 }
 
 const QuizStats: React.FC<QuizStatsProps> = ({ quiz }) => (
   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
       <FiClock className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-      <span className="text-sm text-gray-600 dark:text-gray-400">Time Limit</span>
+      <span className="text-sm text-gray-600 dark:text-gray-400">
+        Time Limit
+      </span>
       <span className="font-semibold">{quiz.time_limit_minutes} mins</span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
       <FaBrain className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-      <span className="text-sm text-gray-600 dark:text-gray-400">Questions</span>
+      <span className="text-sm text-gray-600 dark:text-gray-400">
+        Questions
+      </span>
       <span className="font-semibold">{quiz.total_questions}</span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
       <FiUsers className="w-6 h-6 mb-2 text-purple-600 dark:text-purple-400" />
-      <span className="text-sm text-gray-600 dark:text-gray-400">Participants</span>
-      <span className="font-semibold">{quiz.participants_count.toLocaleString()}</span>
+      <span className="text-sm text-gray-600 dark:text-gray-400">
+        Participants
+      </span>
+      <span className="font-semibold">
+        {quiz.participants_count.toLocaleString()}
+      </span>
     </div>
     <div className="flex flex-col items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
       <FiStar className="w-6 h-6 mb-2 text-yellow-400" />
@@ -88,17 +102,18 @@ const AuthOptions = () => {
         <FiLogIn className="w-8 h-8 mb-3 text-purple-600 dark:text-purple-400" />
         <h3 className="text-lg font-semibold mb-2">Authentication Required</h3>
         <p className="text-gray-600 dark:text-gray-400 mb-4">
-          You need to log in or create an account to start this quiz and track your progress.
+          You need to log in or create an account to start this quiz and track
+          your progress.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer "
           >
             Log In
           </button>
           <button
-            onClick={() => navigate('/register')}
+            onClick={() => navigate("/register")}
             className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors cursor-pointer "
           >
             Sign Up
@@ -131,10 +146,12 @@ const QuizDetailContent = () => {
       return;
     }
     if (quiz) {
-      dispatch(setQuizDetails({
-        timeLimit: quiz.time_limit_minutes,
-        totalQuestions: quiz.total_questions
-      }));
+      dispatch(
+        setQuizDetails({
+          timeLimit: quiz.time_limit_minutes,
+          totalQuestions: quiz.total_questions,
+        }),
+      );
     }
     navigate(`/quizzes/${quizId}/attempt`);
   };
@@ -209,26 +226,32 @@ const QuizDetailPage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const { quizId } = useParams<{ quizId: string }>();
 
-  const initialPresence = useMemo(() => ({
-    currentPage: `/quizzes/${quizId}`,
-    isActive: true,
-    lastActiveAt: new Date().toISOString(),
-    userId: user?.user_id?.toString() || 'guest',
-    username: user?.username || 'guest User',
-    currentAction: {
-      type: 'viewing' as const,
-      resourceId: quizId,
-      startedAt: new Date().toISOString(),
-    },
-  }), [user?.user_id, user?.username, quizId]);
+  const initialPresence = useMemo(
+    () => ({
+      currentPage: `/quizzes/${quizId}`,
+      isActive: true,
+      lastActiveAt: new Date().toISOString(),
+      userId: user?.user_id?.toString() || "guest",
+      username: user?.username || "guest User",
+      currentAction: {
+        type: "viewing" as const,
+        resourceId: quizId,
+        startedAt: new Date().toISOString(),
+      },
+    }),
+    [user?.user_id, user?.username, quizId],
+  );
 
-  const initialStorage = useMemo(() => ({
-    userSessions: new LiveObject({})
-  }), []);
+  const initialStorage = useMemo(
+    () => ({
+      userSessions: new LiveObject({}),
+    }),
+    [],
+  );
 
   return (
     <RoomProvider
-      id={getRoomId('admin')}
+      id={getRoomId("admin")}
       initialPresence={initialPresence}
       initialStorage={initialStorage}
     >

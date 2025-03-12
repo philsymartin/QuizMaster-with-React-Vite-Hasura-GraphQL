@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   return (
@@ -9,8 +9,12 @@ const HomePage = () => {
         </h1>
         <div className="max-w-3xl mx-auto">
           <p className="text-2xl text-gray-700 dark:text-gray-300 mb-12 leading-relaxed">
-            Test your knowledge with our interactive quizzes and compete with others in this
-            <span className="text-purple-600 dark:text-purple-400 font-semibold"> exciting </span>
+            Test your knowledge with our interactive quizzes and compete with
+            others in this
+            <span className="text-purple-600 dark:text-purple-400 font-semibold">
+              {" "}
+              exciting{" "}
+            </span>
             learning journey!
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto">
@@ -25,7 +29,9 @@ const HomePage = () => {
                          shadow-lg hover:shadow-xl group"
             >
               Start a Quiz
-              <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
+              <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">
+                →
+              </span>
             </Link>
             <Link
               to="/leaderboard"
@@ -38,7 +44,9 @@ const HomePage = () => {
                          shadow-lg hover:shadow-xl group"
             >
               View Leaderboard
-              <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">→</span>
+              <span className="ml-2 group-hover:translate-x-1 inline-block transition-transform">
+                →
+              </span>
             </Link>
           </div>
           <div className="mt-16 space-y-4">

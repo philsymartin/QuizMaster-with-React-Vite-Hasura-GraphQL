@@ -1,21 +1,23 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const CREATE_QUIZ = gql`
   mutation CreateQuiz(
-    $title: String!, 
-    $description: String!, 
-    $difficulty: String!, 
+    $title: String!
+    $description: String!
+    $difficulty: String!
     $time_limit_minutes: Int!
   ) {
-    insert_quizzes_one(object: {
-      title: $title,
-      description: $description,
-      difficulty: $difficulty,
-      time_limit_minutes: $time_limit_minutes,
-      total_questions: 0,
-      participants_count: 0,
-      average_rating: 0
-    }) {
+    insert_quizzes_one(
+      object: {
+        title: $title
+        description: $description
+        difficulty: $difficulty
+        time_limit_minutes: $time_limit_minutes
+        total_questions: 0
+        participants_count: 0
+        average_rating: 0
+      }
+    ) {
       quiz_id
       title
       description
@@ -30,19 +32,16 @@ export const CREATE_QUIZ = gql`
   }
 `;
 export const UPDATE_QUIZ_SETTINGS = gql`
-    mutation UpdateQuizSettings($quiz_id: Int!, $updates: quizzes_set_input!) {
-        update_quizzes_by_pk(
-            pk_columns: { quiz_id: $quiz_id }
-            _set: $updates
-        ) {
-            quiz_id
-            title
-            description
-            difficulty
-            time_limit_minutes
-            updated_at
-        }
+  mutation UpdateQuizSettings($quiz_id: Int!, $updates: quizzes_set_input!) {
+    update_quizzes_by_pk(pk_columns: { quiz_id: $quiz_id }, _set: $updates) {
+      quiz_id
+      title
+      description
+      difficulty
+      time_limit_minutes
+      updated_at
     }
+  }
 `;
 export const DELETE_QUIZ = gql`
   mutation DeleteQuiz($quiz_id: Int!) {
@@ -61,7 +60,9 @@ export const DELETE_QUIZ = gql`
     delete_quiz_attempts(where: { quiz_id: { _eq: $quiz_id } }) {
       affected_rows
     }
-    delete_question_options(where: { question: { quiz_id: { _eq: $quiz_id } } }) {
+    delete_question_options(
+      where: { question: { quiz_id: { _eq: $quiz_id } } }
+    ) {
       affected_rows
     }
     delete_questions(where: { quiz_id: { _eq: $quiz_id } }) {

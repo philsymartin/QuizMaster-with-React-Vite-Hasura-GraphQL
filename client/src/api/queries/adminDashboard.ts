@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client';
+import { gql } from "@apollo/client";
 
 export const GET_DASHBOARD_STATS = gql`
   query GetDashboardStats {
@@ -20,7 +20,9 @@ export const GET_DASHBOARD_STATS = gql`
         }
       }
     }
-    completed_attempts: quiz_attempts_aggregate(where: {end_time: {_is_null: false}}) {
+    completed_attempts: quiz_attempts_aggregate(
+      where: { end_time: { _is_null: false } }
+    ) {
       aggregate {
         count
       }
@@ -35,7 +37,11 @@ export const GET_DASHBOARD_STATS = gql`
 
 export const GET_RECENT_ACTIVITY = gql`
   query GetRecentActivity {
-    quiz_attempts(order_by: {end_time: desc}, limit: 5, where: {end_time: {_is_null: false}}) {
+    quiz_attempts(
+      order_by: { end_time: desc }
+      limit: 5
+      where: { end_time: { _is_null: false } }
+    ) {
       attempt_id
       user {
         username
@@ -46,12 +52,12 @@ export const GET_RECENT_ACTIVITY = gql`
       score
       end_time
     }
-    users(order_by: {created_at: desc}, limit: 5) {
+    users(order_by: { created_at: desc }, limit: 5) {
       user_id
       username
       created_at
     }
-    quizzes(order_by: {created_at: desc}, limit: 5) {
+    quizzes(order_by: { created_at: desc }, limit: 5) {
       quiz_id
       title
       created_at
@@ -61,16 +67,22 @@ export const GET_RECENT_ACTIVITY = gql`
 
 export const GET_QUICK_STATS = gql`
   query GetQuickStats($yesterday: timestamptz!) {
-    quiz_attempts_with_duration: quiz_attempts(where: {end_time: {_is_null: false}}) {
+    quiz_attempts_with_duration: quiz_attempts(
+      where: { end_time: { _is_null: false } }
+    ) {
       start_time
       end_time
     }
-    new_users_today: users_aggregate(where: {created_at: {_gte: $yesterday}}) {
+    new_users_today: users_aggregate(
+      where: { created_at: { _gte: $yesterday } }
+    ) {
       aggregate {
         count
       }
     }
-    new_quizzes_today: quizzes_aggregate(where: {created_at: {_gte: $yesterday}}) {
+    new_quizzes_today: quizzes_aggregate(
+      where: { created_at: { _gte: $yesterday } }
+    ) {
       aggregate {
         count
       }

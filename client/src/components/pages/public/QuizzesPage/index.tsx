@@ -1,8 +1,19 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { FiBookOpen, FiClock, FiSearch, FiSliders, FiStar, FiUsers } from 'react-icons/fi';
-import { FilterState, FilterOptions, QuizType } from '@containers/pages/public/QuizzesContainer';
-import { motionContainer, motionItem } from 'src/components/styles/common';
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  FiBookOpen,
+  FiClock,
+  FiSearch,
+  FiSliders,
+  FiStar,
+  FiUsers,
+} from "react-icons/fi";
+import {
+  FilterState,
+  FilterOptions,
+  QuizType,
+} from "@containers/pages/public/QuizzesContainer";
+import { motionContainer, motionItem } from "src/components/styles/common";
 
 interface QuizzesPageProps {
   loading: boolean;
@@ -12,7 +23,7 @@ interface QuizzesPageProps {
   filterOptions: FilterOptions;
   isFilterOpen: boolean;
   onSearchChange: (value: string) => void;
-  onDifficultyChange: (value: FilterState['difficulty']) => void;
+  onDifficultyChange: (value: FilterState["difficulty"]) => void;
   onTimeRangeChange: (min: number, max: number) => void;
   onTopicChange: (topic: string, checked: boolean) => void;
   onSelectAllTopics: () => void;
@@ -68,7 +79,11 @@ const PageHeader = () => (
   </div>
 );
 
-const SearchBar = ({ value, onChange, onToggleFilter }: {
+const SearchBar = ({
+  value,
+  onChange,
+  onToggleFilter,
+}: {
   value: string;
   onChange: (value: string) => void;
   onToggleFilter: () => void;
@@ -99,7 +114,7 @@ const RangeSlider = ({
   max,
   currentMin,
   currentMax,
-  onChange
+  onChange,
 }: {
   min: number;
   max: number;
@@ -166,11 +181,11 @@ const FilterPanel = ({
   onTimeRangeChange,
   onTopicChange,
   onSelectAllTopics,
-  onClearAllTopics
+  onClearAllTopics,
 }: {
   filters: FilterState;
   filterOptions: FilterOptions;
-  onDifficultyChange: (value: FilterState['difficulty']) => void;
+  onDifficultyChange: (value: FilterState["difficulty"]) => void;
   onTimeRangeChange: (min: number, max: number) => void;
   onTopicChange: (topic: string, checked: boolean) => void;
   onSelectAllTopics: () => void;
@@ -186,9 +201,13 @@ const FilterPanel = ({
         <select
           className="w-full border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 cursor-pointer appearance-none"
           value={filters.difficulty}
-          onChange={(e) => onDifficultyChange(e.target.value as FilterState['difficulty'])}
+          onChange={(e) =>
+            onDifficultyChange(e.target.value as FilterState["difficulty"])
+          }
         >
-          <option className="cursor-pointer" value="all">All Difficulties</option>
+          <option className="cursor-pointer" value="all">
+            All Difficulties
+          </option>
           <option value="Easy">Easy</option>
           <option value="Medium">Medium</option>
           <option value="Hard">Hard</option>
@@ -237,8 +256,10 @@ const FilterPanel = ({
           )}
 
           {/* Topics Checkbox List */}
-          <div className="max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 
-                rounded-lg bg-white dark:bg-gray-800 p-2">
+          <div
+            className="max-h-48 overflow-y-auto border border-gray-200 dark:border-gray-700 
+                rounded-lg bg-white dark:bg-gray-800 p-2"
+          >
             {filterOptions.topics.map((topic) => (
               <label
                 key={topic}
@@ -293,13 +314,16 @@ const QuizCard = ({ quiz }: { quiz: QuizType }) => (
                hover:scale-105"
     >
       <div className="flex items-center justify-between mb-4">
-        <span className={`px-3 py-1 text-sm font-medium rounded-full
-                  ${quiz.difficulty === 'Hard'
-            ? 'bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400'
-            : quiz.difficulty === 'Medium'
-              ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400'
-              : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400'
-          }`}>
+        <span
+          className={`px-3 py-1 text-sm font-medium rounded-full
+                  ${
+                    quiz.difficulty === "Hard"
+                      ? "bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-400"
+                      : quiz.difficulty === "Medium"
+                        ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-400"
+                        : "bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400"
+                  }`}
+        >
           {quiz.difficulty}
         </span>
       </div>
@@ -338,9 +362,7 @@ const ErrorDisplay = ({ message }: { message: string }) => (
     <h2 className="text-2xl font-bold text-red-600 dark:text-red-400">
       Error loading quizzes
     </h2>
-    <p className="text-gray-600 dark:text-gray-400 mt-2">
-      {message}
-    </p>
+    <p className="text-gray-600 dark:text-gray-400 mt-2">{message}</p>
   </div>
 );
 
@@ -358,7 +380,7 @@ const QuizzesPage = ({
   onTopicChange,
   onSelectAllTopics,
   onClearAllTopics,
-  toggleFilter
+  toggleFilter,
 }: QuizzesPageProps) => {
   if (error) {
     return <ErrorDisplay message={error.message} />;
