@@ -61,6 +61,8 @@ The Online Quiz Platform serves as a candidate-focused alternative to traditiona
 
 ## VIDEO DEMO
 
+[🎥 Watch the Demo Video](https://github.com/your-username/your-repo/raw/main/video.mp4)
+
 
 
 ### Admin view when tracking users’ activity using Liveblocks in React:
