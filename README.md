@@ -60,6 +60,8 @@ The Online Quiz Platform serves as a candidate-focused alternative to traditiona
 - Viewing Analytics
 
 ## VIDEO DEMO
+![image](https://github.com/user-attachments/assets/588367b6-a3bf-4d46-b144-f24825b61929)
+
 
 [🎥 1.Watch the Demo Video](https://github.com/philsymartin/QuizMaster-with-React-Vite-Hasura-GraphQL/blob/reviewed-main/Quiz%20Master%20-%20recording%201%20for%20github.mp4)
 
