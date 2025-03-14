@@ -154,7 +154,6 @@ const QuizzesContainer = () => {
     setFilters((prev) => ({ ...prev, difficulty: value }));
   };
 
-  // Updated time range handler for the single range slider with two handles
   const handleTimeRangeChange = (min: number, max: number) => {
     setFilters((prev) => ({
       ...prev,

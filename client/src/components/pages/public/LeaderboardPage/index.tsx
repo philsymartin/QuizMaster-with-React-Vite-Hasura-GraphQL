@@ -4,6 +4,7 @@ import LoadingComponent from "@utils/LoadingSpinner";
 import { LeaderboardEntry, FilterState } from "src/types/leaderboard";
 import { StatItem } from "@components/StatItem";
 import { formatDate } from "@utils/Helpers";
+import { FaCrown } from "react-icons/fa";
 
 interface LeaderboardPageProps {
   loading: boolean;
@@ -238,7 +239,7 @@ const LeaderboardPage = ({
                                                 text-lg font-bold rounded-full bg-gradient-to-r from-purple-600 to-blue-500
                                                 text-white"
                       >
-                        {index === 0 ? "👑" : `#${index + 1}`}
+                        {index === 0 ? <FaCrown size={20} /> : `#${index + 1}`}
                       </div>
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -295,12 +296,11 @@ const LeaderboardPage = ({
                           <span
                             key={quiz}
                             className={`px-3 py-1 text-sm rounded-full
-                                                            ${
-                                                              filters.quizId ===
-                                                              quiz
-                                                                ? "bg-purple-500 text-white dark:bg-purple-600"
-                                                                : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
-                                                            }`}
+                                                            ${filters.quizId ===
+                                quiz
+                                ? "bg-purple-500 text-white dark:bg-purple-600"
+                                : "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400"
+                              }`}
                             onClick={() =>
                               filters.quizId !== quiz &&
                               updateFilters({ quizId: quiz })
