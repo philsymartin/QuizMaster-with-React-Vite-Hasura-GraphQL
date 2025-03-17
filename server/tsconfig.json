@@ -7,7 +7,9 @@
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
-      "allowJs": true
+      "allowJs": true,
+      "noImplicitAny": false,       
+      "skipDefaultLibCheck": true 
     },
     "include": [
       "src/**/*"
