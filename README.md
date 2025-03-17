@@ -67,3 +67,9 @@ The Online Quiz Platform serves as a candidate-focused alternative to traditiona
 
 ### Admin view when tracking users’ activity using Liveblocks in React:
 [🎥 2.Presence tracking using LiveBlocks](https://github.com/philsymartin/QuizMaster-with-React-Vite-Hasura-GraphQL/blob/reviewed-main/Quiz%20Master%20-%20recording%202.mp4)
+
+## Live Site hosted 
+Register yourself and interact
+[User experience ->](https://quizmaster-frontend-react-vite-client.onrender.com)
+
+
