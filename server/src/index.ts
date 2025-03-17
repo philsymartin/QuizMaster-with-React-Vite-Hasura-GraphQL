@@ -100,13 +100,13 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
     res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: ACCESS_TOKEN_MAX_AGE
     });
     res.cookie('refresh_token', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: REFRESH_TOKEN_MAX_AGE
     });
 
@@ -114,7 +114,7 @@ app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: 
         res.cookie('hasura_admin_secret', HASURA_ADMIN_SECRET, {
             httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
         });
     }
     return res.json({
@@ -170,7 +170,7 @@ app.post('/refresh-token', asyncHandler(async (req: Request, res: Response) => {
         res.cookie('access_token', newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: ACCESS_TOKEN_MAX_AGE
         });
         return res.status(200).json({
@@ -236,19 +236,19 @@ app.post('/logout', (req: Request, res: Response) => {
     res.cookie('access_token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         expires: new Date(0),
     });
     res.cookie('refresh_token', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         expires: new Date(0),
     });
     res.cookie('hasura_admin_secret', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'none',
         expires: new Date(0),
     });
     res.status(200).json({ message: 'Logout successful' });
@@ -321,7 +321,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 // Start server
 if (process.env.NODE_ENV !== 'test') {
     app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
+        // console.log(`Server running on port ${PORT}`);
     });
 }
 
