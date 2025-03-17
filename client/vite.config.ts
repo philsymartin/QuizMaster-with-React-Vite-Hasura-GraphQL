@@ -5,6 +5,7 @@ import path from 'path';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
+  base: '/',
   plugins: [
     react(),
     tailwindcss(),
