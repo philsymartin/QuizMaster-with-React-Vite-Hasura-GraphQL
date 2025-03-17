@@ -7,10 +7,13 @@ import { SentimentAnalysisRequest, FeedbackItem } from '../types/analysisTypes';
 dotenv.config();
 const router = express.Router();
 const HUGGING_FACE_API_TOKEN = process.env.HUGGING_FACE_API_TOKEN;
-const HF_SENTIMENT_API_URL = "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment";
-const HF_KEYWORD_MODEL_API_URL = "https://api-inference.huggingface.co/models/ml6team/keyphrase-extraction-kbir-inspec";
+const HF_SENTIMENT_API_URL = process.env.HF_SENTIMENT_API_URL;
+const HF_KEYWORD_MODEL_API_URL = process.env.HF_KEYWORD_MODEL_API_URL;
 if (!HUGGING_FACE_API_TOKEN) {
     console.error('HUGGING_FACE_API_TOKEN is not set');
+}
+if (!HF_SENTIMENT_API_URL || !HF_KEYWORD_MODEL_API_URL) {
+    console.error('HUGGING_FACE URL IS MISSING');
 }
 
 router.post('/sentiment', asyncHandler(async (req: Request<{}, {}, SentimentAnalysisRequest>, res: Response) => {
@@ -26,7 +29,7 @@ router.post('/sentiment', asyncHandler(async (req: Request<{}, {}, SentimentAnal
     try {
         console.log('Sending request to Hugging Face API:', { text });
         const response = await axios.post(
-            HF_SENTIMENT_API_URL,
+            HF_SENTIMENT_API_URL!,
             { inputs: text },
             {
                 headers: {
@@ -72,81 +75,6 @@ router.post('/sentiment', asyncHandler(async (req: Request<{}, {}, SentimentAnal
     }
 }));
 
-// router.post('/feedback', asyncHandler(async (req: Request<{}, {}, FeedbackAnalyticsRequest>, res: Response) => {
-//     const { quiz_id, date_from, date_to } = req.body;
-
-//     try {
-//         const feedbackResponse = await axios.post(
-//             HASURA_ENDPOINT!,
-//             {
-//                 query: `
-//                     query GetFeedback($quiz_id: Int, $date_from: timestamptz, $date_to: timestamptz) {
-//                         quiz_feedback(
-//                             where: {
-//                                 _and: [
-//                                     { quiz_id: { _eq: $quiz_id } },
-//                                     { created_at: { _gte: $date_from } },
-//                                     { created_at: { _lte: $date_to } }
-//                                 ]
-//                             }
-//                         ) {
-//                             feedback_id
-//                             feedback_text
-//                             created_at
-//                         }
-//                     }
-//                 `,
-//                 variables: { quiz_id, date_from, date_to }
-//             },
-//             {
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
-//                 }
-//             }
-//         );
-
-//         const feedbackItems = feedbackResponse.data.data.quiz_feedback;
-
-//         const sentimentAnalysis = await Promise.all(
-//             feedbackItems.map(async (item: any) => {
-//                 const response = await axios.post(
-//                     HF_SENTIMENT_API_URL,
-//                     { inputs: item.feedback_text },
-//                     {
-//                         headers: {
-//                             'Authorization': `Bearer ${HUGGING_FACE_API_TOKEN}`,
-//                             'Content-Type': 'application/json',
-//                         }
-//                     }
-//                 );
-
-//                 return {
-//                     feedback_id: item.feedback_id,
-//                     feedback_text: item.feedback_text,
-//                     sentiment: response.data[0],
-//                     created_at: item.created_at
-//                 };
-//             })
-//         );
-
-//         const summary = {
-//             total_feedback: sentimentAnalysis.length,
-//             positive_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'POSITIVE').length,
-//             negative_feedback: sentimentAnalysis.filter(item => item.sentiment.label === 'NEGATIVE').length,
-//             average_sentiment_score: sentimentAnalysis.reduce((acc, item) => acc + item.sentiment.score, 0) / sentimentAnalysis.length
-//         };
-
-//         return res.json({
-//             summary,
-//             detailed_analysis: sentimentAnalysis
-//         });
-//     } catch (error) {
-//         console.error('Error analyzing feedback:', error);
-//         return res.status(500).json({ message: 'Error analyzing feedback' });
-//     }
-// }));
-
 router.post('/keywords', asyncHandler(async (req: Request, res: Response) => {
     const { feedbackItems } = req.body as { feedbackItems: FeedbackItem[] };
 
@@ -161,7 +89,7 @@ router.post('/keywords', asyncHandler(async (req: Request, res: Response) => {
                 try {
                     console.log(`Processing text: "${item.text.substring(0, 50)}..."`);
                     const response = await axios.post(
-                        HF_KEYWORD_MODEL_API_URL,
+                        HF_KEYWORD_MODEL_API_URL!,
                         { inputs: item.text },
                         {
                             headers: {
