@@ -66,4 +66,4 @@ The Online Quiz Platform serves as a candidate-focused alternative to traditiona
 [🎥 1.Watch the Demo Video](https://github.com/philsymartin/QuizMaster-with-React-Vite-Hasura-GraphQL/blob/reviewed-main/Quiz%20Master%20-%20recording%201%20for%20github.mp4)
 
 ### Admin view when tracking users’ activity using Liveblocks in React:
-[2.Presence tracking using LiveBlocks](https://github.com/philsymartin/QuizMaster-with-React-Vite-Hasura-GraphQL/blob/reviewed-main/Quiz%20Master%20-%20recording%202.mp4)
+[🎥 2.Presence tracking using LiveBlocks](https://github.com/philsymartin/QuizMaster-with-React-Vite-Hasura-GraphQL/blob/reviewed-main/Quiz%20Master%20-%20recording%202.mp4)
