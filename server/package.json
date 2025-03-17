@@ -4,7 +4,6 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "postinstall": "npm i --save-dev @types/express @types/bcrypt @types/cors @types/cookie-parser",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "jest --config jest.config.ts",
