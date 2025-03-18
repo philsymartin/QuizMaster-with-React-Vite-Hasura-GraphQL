@@ -9,6 +9,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import ms from 'ms';
 import { HasuraClaims, HasuraResponse, LeaderboardQueryResult, LoginRequest, RegisterRequest, TimeString, User, UserResponse } from './types/indexTypes';
 import analysisRoutes from './routes/analysisApi';
+import actionRoutes from './routes/hasuraActionsApi'
 import { asyncHandler } from './middleware/asyncHandler';
 
 dotenv.config();
@@ -32,6 +33,7 @@ app.use(cors({ origin: [FRONTEND_URL, HASURA_ORIGIN], credentials: true }));
 app.use(cookieParser());
 
 app.use('/analysis', analysisRoutes);
+app.use('/actions', actionRoutes);
 
 app.post('/login', asyncHandler(async (req: Request<{}, {}, LoginRequest>, res: Response) => {
     const { email, password } = req.body;
@@ -253,65 +255,65 @@ app.post('/logout', (req: Request, res: Response) => {
     });
     res.status(200).json({ message: 'Logout successful' });
 });
-app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
-    try {
-        const response = await axios.post<HasuraResponse<LeaderboardQueryResult>>(
-            HASURA_ENDPOINT!,
-            {
-                query: `
-                    query GetLeaderboardData {
-                        users(
-                            where: {
-                                _and: [
-                                    { role: { _eq: "user" } },
-                                    { quiz_attempts: { end_time: { _is_null: false } } }  
-                                ]
-                            }
-                        ) {
-                            user_id
-                            username
-                            last_active
-                            user_performances {
-                                quiz_id
-                                total_attempts
-                                correct_answers
-                                average_score
-                                quiz {
-                                    title
-                                    total_questions
-                                }
-                            }
-                            quiz_attempts(
-                                where: { end_time: { _is_null: false } }  
-                                order_by: { score: desc } 
-                            ) {
-                                quiz_id
-                                score
-                                quiz {
-                                    title
-                                }
-                            }
-                        }
-                    }
-                `
-            },
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
-                }
-            }
-        );
-        if (response.data.errors) {
-            console.error("Hasura Error:", response.data.errors);
-            return res.status(500).json({ message: "Database error", errors: response.data.errors });
-        }
-        return res.json(response.data.data);
-    } catch (error) {
-        console.error('Error fetching leaderboard data:', error);
-        return res.status(500).json({ message: 'Error fetching leaderboard data' });
-    }
-}));
+// app.get('/leaderboard', asyncHandler(async (req: Request, res: Response) => {
+//     try {
+//         const response = await axios.post<HasuraResponse<LeaderboardQueryResult>>(
+//             HASURA_ENDPOINT!,
+//             {
+//                 query: `
+//                     query GetLeaderboardData {
+//                         users(
+//                             where: {
+//                                 _and: [
+//                                     { role: { _eq: "user" } },
+//                                     { quiz_attempts: { end_time: { _is_null: false } } }  
+//                                 ]
+//                             }
+//                         ) {
+//                             user_id
+//                             username
+//                             last_active
+//                             user_performances {
+//                                 quiz_id
+//                                 total_attempts
+//                                 correct_answers
+//                                 average_score
+//                                 quiz {
+//                                     title
+//                                     total_questions
+//                                 }
+//                             }
+//                             quiz_attempts(
+//                                 where: { end_time: { _is_null: false } }  
+//                                 order_by: { score: desc } 
+//                             ) {
+//                                 quiz_id
+//                                 score
+//                                 quiz {
+//                                     title
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 `
+//             },
+//             {
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'x-hasura-admin-secret': HASURA_ADMIN_SECRET!
+//                 }
+//             }
+//         );
+//         if (response.data.errors) {
+//             console.error("Hasura Error:", response.data.errors);
+//             return res.status(500).json({ message: "Database error", errors: response.data.errors });
+//         }
+//         return res.json(response.data.data);
+//     } catch (error) {
+//         console.error('Error fetching leaderboard data:', error);
+//         return res.status(500).json({ message: 'Error fetching leaderboard data' });
+//     }
+// }));
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     console.error(err.stack);

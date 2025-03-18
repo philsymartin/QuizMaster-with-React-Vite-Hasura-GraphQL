@@ -119,3 +119,32 @@ export const LEADERBOARD_QUERY = gql`
     }
   }
 `;
+
+export const FETCH_LEADERBOARD = gql`
+query FetchLeaderboard {
+  fetchLeaderboard {
+    users {
+      user_id
+      username
+      last_active
+      user_performances {
+        quiz_id
+        total_attempts
+        correct_answers
+        average_score
+        quiz {
+          title
+          total_questions
+        }
+      }
+      quiz_attempts {
+        quiz_id
+        score
+        quiz {
+          title
+        }
+      }
+    }
+  }
+}
+`;
