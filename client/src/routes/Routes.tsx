@@ -119,6 +119,10 @@ const RoutesComponent = () => {
             </Suspense>
           ),
         },
+        {
+          path: "*",
+          element: <ErrorPage />,
+        },
       ],
     },
     {
@@ -161,6 +165,10 @@ const RoutesComponent = () => {
               <AdminQuizManagementContainer />
             </Suspense>
           ),
+        },
+        {
+          path: "*",
+          element: <ErrorPage />,
         },
       ],
     },
