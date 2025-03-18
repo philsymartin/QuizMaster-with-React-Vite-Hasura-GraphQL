@@ -122,7 +122,6 @@ const RoutesComponent = () => {
         {
           path: "*",
           element: <ErrorPage />,
-          errorElement: <ErrorPage />,
         },
       ],
     },
@@ -170,7 +169,6 @@ const RoutesComponent = () => {
         {
           path: "*",
           element: <ErrorPage />,
-          errorElement: <ErrorPage />,
         },
       ],
     },
