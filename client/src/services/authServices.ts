@@ -1,3 +1,6 @@
+import { REGISTER_USER_MUTATION } from "@mutations/usersMutate";
+import client from "./hasuraApi";
+
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 export interface LoginResponse {
@@ -35,23 +38,22 @@ export const loginUser = async (
 
   return response.json();
 };
+  
 export const registerUser = async (
   username: string,
   email: string,
   password: string,
 ) => {
-  const response = await fetch(`${API_URL}/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ username, email, password }),
-  });
+  try {
+    const result = await client.mutate({
+      mutation: REGISTER_USER_MUTATION,
+      variables: { username, email, password },
+    });
 
-  if (!response.ok) {
-    const error = await response.json();
+    return result.data.registerUser;
+  } catch (error: any) {
     throw new Error(error.message || "Registration failed");
   }
-  return response.json();
 };
 
 export const logoutUser = async (): Promise<void> => {

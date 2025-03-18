@@ -184,6 +184,7 @@ app.post('/refresh-token', asyncHandler(async (req: Request, res: Response) => {
 }));
 
 app.post('/register', asyncHandler(async (req: Request<{}, {}, RegisterRequest>, res: Response) => {
+    console.log("Received request body:", req.body);  // Debugging
     const { username, email, password } = req.body;
 
     // Check if user already exists
@@ -211,7 +212,7 @@ app.post('/register', asyncHandler(async (req: Request<{}, {}, RegisterRequest>,
         HASURA_ENDPOINT!,
         {
             query: `
-                mutation RegisterUser($username: String!, $email: String!, $password: String!) {
+                mutation registerUser($username: String!, $email: String!, $password: String!) {
                     insert_users(objects: {username: $username, email: $email, password: $password}) {
                         returning {
                             user_id
