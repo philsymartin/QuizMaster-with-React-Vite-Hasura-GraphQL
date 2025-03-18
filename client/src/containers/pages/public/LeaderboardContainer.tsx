@@ -163,17 +163,18 @@ const LeaderboardContainer = () => {
             return b.totalQuizzes - a.totalQuizzes;
           case "score":
           default:
-            if (filters.quizId === "all") {
-              return b.averageScore - a.averageScore;
+            {
+              if (filters.quizId === "all") {
+                return b.averageScore - a.averageScore;
+              }
+              const aScore =
+                a.quizScores.find((s) => s.quizTitle === filters.quizId)?.score ||
+                0;
+              const bScore =
+                b.quizScores.find((s) => s.quizTitle === filters.quizId)?.score ||
+                0;
+              return bScore - aScore;
             }
-
-            const aScore =
-              a.quizScores.find((s) => s.quizTitle === filters.quizId)?.score ||
-              0;
-            const bScore =
-              b.quizScores.find((s) => s.quizTitle === filters.quizId)?.score ||
-              0;
-            return bScore - aScore;
         }
       });
   }, [leaderboardData, filters]);

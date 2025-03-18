@@ -130,14 +130,14 @@ const QuizDetailContent = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
   const [showAuthOptions, setShowAuthOptions] = useState(false);
+  const { loading, error, data } = useQuery<QuizDetailData>(GET_QUIZ_DETAILS, {
+    variables: quizId ? { quiz_id: parseInt(quizId) } : undefined,
+    skip: !quizId,
+  });
 
   if (!quizId) {
     return <div>Quiz not found.</div>;
   }
-
-  const { loading, error, data } = useQuery<QuizDetailData>(GET_QUIZ_DETAILS, {
-    variables: { quiz_id: parseInt(quizId) },
-  });
 
   const handleStartQuiz = () => {
     if (!user) {

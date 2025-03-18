@@ -32,21 +32,19 @@ const QuestionContent = ({
   handleAnswer: (optionId: number) => void;
 }) => (
   <div className="grid grid-cols-1 gap-4">
-    {currentQuestion.question_options?.map((option: any) => (
+    {currentQuestion.question_options?.map((option) => (
       <button
         key={option.option.option_id}
         onClick={() => handleAnswer(option.option.option_id)}
         className={`p-4 text-left rounded-xl transition-all transform hover:scale-102
-          ${
-            answers[currentQuestion.question_id] === option.option.option_id
-              ? "bg-purple-100 dark:bg-purple-900 border-purple-500"
-              : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+          ${answers[currentQuestion.question_id] === option.option.option_id
+            ? "bg-purple-100 dark:bg-purple-900 border-purple-500"
+            : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
           }
           border-2
-          ${
-            answers[currentQuestion.question_id] === option.option.option_id
-              ? "border-purple-500"
-              : "border-transparent"
+          ${answers[currentQuestion.question_id] === option.option.option_id
+            ? "border-purple-500"
+            : "border-transparent"
           }`}
       >
         {option.option.option_text}
@@ -213,11 +211,10 @@ const QuizAttemptContent = ({ quizId }: { quizId: string | undefined }) => {
             onClick={() => dispatch(previousQuestion())}
             disabled={currentQuestionIndex === 0}
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-semibold
-                ${
-                  currentQuestionIndex === 0
-                    ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
-                    : "bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500"
-                }`}
+                ${currentQuestionIndex === 0
+                ? "bg-gray-300 dark:bg-gray-700 cursor-not-allowed"
+                : "bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500"
+              }`}
           >
             <FiArrowLeft className="w-5 h-5" />
             Previous

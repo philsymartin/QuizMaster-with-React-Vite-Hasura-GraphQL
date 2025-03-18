@@ -33,7 +33,7 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
     if (!isDeleting && questionToDelete && !deleteError) {
       closeDeleteModal();
     }
-  }, [isDeleting, deleteError]);
+  }, [isDeleting, deleteError, questionToDelete]);
 
   const handleAddQuestion = () => {
     dispatch(setEditingQuestion(null));
@@ -117,22 +117,20 @@ const QuestionsTab = ({ questions }: QuestionsTabProps) => {
                 >
                   <div
                     className={`w-4 h-4 rounded-full flex items-center justify-center
-                                               ${
-                                                 qOption.is_correct
-                                                   ? "bg-green-100 dark:bg-green-900/30"
-                                                   : "bg-gray-100 dark:bg-gray-600/30"
-                                               }`}
+                                               ${qOption.is_correct
+                        ? "bg-green-100 dark:bg-green-900/30"
+                        : "bg-gray-100 dark:bg-gray-600/30"
+                      }`}
                   >
                     {qOption.is_correct && (
                       <FiCheck className="w-3 h-3 text-green-600 dark:text-green-400" />
                     )}
                   </div>
                   <span
-                    className={`${
-                      qOption.is_correct
+                    className={`${qOption.is_correct
                         ? "text-green-600 dark:text-green-400 font-medium"
                         : "text-gray-600 dark:text-gray-300"
-                    }`}
+                      }`}
                   >
                     {qOption.option.option_text}
                   </span>

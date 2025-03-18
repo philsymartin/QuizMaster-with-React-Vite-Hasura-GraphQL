@@ -56,7 +56,7 @@ const MyQuizzesPage = () => {
     useQuery<UserQuizzesData>(GET_USER_QUIZZES);
   const [addFeedback] = useMutation(ADD_QUIZ_FEEDBACK);
   const [updateSentiment] = useMutation(UPDATE_FEEDBACK_SENTIMENT);
-
+  const quizFeedbacks = useMemo(() => data?.users[0]?.quiz_feedbacks || [], [data]);
   const feedbackMap = useMemo(() => {
     if (!data?.users[0]?.quiz_feedbacks) return {};
     return data.users[0].quiz_feedbacks.reduce(
@@ -69,7 +69,7 @@ const MyQuizzesPage = () => {
       },
       {},
     );
-  }, [data?.users[0]?.quiz_feedbacks]);
+  }, [quizFeedbacks]);
 
   const performSentimentAnalysis = async (feedbackId: number, text: string) => {
     try {
@@ -306,8 +306,8 @@ const MyQuizzesPage = () => {
                         key={value}
                         onClick={() => setRating(value)}
                         className={`p-2 rounded-full transition-colors ${rating >= value
-                            ? "text-yellow-400"
-                            : "text-gray-300 dark:text-gray-600"
+                          ? "text-yellow-400"
+                          : "text-gray-300 dark:text-gray-600"
                           }`}
                       >
                         <FiStar className="w-6 h-6 fill-current" />

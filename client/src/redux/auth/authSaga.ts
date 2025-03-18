@@ -90,7 +90,7 @@ export function* handleRefreshToken() {
       yield put(logoutSuccess());
       persistor.purge();
     }
-  } catch (error) {
+  } catch {
     yield call(updateUserStatus, "inactive");
     yield put(refreshTokenFailure("Error refreshing token"));
     yield put(logoutSuccess());

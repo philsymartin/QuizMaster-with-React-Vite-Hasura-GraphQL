@@ -66,7 +66,7 @@ const quizSlice = createSlice({
       state.questions = action.payload;
       state.error = null;
     },
-    clearQuizState: (state) => {
+    clearQuizState: () => {
       return initialState;
     },
     openAddQuestionModal: (state) => {
