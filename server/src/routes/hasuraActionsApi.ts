@@ -68,8 +68,13 @@ router.post('/fetchLeaderboard', asyncHandler(async (req, res) => {
                 errors: response.data.errors
             });
         }
+        // for debugging 
+        console.log("Raw response from Hasura:", JSON.stringify(response.data));
+        const actionResponse = {
+            users: response.data.data
+        };
 
-        // Return the data in the format expected by the Hasura action
+        console.log("Response to client:", JSON.stringify(actionResponse));
         return res.json(response.data.data);
     } catch (error) {
         console.error('Error in fetchLeaderboard action:', error);
