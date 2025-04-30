@@ -1,12 +1,10 @@
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder as NodeTextDecoder } from 'util';
 
-if (typeof global.TextEncoder === "undefined") {
-    global.TextEncoder = require("util").TextEncoder;
+if (typeof global.TextEncoder === 'undefined') {
+    global.TextEncoder = TextEncoder;
 }
-if (typeof global.TextDecoder === "undefined") {
-    const { TextDecoder } = require("util");
-    global.TextDecoder = TextDecoder as unknown as {
-        new(label?: string, options?: TextDecoderOptions): TextDecoder;
-        prototype: TextDecoder;
-    };
+
+if (typeof global.TextDecoder === 'undefined') {
+    global.TextDecoder = NodeTextDecoder as unknown as typeof TextDecoder;
 }

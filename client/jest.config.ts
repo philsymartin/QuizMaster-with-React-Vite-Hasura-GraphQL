@@ -9,9 +9,9 @@ const config: Config = {
   moduleNameMapper: {
     "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
+  moduleDirectories: ["node_modules", "src"],
   setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
-  transformIgnorePatterns: ["node_modules/(?!(lucide-react)/)", 
-  ],
+  testMatch: ["<rootDir>/src/__tests__/**/*.(test|spec).(ts|tsx)"],
 };
 
 export default config;

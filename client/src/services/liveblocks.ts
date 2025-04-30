@@ -1,7 +1,7 @@
-import { createClient } from '@liveblocks/client';
-import { createRoomContext } from '@liveblocks/react';
-import type { User, LiveObject } from '@liveblocks/client';
-import { useCallback } from 'react';
+import { createClient } from "@liveblocks/client";
+import { createRoomContext } from "@liveblocks/react";
+import type { User, LiveObject } from "@liveblocks/client";
+import { useCallback } from "react";
 
 export type Presence = {
   currentPage: string;
@@ -10,7 +10,7 @@ export type Presence = {
   userId: string;
   username: string;
   currentAction?: {
-    type: 'viewing' | 'attempting_quiz' | 'completed_quiz';
+    type: "viewing" | "attempting_quiz" | "completed_quiz";
     resourceId?: string;
     startedAt: string;
   };
@@ -35,7 +35,6 @@ export const client = createClient({
 export const {
   RoomProvider,
   useRoom,
-  useMyPresence,
   useUpdateMyPresence,
   useOthers,
   useOthersMapped,
@@ -44,14 +43,14 @@ export const {
 } = createRoomContext<Presence, Storage>(client);
 
 // Room creation helper
-export const getRoomId = (type: 'admin' | 'quiz', id?: string) => {
+export const getRoomId = (type: "admin" | "quiz", id?: string) => {
   switch (type) {
-    case 'admin':
-      return 'admin-dashboard';
-    case 'quiz':
+    case "admin":
+      return "admin-dashboard";
+    case "quiz":
       return `quiz-${id}`;
     default:
-      return 'general';
+      return "general";
   }
 };
 
@@ -59,32 +58,35 @@ export const getRoomId = (type: 'admin' | 'quiz', id?: string) => {
 export const useUserTracker = (userId: string, username: string) => {
   const updatePresence = useUpdateMyPresence();
 
-  const updateUserActivity = useCallback((
-    currentPage: string,
-    action?: Presence['currentAction']
-  ) => {
-    updatePresence({
-      currentPage,
-      isActive: true,
-      lastActiveAt: new Date().toISOString(),
-      userId,
-      username,
-      currentAction: action || {
-        type: 'viewing',
-        startedAt: new Date().toISOString(),
-      },
-    });
-  }, [updatePresence, userId, username]);
+  const updateUserActivity = useCallback(
+    (currentPage: string, action?: Presence["currentAction"]) => {
+      updatePresence({
+        currentPage,
+        isActive: true,
+        lastActiveAt: new Date().toISOString(),
+        userId,
+        username,
+        currentAction: action || {
+          type: "viewing",
+          startedAt: new Date().toISOString(),
+        },
+      });
+    },
+    [updatePresence, userId, username],
+  );
 
-  const trackQuizAttempt = useCallback((quizId: string, action: 'attempting_quiz' | 'completed_quiz') => {
-    updatePresence({
-      currentAction: {
-        type: action,
-        resourceId: quizId,
-        startedAt: new Date().toISOString(),
-      },
-    });
-  }, [updatePresence]);
+  const trackQuizAttempt = useCallback(
+    (quizId: string, action: "attempting_quiz" | "completed_quiz") => {
+      updatePresence({
+        currentAction: {
+          type: action,
+          resourceId: quizId,
+          startedAt: new Date().toISOString(),
+        },
+      });
+    },
+    [updatePresence],
+  );
 
   return {
     updateUserActivity,
@@ -97,7 +99,9 @@ export const useAdminMonitor = () => {
   const others = useOthers();
 
   const getActiveUsers = useCallback(() => {
-    return Array.from(others).filter((user: LiveblockUser) => user.presence?.isActive);
+    return Array.from(others).filter(
+      (user: LiveblockUser) => user.presence?.isActive,
+    );
   }, [others]);
 
   const getUsersByPage = useCallback(() => {
@@ -120,7 +124,7 @@ export const useAdminMonitor = () => {
   const getQuizActivity = useCallback(() => {
     return Array.from(others)
       .filter((user: LiveblockUser) =>
-        user.presence?.currentAction?.type.includes('quiz')
+        user.presence?.currentAction?.type.includes("quiz"),
       )
       .map((user: LiveblockUser) => ({
         userId: user.presence?.userId,

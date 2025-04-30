@@ -3,7 +3,6 @@ import axios from 'axios';
 import bcrypt from 'bcrypt';
 import app from '..';
 
-// Mock axios to avoid making actual HTTP requests
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -11,10 +10,7 @@ describe('Auth Routes', () => {
     let mockUser: any;
 
     beforeEach(() => {
-        // Reset all mocks before each test
         jest.clearAllMocks();
-
-        // Setup default axios mock response
         mockedAxios.post.mockImplementation(async (url: string, requestData: any) => {
             // For user lookup
             if (requestData.query && requestData.query.includes('GetUserByEmail')) {
